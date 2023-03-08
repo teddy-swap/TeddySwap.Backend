@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using TeddySwap.Common.Services;
 using TeddySwap.Sink.Api.Models;
 using TeddySwap.Sink.Api.Services;
 using TeddySwap.Sink.Data;
@@ -31,6 +32,8 @@ builder.Services.Configure<TeddySwapITNRewardSettings>(options => builder.Config
 builder.Services.AddControllers();
 builder.Services.AddScoped<LeaderboardService>();
 builder.Services.AddScoped<AssetService>();
+builder.Services.AddScoped<OutputService>();
+builder.Services.AddSingleton<ByteArrayService>();
 builder.Services.AddApiVersioning(options => options.AssumeDefaultVersionWhenUnspecified = true).AddMvc();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

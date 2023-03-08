@@ -10,6 +10,7 @@ using TeddySwap.Common.Models.Request;
 using TeddySwap.Common.Models.Response;
 using TeddySwap.Sink.Api.Models;
 using TeddySwap.Sink.Data;
+using TeddySwap.Common.Services;
 
 namespace TeddySwap.Sink.Api.Services;
 
@@ -18,41 +19,18 @@ public class AssetService
     private readonly ILogger<AssetService> _logger;
     private readonly CardanoDbSyncContext _dbContext;
     private readonly TeddySwapITNRewardSettings _settings;
+    private readonly ByteArrayService _byteArrayService;
 
     public AssetService(
         ILogger<AssetService> logger,
         CardanoDbSyncContext dbContext,
-        IOptions<TeddySwapITNRewardSettings> settings)
+        IOptions<TeddySwapITNRewardSettings> settings,
+        ByteArrayService byteArrayService)
     {
         _logger = logger;
         _dbContext = dbContext;
         _settings = settings.Value;
-    }
-
-    public byte[] HexToByteArray(string hex)
-    {
-        if (hex.Length % 2 == 1)
-            throw new Exception("The binary key cannot have an odd number of digits");
-
-        byte[] arr = new byte[hex.Length >> 1];
-
-        for (int i = 0; i < hex.Length >> 1; ++i)
-        {
-            arr[i] = (byte)((GetHexVal(hex[i << 1]) << 4) + GetHexVal(hex[(i << 1) + 1]));
-        }
-
-        return arr;
-    }
-
-    public int GetHexVal(char hex)
-    {
-        int val = (int)hex;
-        //For uppercase A-F letters:
-        //return val - (val < 58 ? 48 : 55);
-        //For lowercase a-f letters:
-        //return val - (val < 58 ? 48 : 87);
-        //Or the two combined, but a bit slower:
-        return val - (val < 58 ? 48 : (val < 97 ? 55 : 87));
+        _byteArrayService = byteArrayService;
     }
 
     public async Task<PaginatedAssetResponse> GetAssetsAsync(string policyId, string bech32Address, int offset, int limit, bool includeMetadata)
@@ -63,7 +41,7 @@ public class AssetService
             .Select(o => o.Id)
             .ToListAsync();
 
-        var policyBytes = HexToByteArray(policyId);
+        var policyBytes = _byteArrayService.HexToByteArray(policyId);
 
         var assets = await _dbContext.MaTxOuts
             .Where(maTxOut => maTxOut.IdentNavigation.Policy.SequenceEqual(policyBytes) && unspentTxOuts.Contains(maTxOut.TxOutId))
