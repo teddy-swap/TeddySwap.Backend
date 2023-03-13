@@ -413,7 +413,9 @@ public class LeaderboardService
 
     private async Task<int> GetTotalUsers()
     {
-        int totalUsers = await _dbContext.Orders.Select(o => o.UserAddress)
+        int totalUsers = await _dbContext.Orders
+            .Where(o => o.Slot <= _settings.ItnEndSlot)
+            .Select(o => o.UserAddress)
             .Distinct()
             .Where(ua => !_dbContext.BlacklistedAddresses.Select(ba => ba.Address).Contains(ua))
             .CountAsync();
@@ -436,6 +438,7 @@ public class LeaderboardService
     private async Task<int> GetTotalBadgers()
     {
         int totalBadgers = await _dbContext.Orders
+            .Where(o => o.Slot <= _settings.ItnEndSlot)
             .Select(o => o.BatcherAddress)
             .Where(ba => ba != null)
             .Distinct()
