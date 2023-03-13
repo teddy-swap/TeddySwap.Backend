@@ -53,11 +53,11 @@ public class LeaderboardService
                 Redeem = g.Count(o => o.OrderType == OrderType.Redeem),
                 Swap = g.Count(o => o.OrderType == OrderType.Swap),
             })
-            .Where(u => u.Total > 0);
+            .Where(u => u.Total > 0)
+            .OrderByDescending(u => u.Total)
+            .ThenBy(u => u.TestnetAddress);
 
         var paginatedUsersQuery = usersQuery
-            .OrderByDescending(u => u.Total)
-            .ThenBy(u => u.TestnetAddress)
             .Skip(offset)
             .Take(limit);
 
@@ -77,11 +77,8 @@ public class LeaderboardService
                     x.Entry.Swap,
                 });
 
-        int totalUsers = await _dbContext.Orders.Select(o => o.UserAddress)
-            .Distinct()
-            .Where(ua => !_dbContext.BlacklistedAddresses.Select(ba => ba.Address).Contains(ua))
-            .CountAsync();
-        decimal totalPoints = await usersQuery.SumAsync(u => u.Total);
+        decimal totalPoints = await GetTotalUserPoints();
+        int totalUsers = await GetTotalUsers();
         int reward = GetRewardAmount(LeaderBoardType.Users);
 
         List<LeaderBoardResponse> users = (await usersWithMainnetAddress.ToListAsync())
@@ -140,13 +137,8 @@ public class LeaderboardService
                     x.Entry.Total,
                 });
 
-        int totalBadgers = await _dbContext.Orders
-            .Select(o => o.BatcherAddress)
-            .Where(ba => ba != null)
-            .Distinct()
-            .Where(ba => !_dbContext.BlacklistedAddresses.Select(ta => ta.Address).Contains(ba))
-            .CountAsync();
-        decimal totalPoints = await badgersQuery.SumAsync(u => u.Total);
+        decimal totalPoints = await GetTotalBadgerPoints();
+        int totalBadgers = await GetTotalBadgers();
         int reward = GetRewardAmount(LeaderBoardType.Badgers);
 
         List<LeaderBoardResponse> users = (await badgersWithMainnetAddress.ToListAsync())
@@ -226,13 +218,10 @@ public class LeaderboardService
                     x.Entry.Rank
                 });
 
-        int totalUsers = await _dbContext.Orders.Select(o => o.UserAddress)
-            .Distinct()
-            .Where(ua => !_dbContext.BlacklistedAddresses.Select(ba => ba.Address).Contains(ua))
-            .CountAsync();
-        decimal totalPoints = await usersQuery.SumAsync(u => u.Total);
-        var user = await userWithMainnetAddress.FirstOrDefaultAsync();
+        decimal totalPoints = await GetTotalUserPoints();
+        int totalUsers = await GetTotalUsers();
         int reward = GetRewardAmount(LeaderBoardType.Users);
+        var user = await userWithMainnetAddress.FirstOrDefaultAsync();
 
         if (user is null) return null;
 
@@ -303,16 +292,10 @@ public class LeaderboardService
                     x.Entry.Rank
                 });
 
-        int totalBadgers = await _dbContext.Orders
-            .Select(o => o.BatcherAddress)
-            .Where(ba => ba != null)
-            .Distinct()
-            .Where(ba => !_dbContext.BlacklistedAddresses.Select(ta => ta.Address).Contains(ba))
-            .CountAsync();
-
-        decimal totalPoints = await badgersQuery.SumAsync(u => u.Total);
-        var badger = await badgersWithMainnetAddress.FirstOrDefaultAsync();
+        decimal totalPoints = await GetTotalBadgerPoints();
+        int totalBadgers = await GetTotalBadgers();
         int reward = GetRewardAmount(LeaderBoardType.Badgers);
+        var badger = await badgersWithMainnetAddress.FirstOrDefaultAsync();
 
         if (badger is null) return null;
 
@@ -374,12 +357,10 @@ public class LeaderboardService
                     x.Entry.Swap,
                 });
 
-        int totalUsers = await _dbContext.Orders.Select(o => o.UserAddress)
-            .Distinct()
-            .Where(ua => !_dbContext.BlacklistedAddresses.Select(ba => ba.Address).Contains(ua))
-            .CountAsync();
-        decimal totalPoints = await usersQuery.SumAsync(u => u.Total);
+        decimal totalPoints = await GetTotalUserPoints();
+        int totalUsers = await GetTotalUsers();
         int reward = GetRewardAmount(LeaderBoardType.Users);
+
         List<LeaderBoardResponse> users = (await usersWithMainnetAddress.ToListAsync())
             .Select(u => new LeaderBoardResponse
             {
@@ -418,5 +399,52 @@ public class LeaderboardService
             TotalAmount = (int)totalPoints,
             TotalCount = totalUsers
         };
+    }
+
+    private async Task<decimal> GetTotalUserPoints()
+    {
+        decimal totalPoints = await _dbContext.Orders
+            .Where(o => !_dbContext.BlacklistedAddresses.Any(b => b.Address == o.UserAddress))
+            .Where(o => o.Slot <= _settings.ItnEndSlot)
+            .CountAsync();
+
+        return totalPoints;
+    }
+
+    private async Task<int> GetTotalUsers()
+    {
+        int totalUsers = await _dbContext.Orders
+            .Where(o => o.Slot <= _settings.ItnEndSlot)
+            .Select(o => o.UserAddress)
+            .Distinct()
+            .Where(ua => !_dbContext.BlacklistedAddresses.Select(ba => ba.Address).Contains(ua))
+            .CountAsync();
+
+        return totalUsers;
+    }
+
+    private async Task<decimal> GetTotalBadgerPoints()
+    {
+
+        decimal totalPoints = await _dbContext.Orders
+            .Where(b => b.BatcherAddress != null)
+            .Where(o => !_dbContext.BlacklistedAddresses.Any(b => b.Address == o.BatcherAddress))
+            .Where(o => o.Slot <= _settings.ItnEndSlot)
+            .CountAsync();
+
+        return totalPoints;
+    }
+
+    private async Task<int> GetTotalBadgers()
+    {
+        int totalBadgers = await _dbContext.Orders
+            .Where(o => o.Slot <= _settings.ItnEndSlot)
+            .Select(o => o.BatcherAddress)
+            .Where(ba => ba != null)
+            .Distinct()
+            .Where(ba => !_dbContext.BlacklistedAddresses.Select(ta => ta.Address).Contains(ba))
+            .CountAsync();
+
+        return totalBadgers;
     }
 }
