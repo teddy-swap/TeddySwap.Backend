@@ -406,7 +406,7 @@ public class LeaderboardService
     {
         return await _memoryCache.GetOrCreateAsync<(int, decimal)>("BadgerTotals", async entry =>
         {
-            entry.SetAbsoluteExpiration(TimeSpan.FromSeconds(20));
+            entry.SetAbsoluteExpiration(TimeSpan.FromSeconds(120));
 
             var totalBadgers = await _dbContext.Orders
                 .Where(o => o.Slot <= _settings.ItnEndSlot)
@@ -429,7 +429,7 @@ public class LeaderboardService
     {
         return await _memoryCache.GetOrCreateAsync<(int, decimal)>("UserTotals", async entry =>
         {
-            entry.SetAbsoluteExpiration(TimeSpan.FromSeconds(20));
+            entry.SetAbsoluteExpiration(TimeSpan.FromSeconds(120));
 
             var totalUsers = await _dbContext.Orders
                 .Where(o => o.Slot <= _settings.ItnEndSlot)
