@@ -1,6 +1,6 @@
 namespace TeddySwap.Common.Models;
 
-public partial record TxOutputBase
+public partial record TxOutput
 {
     public string TxHash { get; init; } = string.Empty;
     public ulong TxIndex { get; init; }
