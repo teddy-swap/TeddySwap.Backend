@@ -24,59 +24,25 @@ public class TxInputReducer : OuraReducerBase, IOuraCoreReducer
         if (txInput is not null &&
             txInput.TxHash is not null &&
             txInput.Context is not null &&
-            txInput.Context.TxHash is not null)
+            txInput.Context.TxHash is not null &&
+            txInput.Context.BlockHash is not null)
         {
             using TeddySwapSinkCoreDbContext _dbContext = await _dbContextFactory.CreateDbContextAsync();
-            Transaction? tx = await _dbContext.Transactions
-                .Include(tx => tx.Block)
-                .Where(tx => tx.Hash == txInput.TxHash)
-                .FirstOrDefaultAsync();
-            if (tx is not null)
+
+            await _dbContext.TxInputs.AddAsync(new()
             {
-                TxOutput? txOutput = await _dbContext.TxOutputs
-                    .Where(txOutput => txOutput.TxHash == txInput.TxHash && txOutput.Index == txInput.Index)
-                    .FirstOrDefaultAsync();
-                if (txOutput is not null)
-                {
-                    TxInput? input = await _dbContext.TxInputs
-                        .Where(i => i.TxHash == txOutput.TxHash && i.TxOutputIndex == txOutput.Index)
-                        .FirstOrDefaultAsync();
+                TxHash = txInput.TxHash,
+                TxOutputHash = txInput.TxHash,
+                TxOutputIndex = txInput.Index,
+                Blockhash = txInput.Context.BlockHash
+            });
 
-                    if (input is null)
-                    {
-                        await _dbContext.TxInputs.AddAsync(new()
-                        {
-                            TxHash = txInput.TxHash,
-                            Transaction = tx,
-                            TxOutputHash = txInput.TxHash,
-                            TxOutputIndex = txInput.Index,
-                            TxOutput = txOutput
-                        });
-
-                    }
-                    await _dbContext.SaveChangesAsync();
-                }
-                else
-                {
-                    await _dbContext.TxInputs.AddAsync(new()
-                    {
-                        TxHash = txInput.Context.TxHash,
-                        Transaction = tx,
-                        // GENESIS TX HACK
-                        TxOutput = new TxOutput
-                        {
-                            Transaction = new Transaction
-                            {
-                                Hash = $"GENESIS_{tx.Hash}_{txInput.Fingerprint}",
-                                Block = tx.Block
-                            },
-                            Address = "GENESIS"
-                        }
-                    });
-                }
-            }
+            await _dbContext.SaveChangesAsync();
         }
     }
 
-    public async Task RollbackAsync(Block _) => await Task.CompletedTask;
+    public async Task RollbackAsync(Block _)
+    {
+        // @TODO: Implement Rollback
+    }
 }

@@ -21,27 +21,28 @@ public class AssetReducer : OuraReducerBase
 
     public async Task ReduceAsync(OuraAssetEvent asset)
     {
-        if (asset.TxHash is not null && asset.OutputIndex is not null)
+        if (asset.TxHash is not null &&
+            asset.OutputIndex is not null &&
+            asset.Context is not null &&
+            asset.Context.BlockHash is not null)
         {
-
             using TeddySwapSinkCoreDbContext _dbContext = await _dbContextFactory.CreateDbContextAsync();
-
-            TxOutput? existingOutput = await _dbContext.TxOutputs
-                .Where(o => o.TxHash == asset.TxHash && o.Index == asset.OutputIndex)
-                .FirstOrDefaultAsync();
-
-            if (existingOutput is null) return;
 
             await _dbContext.Assets.AddAsync(new Asset
             {
                 PolicyId = asset.PolicyId ?? string.Empty,
                 Name = asset.TokenName ?? string.Empty,
                 Amount = asset.Amount,
-                TxOutput = existingOutput
+                TxOutputHash = asset.TxHash,
+                TxOutputIndex = (ulong)asset.OutputIndex,
+                BlockHash = asset.Context.BlockHash
             });
 
             await _dbContext.SaveChangesAsync();
         }
     }
-    public async Task RollbackAsync(Block _) => await Task.CompletedTask;
+    public async Task RollbackAsync(Block _)
+    {
+        // @TODO: Implement rollback
+    }
 }

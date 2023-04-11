@@ -1,4 +1,3 @@
-
 using System.Text;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
@@ -87,5 +86,4 @@ public class MetadataService
         }
         return assets;
     }
-
 }

@@ -8,4 +8,5 @@ public record Transaction
     public string Blockhash { get; init; } = string.Empty;
     public bool HasCollateralOutput { get; init; }
     public string? Metadata { get; init; }
+    public bool IsValid { get; init; }
 }

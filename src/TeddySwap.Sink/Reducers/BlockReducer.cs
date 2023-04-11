@@ -60,6 +60,7 @@ public class BlockReducer : OuraReducerBase, IOuraCoreReducer
                 Epoch = _cardanoService.CalculateEpochBySlot((ulong)blockEvent.Context.Slot),
                 InvalidTransactions = blockEvent.Block.InvalidTransactions
             });
+
             await _dbContext.SaveChangesAsync();
             await _dbContext.DisposeAsync();
         }

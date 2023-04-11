@@ -51,15 +51,7 @@ public class FisoBonusDelegationReducer : OuraReducerBase
 
             using TeddySwapFisoSinkDbContext _dbContext = await _dbContextFactory.CreateDbContextAsync();
 
-            Transaction? transaction = await _dbContext.Transactions
-                .Include(t => t.Block)
-                .Where(t => t.Hash == stakeDelegationEvent.Context.TxHash)
-                .FirstOrDefaultAsync();
-
-            if (transaction is null) throw new NullReferenceException("Transaction does not exist!");
-
-            if (transaction.Block.InvalidTransactions is not null &&
-                transaction.Block.InvalidTransactions.Contains(transaction.Index)) return;
+            if (_cardanoService.IsInvalidTransaction(stakeDelegationEvent.Context.InvalidTransactions, (ulong)stakeDelegationEvent.Context.TxIdx)) return;
 
             string? stakeAddress = _cardanoService.GetStakeAddressFromEvent(stakeDelegationEvent);
 

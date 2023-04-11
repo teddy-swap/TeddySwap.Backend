@@ -20,39 +20,41 @@ public class MintTransactionReducer : OuraReducerBase
     private readonly TeddySwapSinkSettings _settings;
     private readonly ByteArrayService _byteArrayService;
     private readonly MetadataService _metadataService;
+    private readonly CardanoService _cardanoService;
 
     public MintTransactionReducer(
         ILogger<MintTransactionReducer> logger,
         IDbContextFactory<TeddySwapNftSinkDbContext> dbContextFactory,
         IOptions<TeddySwapSinkSettings> settings,
         ByteArrayService byteArrayService,
-        MetadataService metadataService)
+        MetadataService metadataService,
+        CardanoService cardanoService)
     {
         _logger = logger;
         _dbContextFactory = dbContextFactory;
         _settings = settings.Value;
         _byteArrayService = byteArrayService;
         _metadataService = metadataService;
+        _cardanoService = cardanoService;
     }
 
     public async Task ReduceAsync(OuraTransaction transaction)
     {
         if (transaction is not null &&
-            transaction.Context is not null &&
+            transaction.Hash is not null &&
             transaction.Fee is not null &&
             transaction.Metadata is not null &&
             transaction.Mint is not null &&
-            transaction.Mint.Any())
+            transaction.Mint.Any() &&
+            transaction.Context is not null &&
+            transaction.Context.BlockHash is not null &&
+            transaction.Context.Slot is not null)
         {
-            // skip invalid transactions
             if (transaction.Context.InvalidTransactions is not null && transaction.Context.InvalidTransactions.ToList().Contains((ulong)transaction.Index)) return;
 
             using TeddySwapNftSinkDbContext _dbContext = await _dbContextFactory.CreateDbContextAsync();
-            Transaction? existingTransaction = await _dbContext.Transactions
-                .Where(t => t.Hash == transaction.Hash)
-                .FirstOrDefaultAsync();
 
-            if (existingTransaction is null) return;
+            if (_cardanoService.IsInvalidTransaction(transaction.Context.InvalidTransactions, (ulong)transaction.Index)) return;
 
             List<AssetClass> assetWithMetada = _metadataService.FindAssets(transaction, _settings.NftPolicyIds.ToList());
 
@@ -62,32 +64,21 @@ public class MintTransactionReducer : OuraReducerBase
                     string.IsNullOrEmpty(asset.Asset) ||
                     !_settings.NftPolicyIds.ToList().Contains(asset.Policy)) continue;
 
-                MintTransaction? mintTransaction = await _dbContext.MintTransactions
-                    .Where(mtx => mtx.PolicyId == asset.Policy.ToLower() && mtx.TokenName == asset.Asset.ToLower())
-                    .FirstOrDefaultAsync();
-
                 string? metadata = assetWithMetada
                     .Where(awm => awm.PolicyId == asset.Policy && (awm.Name == asset.Asset || awm.AsciiName == asset.Asset))
                     .Select(a => a.Metadata)
                     .FirstOrDefault();
 
-                if (mintTransaction is null)
+                await _dbContext.MintTransactions.AddAsync(new()
                 {
-                    await _dbContext.MintTransactions.AddAsync(new()
-                    {
-                        PolicyId = asset.Policy.ToLower(),
-                        TokenName = asset.Asset.ToLower(),
-                        AsciiTokenName = Encoding.ASCII.GetString(Convert.FromHexString(asset.Asset).Where(b => b < 128 && b != 0x00).ToArray()),
-                        Metadata = metadata,
-                        Transaction = existingTransaction
-                    });
-                }
-                else
-                {
-                    mintTransaction.Transaction = existingTransaction;
-                    mintTransaction.Metadata = metadata;
-                    _dbContext.MintTransactions.Update(mintTransaction);
-                }
+                    PolicyId = asset.Policy.ToLower(),
+                    TokenName = asset.Asset.ToLower(),
+                    AsciiTokenName = Encoding.ASCII.GetString(Convert.FromHexString(asset.Asset).Where(b => b < 128 && b != 0x00).ToArray()),
+                    Metadata = metadata,
+                    TxHash = transaction.Hash,
+                    BlockHash = transaction.Context.BlockHash,
+                    Slot = (ulong)transaction.Context.Slot
+                });
             }
 
             await _dbContext.SaveChangesAsync();
@@ -96,27 +87,13 @@ public class MintTransactionReducer : OuraReducerBase
 
     public async Task RollbackAsync(Block rollbackBlock)
     {
-        if (rollbackBlock is not null)
-        {
-            using TeddySwapNftSinkDbContext? _dbContext = await _dbContextFactory.CreateDbContextAsync();
-            List<Transaction>? transactions = await _dbContext.Transactions
-                .Where(t => t.Block == rollbackBlock)
-                .ToListAsync();
+        using TeddySwapNftSinkDbContext? _dbContext = await _dbContextFactory.CreateDbContextAsync();
 
-            if (transactions is not null)
-            {
-                List<MintTransaction>? mintTransactions = await _dbContext.MintTransactions
-                    .Include(mtx => mtx.Transaction)
-                    .Where(mtx => transactions.Contains(mtx.Transaction))
-                    .ToListAsync();
+        List<MintTransaction> mintTransactions = await _dbContext.MintTransactions
+            .Where(mtx => mtx.BlockHash == rollbackBlock.BlockHash)
+            .ToListAsync();
 
-                if (mintTransactions is not null)
-                {
-                    _dbContext.RemoveRange(mintTransactions);
-                }
-            }
-
-            await _dbContext.SaveChangesAsync();
-        }
+        _dbContext.MintTransactions.RemoveRange(mintTransactions);
+        await _dbContext.SaveChangesAsync();
     }
 }

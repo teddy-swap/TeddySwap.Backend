@@ -9,5 +9,6 @@ public class MintTransaction
     public string TokenName { get; init; } = string.Empty;
     public string AsciiTokenName { get; init; } = string.Empty;
     public string? Metadata { get; set; }
+    public ulong Slot { get; init; }
     public string BlockHash { get; init; } = string.Empty;
 }
