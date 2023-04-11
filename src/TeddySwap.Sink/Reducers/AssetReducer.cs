@@ -9,13 +9,9 @@ namespace TeddySwap.Sink.Reducers;
 [OuraReducer(OuraVariant.TxOutput)]
 public class AssetReducer : OuraReducerBase
 {
-    private readonly ILogger<AssetReducer> _logger;
-    private IDbContextFactory<TeddySwapSinkCoreDbContext> _dbContextFactory;
-    public AssetReducer(
-        ILogger<AssetReducer> logger,
-        IDbContextFactory<TeddySwapSinkCoreDbContext> dbContextFactory)
+    private readonly IDbContextFactory<TeddySwapSinkCoreDbContext> _dbContextFactory;
+    public AssetReducer(IDbContextFactory<TeddySwapSinkCoreDbContext> dbContextFactory)
     {
-        _logger = logger;
         _dbContextFactory = dbContextFactory;
     }
 
@@ -41,8 +37,15 @@ public class AssetReducer : OuraReducerBase
             await _dbContext.SaveChangesAsync();
         }
     }
-    public async Task RollbackAsync(Block _)
+    public async Task RollbackAsync(Block rollbackBlock)
     {
-        // @TODO: Implement rollback
+        using TeddySwapSinkCoreDbContext _dbContext = await _dbContextFactory.CreateDbContextAsync();
+
+        var assets = await _dbContext.Assets
+            .Where(a => a.BlockHash == rollbackBlock.BlockHash)
+            .ToListAsync();
+
+        _dbContext.Assets.RemoveRange(assets);
+        await _dbContext.SaveChangesAsync();
     }
 }

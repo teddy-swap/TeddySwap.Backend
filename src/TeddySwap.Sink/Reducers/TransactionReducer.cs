@@ -90,6 +90,13 @@ public class TransactionReducer : OuraReducerBase, IOuraCoreReducer
     }
     public async Task RollbackAsync(Block rollbackBlock)
     {
-        // @TODO: Implement rollback
+        using TeddySwapSinkCoreDbContext _dbContext = await _dbContextFactory.CreateDbContextAsync();
+
+        var transactions = await _dbContext.Transactions
+            .Where(t => t.Blockhash == rollbackBlock.BlockHash)
+            .ToListAsync();
+
+        _dbContext.Transactions.RemoveRange(transactions);
+        await _dbContext.SaveChangesAsync();
     }
 }

@@ -41,8 +41,15 @@ public class TxInputReducer : OuraReducerBase, IOuraCoreReducer
         }
     }
 
-    public async Task RollbackAsync(Block _)
+    public async Task RollbackAsync(Block rollbackBlock)
     {
-        // @TODO: Implement Rollback
+        using TeddySwapSinkCoreDbContext _dbContext = await _dbContextFactory.CreateDbContextAsync();
+
+        var inputs = await _dbContext.TxInputs
+            .Where(i => i.Blockhash == rollbackBlock.BlockHash)
+            .ToListAsync();
+
+        _dbContext.TxInputs.RemoveRange(inputs);
+        await _dbContext.SaveChangesAsync();
     }
 }
