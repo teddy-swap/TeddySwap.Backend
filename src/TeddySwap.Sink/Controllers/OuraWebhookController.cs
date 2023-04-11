@@ -233,7 +233,9 @@ public class OuraWebhookController : ControllerBase
                 PolicyId = a.Policy ?? "",
                 TokenName = a.Asset ?? "",
                 Amount = a.Amount is not null ? (ulong)a.Amount : 0,
-                Context = o.Context
+                Context = o.Context,
+                TxHash = o.TxHash,
+                OutputIndex = o.OutputIndex
             }))
             .ToList();
 

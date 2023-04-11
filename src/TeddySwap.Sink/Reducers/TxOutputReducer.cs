@@ -53,23 +53,8 @@ public class TxOutputReducer : OuraReducerBase, IOuraCoreReducer
                     Transaction = tx
                 };
 
-                EntityEntry<TxOutput> insertResult = await _dbContext.TxOutputs.AddAsync(newTxOutput);
+                await _dbContext.TxOutputs.AddAsync(newTxOutput);
                 await _dbContext.SaveChangesAsync();
-
-                if (txOutput.Assets is not null && txOutput.Assets.Any())
-                {
-                    await _dbContext.AddRangeAsync(txOutput.Assets.Select(ouraAsset =>
-                    {
-                        return new Asset
-                        {
-                            PolicyId = ouraAsset.Policy ?? string.Empty,
-                            Name = ouraAsset.Asset ?? string.Empty,
-                            Amount = ouraAsset.Amount ?? 0,
-                            TxOutput = insertResult.Entity
-                        };
-                    }));
-                    await _dbContext.SaveChangesAsync();
-                }
             }
         }
     }

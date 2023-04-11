@@ -7,24 +7,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TeddySwap.Sink.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class UpdateMetadataType : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "BalanceByStakeEpoch",
-                columns: table => new
-                {
-                    StakeAddress = table.Column<string>(type: "text", nullable: false),
-                    Epoch = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
-                    Balance = table.Column<decimal>(type: "numeric(20,0)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_BalanceByStakeEpoch", x => new { x.StakeAddress, x.Epoch });
-                });
-
             migrationBuilder.CreateTable(
                 name: "Blocks",
                 columns: table => new
@@ -46,13 +33,34 @@ namespace TeddySwap.Sink.Data.Migrations
                 name: "FisoBonusDelegations",
                 columns: table => new
                 {
-                    EpochNumber = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
+                    TxHash = table.Column<string>(type: "text", nullable: false),
+                    Slot = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
                     StakeAddress = table.Column<string>(type: "text", nullable: false),
+                    EpochNumber = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
+                    BlockNumber = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
                     PoolId = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_FisoBonusDelegations", x => new { x.EpochNumber, x.PoolId, x.StakeAddress });
+                    table.PrimaryKey("PK_FisoBonusDelegations", x => new { x.StakeAddress, x.TxHash, x.Slot });
+                });
+
+            migrationBuilder.CreateTable(
+                name: "FisoDelegations",
+                columns: table => new
+                {
+                    TxHash = table.Column<string>(type: "text", nullable: false),
+                    Slot = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
+                    StakeAddress = table.Column<string>(type: "text", nullable: false),
+                    EpochNumber = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
+                    BlockNumber = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
+                    FromPoolId = table.Column<string>(type: "text", nullable: true),
+                    ToPoolId = table.Column<string>(type: "text", nullable: false),
+                    LiveStake = table.Column<decimal>(type: "numeric(20,0)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FisoDelegations", x => new { x.StakeAddress, x.TxHash, x.Slot });
                 });
 
             migrationBuilder.CreateTable(
@@ -62,7 +70,6 @@ namespace TeddySwap.Sink.Data.Migrations
                     StakeAddress = table.Column<string>(type: "text", nullable: false),
                     PoolId = table.Column<string>(type: "text", nullable: false),
                     Epoch = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
-                    HasBonus = table.Column<bool>(type: "boolean", nullable: false),
                     StakeAmount = table.Column<decimal>(type: "numeric(20,0)", nullable: false)
                 },
                 constraints: table =>
@@ -79,9 +86,7 @@ namespace TeddySwap.Sink.Data.Migrations
                     PoolId = table.Column<string>(type: "text", nullable: false),
                     StakeAmount = table.Column<BigInteger>(type: "numeric", nullable: false),
                     SharePercentage = table.Column<decimal>(type: "numeric", nullable: false),
-                    ShareAmount = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
-                    HasBonus = table.Column<bool>(type: "boolean", nullable: false),
-                    BonusAmount = table.Column<decimal>(type: "numeric(20,0)", nullable: false)
+                    ShareAmount = table.Column<decimal>(type: "numeric(20,0)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -99,19 +104,6 @@ namespace TeddySwap.Sink.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_FisoPoolActiveStakes", x => new { x.EpochNumber, x.PoolId });
-                });
-
-            migrationBuilder.CreateTable(
-                name: "WithdrawalByStakeEpoch",
-                columns: table => new
-                {
-                    StakeAddress = table.Column<string>(type: "text", nullable: false),
-                    Epoch = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
-                    Amount = table.Column<decimal>(type: "numeric(20,0)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_WithdrawalByStakeEpoch", x => new { x.StakeAddress, x.Epoch });
                 });
 
             migrationBuilder.CreateTable(
@@ -137,6 +129,46 @@ namespace TeddySwap.Sink.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "CollateralTxIns",
+                columns: table => new
+                {
+                    TxHash = table.Column<string>(type: "text", nullable: false),
+                    TxOutputHash = table.Column<string>(type: "text", nullable: false),
+                    TxOutputIndex = table.Column<decimal>(type: "numeric(20,0)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CollateralTxIns", x => new { x.TxHash, x.TxOutputHash, x.TxOutputIndex });
+                    table.ForeignKey(
+                        name: "FK_CollateralTxIns_Transactions_TxHash",
+                        column: x => x.TxHash,
+                        principalTable: "Transactions",
+                        principalColumn: "Hash",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CollateralTxOuts",
+                columns: table => new
+                {
+                    TxHash = table.Column<string>(type: "text", nullable: false),
+                    Address = table.Column<string>(type: "text", nullable: false),
+                    TxIndex = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
+                    Index = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
+                    Amount = table.Column<decimal>(type: "numeric(20,0)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CollateralTxOuts", x => new { x.Address, x.TxHash });
+                    table.ForeignKey(
+                        name: "FK_CollateralTxOuts_Transactions_TxHash",
+                        column: x => x.TxHash,
+                        principalTable: "Transactions",
+                        principalColumn: "Hash",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "TxOutputs",
                 columns: table => new
                 {
@@ -152,25 +184,6 @@ namespace TeddySwap.Sink.Data.Migrations
                     table.PrimaryKey("PK_TxOutputs", x => new { x.TxHash, x.Index });
                     table.ForeignKey(
                         name: "FK_TxOutputs_Transactions_TxHash",
-                        column: x => x.TxHash,
-                        principalTable: "Transactions",
-                        principalColumn: "Hash",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Withdrawals",
-                columns: table => new
-                {
-                    StakeAddress = table.Column<string>(type: "text", nullable: false),
-                    TxHash = table.Column<string>(type: "text", nullable: false),
-                    Amount = table.Column<decimal>(type: "numeric(20,0)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Withdrawals", x => new { x.TxHash, x.StakeAddress });
-                    table.ForeignKey(
-                        name: "FK_Withdrawals_Transactions_TxHash",
                         column: x => x.TxHash,
                         principalTable: "Transactions",
                         principalColumn: "Hash",
@@ -230,6 +243,12 @@ namespace TeddySwap.Sink.Data.Migrations
                 columns: new[] { "TxOutputHash", "TxOutputIndex" });
 
             migrationBuilder.CreateIndex(
+                name: "IX_CollateralTxOuts_TxHash",
+                table: "CollateralTxOuts",
+                column: "TxHash",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Transactions_Blockhash",
                 table: "Transactions",
                 column: "Blockhash");
@@ -247,10 +266,16 @@ namespace TeddySwap.Sink.Data.Migrations
                 name: "Assets");
 
             migrationBuilder.DropTable(
-                name: "BalanceByStakeEpoch");
+                name: "CollateralTxIns");
+
+            migrationBuilder.DropTable(
+                name: "CollateralTxOuts");
 
             migrationBuilder.DropTable(
                 name: "FisoBonusDelegations");
+
+            migrationBuilder.DropTable(
+                name: "FisoDelegations");
 
             migrationBuilder.DropTable(
                 name: "FisoDelegators");
@@ -263,12 +288,6 @@ namespace TeddySwap.Sink.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "TxInputs");
-
-            migrationBuilder.DropTable(
-                name: "WithdrawalByStakeEpoch");
-
-            migrationBuilder.DropTable(
-                name: "Withdrawals");
 
             migrationBuilder.DropTable(
                 name: "TxOutputs");

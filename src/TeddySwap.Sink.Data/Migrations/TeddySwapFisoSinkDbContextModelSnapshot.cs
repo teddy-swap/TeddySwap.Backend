@@ -257,7 +257,7 @@ namespace TeddySwap.Sink.Data.Migrations
                         .HasColumnType("numeric(20,0)");
 
                     b.Property<string>("Metadata")
-                        .HasColumnType("jsonb");
+                        .HasColumnType("text");
 
                     b.HasKey("Hash");
 
