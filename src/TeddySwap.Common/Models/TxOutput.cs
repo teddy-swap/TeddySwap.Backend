@@ -8,5 +8,5 @@ public partial record TxOutput
     public ulong Amount { get; init; }
     public string Address { get; init; } = string.Empty;
     public string? DatumCbor { get; init; }
-    public string Blockhash { get; init; } = string.Empty;
+    public string BlockHash { get; init; } = string.Empty;
 }

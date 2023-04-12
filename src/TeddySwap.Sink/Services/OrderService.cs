@@ -43,6 +43,7 @@ public class OrderService
             transaction.Inputs is not null &&
             transaction.Outputs is not null)
         {
+            // @TODO: Fix assets and outputs
             List<string> inputRefs = transaction.Inputs.Select(i => i.TxHash + i.Index).ToList();
             List<TxOutput>? inputs = await _dbContext.TxOutputs
                 .Include(o => o.Assets)

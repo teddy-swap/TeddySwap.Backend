@@ -6,38 +6,32 @@ using TeddySwap.Sink.Models.Oura;
 
 namespace TeddySwap.Sink.Reducers;
 
-[OuraReducer(OuraVariant.TxOutput)]
-public class TxOutputReducer : OuraReducerBase, IOuraCoreReducer
+[OuraReducer(OuraVariant.CollateralOutput)]
+public class CollateralTxOutReducer : OuraReducerBase
 {
     private readonly IDbContextFactory<TeddySwapSinkCoreDbContext> _dbContextFactory;
-    public TxOutputReducer(IDbContextFactory<TeddySwapSinkCoreDbContext> dbContextFactory)
+    public CollateralTxOutReducer(IDbContextFactory<TeddySwapSinkCoreDbContext> dbContextFactory)
     {
         _dbContextFactory = dbContextFactory;
     }
 
-    public async Task ReduceAsync(OuraTxOutput txOutput)
+    public async Task ReduceAsync(OuraCollateralOutput collateralOutput)
     {
-        if (txOutput is not null &&
-            txOutput.OutputIndex is not null &&
-            txOutput.Amount is not null &&
-            txOutput.Address is not null &&
-            txOutput.TxHash is not null &&
-            txOutput.Context is not null &&
-            txOutput.Context.BlockHash is not null)
+        if (collateralOutput is not null &&
+            collateralOutput.Address is not null &&
+            collateralOutput.Context is not null &&
+            collateralOutput.Context.BlockHash is not null &&
+            collateralOutput.Context.TxHash is not null)
         {
             using TeddySwapSinkCoreDbContext _dbContext = await _dbContextFactory.CreateDbContextAsync();
 
-            TxOutput newTxOutput = new()
+            await _dbContext.TxOutputs.AddAsync(new()
             {
-                Amount = (ulong)txOutput.Amount,
-                Address = txOutput.Address,
-                Index = (ulong)txOutput.OutputIndex,
-                DatumCbor = txOutput.DatumCbor,
-                TxHash = txOutput.TxHash,
-                BlockHash = txOutput.Context.BlockHash
-            };
-
-            await _dbContext.TxOutputs.AddAsync(newTxOutput);
+                Address = collateralOutput.Address,
+                Amount = collateralOutput.Amount,
+                TxHash = collateralOutput.Context.TxHash,
+                BlockHash = collateralOutput.Context.BlockHash
+            });
             await _dbContext.SaveChangesAsync();
         }
     }

@@ -40,7 +40,7 @@ public class TransactionReducer : OuraReducerBase, IOuraCoreReducer
                 Hash = transaction.Hash,
                 Fee = (ulong)transaction.Fee,
                 Index = (ulong)transaction.Index,
-                Blockhash = transaction.Context.BlockHash,
+                BlockHash = transaction.Context.BlockHash,
                 Metadata = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(transaction.Metadata))),
                 HasCollateralOutput = transaction.HasCollateralOutput,
                 IsValid = !_cardanoService.IsInvalidTransaction(transaction.Context.InvalidTransactions, (ulong)transaction.Index)
@@ -93,7 +93,7 @@ public class TransactionReducer : OuraReducerBase, IOuraCoreReducer
         using TeddySwapSinkCoreDbContext _dbContext = await _dbContextFactory.CreateDbContextAsync();
 
         var transactions = await _dbContext.Transactions
-            .Where(t => t.Blockhash == rollbackBlock.BlockHash)
+            .Where(t => t.BlockHash == rollbackBlock.BlockHash)
             .ToListAsync();
 
         _dbContext.Transactions.RemoveRange(transactions);
