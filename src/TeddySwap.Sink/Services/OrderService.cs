@@ -13,7 +13,6 @@ namespace TeddySwap.Sink.Services;
 
 public class OrderService
 {
-
     private readonly TeddySwapSinkSettings _settings;
     private readonly DatumService _datumService;
     private readonly ByteArrayService _byteArrayService;
@@ -43,11 +42,12 @@ public class OrderService
             transaction.Inputs is not null &&
             transaction.Outputs is not null)
         {
-            // @TODO: Fix assets and outputs
             List<string> inputRefs = transaction.Inputs.Select(i => i.TxHash + i.Index).ToList();
             List<TxOutput>? inputs = await _dbContext.TxOutputs
-                .Include(o => o.Assets)
                 .Where(o => inputRefs.Contains(o.TxHash + o.Index)).ToListAsync();
+            List<Asset> assets = await _dbContext.Assets
+                .Where(a => inputRefs.Contains(a.TxOutputHash + a.TxOutputIndex))
+                .ToListAsync();
 
             List<string> validators = new()
                 {
@@ -65,14 +65,15 @@ public class OrderService
             // Return if not a TeddySwap transaction
             if (poolInput is null || orderInput is null) return null;
 
-            order = ProcessOrder(poolInput, orderInput, transaction);
-        }
+            List<Asset> orderAssets = assets.Where(a => a.TxOutputHash == orderInput.TxHash && a.TxOutputIndex == orderInput.Index).ToList();
 
+            order = ProcessOrder(poolInput, orderInput, orderAssets, transaction);
+        }
 
         return order;
     }
 
-    public Order? ProcessOrder(TxOutput poolInput, TxOutput orderInput, OuraTransaction transaction)
+    public Order? ProcessOrder(TxOutput poolInput, TxOutput orderInput, List<Asset> orderAssets, OuraTransaction transaction)
     {
 
         if (transaction is not null &&
@@ -113,14 +114,14 @@ public class OrderService
                 switch (orderType)
                 {
                     case OrderType.Deposit:
-                        orderX = FindAsset(orderInput, poolDatum.ReserveX.PolicyId, poolDatum.ReserveX.Name); // deposited X tokens
-                        orderY = FindAsset(orderInput, poolDatum.ReserveY.PolicyId, poolDatum.ReserveY.Name); // deposited Y tokens
+                        orderX = FindAsset(orderInput, orderAssets, poolDatum.ReserveX.PolicyId, poolDatum.ReserveX.Name); // deposited X tokens
+                        orderY = FindAsset(orderInput, orderAssets, poolDatum.ReserveY.PolicyId, poolDatum.ReserveY.Name); // deposited Y tokens
                         orderLq = FindAsset(outputs[1], poolDatum.Lq.PolicyId, poolDatum.Lq.Name); // received LQ tokens
                         break;
                     case OrderType.Redeem:
                         orderX = FindAsset(outputs[1], poolDatum.ReserveX.PolicyId, poolDatum.ReserveX.Name); // received X tokens
                         orderY = FindAsset(outputs[1], poolDatum.ReserveY.PolicyId, poolDatum.ReserveY.Name); // received Y tokens
-                        orderLq = FindAsset(orderInput, poolDatum.Lq.PolicyId, poolDatum.Lq.Name); // deposited LQ tokens
+                        orderLq = FindAsset(orderInput, orderAssets, poolDatum.Lq.PolicyId, poolDatum.Lq.Name); // deposited LQ tokens
 
                         break;
                     case OrderType.Swap:
@@ -131,11 +132,11 @@ public class OrderService
                             orderBase = swapDatum.Base.PolicyId + swapDatum.Base.Name;
                             bool isAssetXBase = assetX == orderBase;
                             orderX = isAssetXBase ?
-                                FindAsset(orderInput, poolDatum.ReserveX.PolicyId, poolDatum.ReserveX.Name) :
+                                FindAsset(orderInput, orderAssets, poolDatum.ReserveX.PolicyId, poolDatum.ReserveX.Name) :
                                 FindAsset(outputs[1], poolDatum.ReserveX.PolicyId, poolDatum.ReserveX.Name);
                             orderY = isAssetXBase ?
                                 FindAsset(outputs[1], poolDatum.ReserveY.PolicyId, poolDatum.ReserveY.Name) :
-                                FindAsset(orderInput, poolDatum.ReserveY.PolicyId, poolDatum.ReserveY.Name);
+                                FindAsset(orderInput, orderAssets, poolDatum.ReserveY.PolicyId, poolDatum.ReserveY.Name);
                             orderLq = 0;
                         }
                         break;
@@ -202,9 +203,9 @@ public class OrderService
         return amount;
     }
 
-    public BigInteger FindAsset(TxOutput output, string policyId, string name)
+    public BigInteger FindAsset(TxOutput output, List<Asset> assets, string policyId, string name)
     {
-        if (output.Assets is null) return 0;
+        if (assets is null || assets.Count <= 0) return 0;
         BigInteger amount;
 
         if (policyId == "lovelace")
@@ -213,7 +214,7 @@ public class OrderService
         }
         else
         {
-            Asset? asset = output.Assets.Where(a => a.PolicyId == policyId && a.Name == name).FirstOrDefault();
+            Asset? asset = assets.Where(a => a.PolicyId == policyId && a.Name == name).FirstOrDefault();
             amount = asset is null ? 0 : asset.Amount;
         }
         return amount;

@@ -76,7 +76,7 @@ public class NftOwnerReducer : OuraReducerBase
         using TeddySwapNftSinkDbContext _dbContext = await _dbContextFactory.CreateDbContextAsync();
 
         List<Transaction>? transactions = await _dbContext.Transactions
-             .Where(t => t.Blockhash == rollbackBlock.BlockHash)
+             .Where(t => t.BlockHash == rollbackBlock.BlockHash)
              .ToListAsync();
 
         if (transactions is not null)

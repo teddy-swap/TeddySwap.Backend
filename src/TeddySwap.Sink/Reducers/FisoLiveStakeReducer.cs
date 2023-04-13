@@ -302,7 +302,7 @@ public class FisoLiveStakeReducer : OuraReducerBase
         using TeddySwapFisoSinkDbContext _dbContext = await _dbContextFactory.CreateDbContextAsync();
 
         var transactions = await _dbContext.Transactions
-            .Where(t => t.Blockhash == rollbackBlock.BlockHash)
+            .Where(t => t.BlockHash == rollbackBlock.BlockHash)
             .ToListAsync();
 
         foreach (Transaction transaction in transactions)
