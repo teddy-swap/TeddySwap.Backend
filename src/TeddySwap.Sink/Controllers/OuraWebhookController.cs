@@ -166,7 +166,7 @@ public class OuraWebhookController : ControllerBase
 
                         foreach (var reducer in _reducers)
                         {
-                            if (_settings.Value.Reducers.Any(rS => reducer.GetType().FullName?.Contains(rS) ?? false) || reducer is IOuraCoreReducer)
+                            if (_settings.Value.Reducers.Any(rS => reducer.GetType().FullName?.Contains(rS) ?? false) && reducer is not IOuraCoreReducer)
                             {
                                 List<OuraVariant> reducerVariants = _GetReducerVariants(reducer).ToList();
 
