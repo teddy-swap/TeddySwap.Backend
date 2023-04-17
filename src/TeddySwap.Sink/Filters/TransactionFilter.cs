@@ -2,6 +2,6 @@ namespace TeddySwap.Sink.Filters;
 
 public class TransactionFilter
 {
-    public List<string>? Addresses { get; init; }
-    public List<string>? PolicyIds { get; init; }
+    public List<string>? OutputAddresses { get; init; }
+    public List<string>? MintPolicyIds { get; init; }
 }

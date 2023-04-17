@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using TeddySwap.Sink.Data;
+using TeddySwap.Sink.Filters;
 using TeddySwap.Sink.Models;
 using TeddySwap.Sink.Models.Oura;
 using TeddySwap.Sink.Reducers;
@@ -24,13 +25,15 @@ public class OuraWebhookController : ControllerBase
     private readonly CardanoService _cardanoService;
     private readonly IEnumerable<IOuraReducer> _reducers;
     private readonly IOptions<TeddySwapSinkSettings> _settings;
+    private readonly CardanoFilters _cardanoFilters;
 
     public OuraWebhookController(
         ILogger<OuraWebhookController> logger,
         IDbContextFactory<TeddySwapSinkCoreDbContext> dbContextFactory,
         CardanoService cardanoService,
         IEnumerable<IOuraReducer> reducers,
-        IOptions<TeddySwapSinkSettings> settings
+        IOptions<TeddySwapSinkSettings> settings,
+        CardanoFilters cardanoFilters
     )
     {
         _logger = logger;
@@ -38,6 +41,7 @@ public class OuraWebhookController : ControllerBase
         _cardanoService = cardanoService;
         _reducers = reducers;
         _settings = settings;
+        _cardanoFilters = cardanoFilters;
     }
 
     [HttpPost]
@@ -263,6 +267,7 @@ public class OuraWebhookController : ControllerBase
 
         return assets;
     }
+
 }
 
 
