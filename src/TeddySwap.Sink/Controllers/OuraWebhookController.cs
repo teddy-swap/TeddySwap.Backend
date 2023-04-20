@@ -99,6 +99,7 @@ public class OuraWebhookController : ControllerBase
                         blockEvent = _eventJson.Deserialize<OuraBlockEvent>(ConclaveJsonSerializerOptions);
                         if (blockEvent is not null && blockEvent.Block is not null)
                         {
+                            // @TODO: Add Filter Logic
                             if (blockEvent.Context is not null) blockEvent.Context.InvalidTransactions = blockEvent.Block.InvalidTransactions;
                             blockEvent.Block.Transactions = blockEvent.Block.Transactions?.Select((t, ti) =>
                             {
@@ -141,49 +142,37 @@ public class OuraWebhookController : ControllerBase
                         }
                     }
 
-                    foreach (var reducer in _reducers)
-                    {
-                        if (_settings.Value.Reducers.Any(rS => reducer.GetType().FullName?.Contains(rS) ?? false) || reducer is IOuraCoreReducer)
-                        {
-                            List<OuraVariant> reducerVariants = _GetReducerVariants(reducer).ToList();
-
-                            foreach (var reducerVariant in reducerVariants)
-                            {
-                                switch (reducerVariant)
-                                {
-                                    case OuraVariant.Block:
-                                        await reducer.HandleReduceAsync(blockEvent);
-                                        break;
-                                    default:
-                                        break;
-                                }
-                            }
-                        }
-                    }
-
-                    // Concurrent Core Reducers
-                    // @TODO: Add filter logic / maybe core reducer level logic
-                    // await Task.WhenAll(_reducers.SelectMany((reducer) =>
-                    //     {
-                    //         ICollection<OuraVariant> reducerVariants = _GetReducerVariants(reducer);
-                    //         return reducerVariants.ToList().Select((reducerVariant) =>
-                    //         {
-                    //             if (reducerVariant == _event.Variant && reducer is IOuraCoreReducer)
-                    //             {
-                    //                 return reducerVariant switch
-                    //                 {
-                    //                     OuraVariant.Block => reducer.HandleReduceAsync(blockEvent),
-                    //                     OuraVariant.Transaction => blockEvent!.Block!.Transactions!.ForEach(t => reducer.HandleReduceAsync(t)),
-                    //                     OuraVariant.TxInput => blockEvent!.Block!.Transactions!.ForEach(t => t.Inputs!.ToList().ForEach(i => reducer.HandleReduceAsync(i))),
-                    //                     OuraVariant.TxOutput => blockEvent!.Block!.Transactions!.ForEach(t => t.Outputs!.ToList().ForEach(o => reducer.HandleReduceAsync(o))),
-                    //                     _ => Task.CompletedTask
-                    //                 };
-                    //             }
-                    //             else return Task.CompletedTask;
-                    //         });
-                    //     }));
-
                     if (blockEvent is null || blockEvent.Block is null || blockEvent.Block.Transactions is null) return Ok();
+
+                    // Core Reducers
+                    // @TODO: Cascade dbcontext foreach
+                    await Task.WhenAll(_reducers.SelectMany(reducer =>
+                    {
+                        ICollection<OuraVariant> reducerVariants = _GetReducerVariants(reducer);
+                        return reducerVariants.Select(reducerVariant =>
+                        {
+                            if (_settings.Value.Reducers.Any(rS => reducer.GetType().FullName?.Contains(rS) ?? false) && reducer is IOuraCoreReducer)
+                            {
+                                return reducerVariant switch
+                                {
+                                    OuraVariant.Block => reducer.HandleReduceAsync(blockEvent),
+                                    OuraVariant.Transaction => Task.WhenAll(blockEvent.Block.Transactions.Select(te => reducer.HandleReduceAsync(te))),
+                                    OuraVariant.TxInput => Task.WhenAll(blockEvent.Block.Transactions.SelectMany(t => t.Inputs!.ToList()).Select(i => reducer.HandleReduceAsync(i))),
+                                    OuraVariant.TxOutput => Task.WhenAll(blockEvent.Block.Transactions.SelectMany(t => t.Outputs!.ToList()).Select(o => reducer.HandleReduceAsync(o))),
+                                    OuraVariant.Asset => Task.WhenAll(MapToOuraAssetEvents(blockEvent.Block.Transactions.SelectMany(t => t.Outputs!)).ToList().Select(a => reducer.HandleReduceAsync(a))),
+                                    OuraVariant.CollateralInput => Task.WhenAll(blockEvent.Block.Transactions.Where(t => t.CollateralInputs is not null).SelectMany(t => t.CollateralInputs!).Select(ci => reducer.HandleReduceAsync(ci))),
+                                    OuraVariant.CollateralOutput => Task.WhenAll(blockEvent.Block.Transactions.Where(t => t.CollateralOutput is not null).Select(t => t.CollateralOutput!).Select(co => reducer.HandleReduceAsync(co))),
+                                    _ => Task.CompletedTask
+                                };
+                            }
+                            else
+                            {
+                                return Task.CompletedTask;
+                            }
+                        });
+                    }));
+
+                    // Other reducers in order of 
 
                     foreach (var transaction in blockEvent.Block.Transactions)
                     {
@@ -265,7 +254,7 @@ public class OuraWebhookController : ControllerBase
             }))
             .ToList();
 
-        return assets;  
+        return assets;
     }
 
 }
