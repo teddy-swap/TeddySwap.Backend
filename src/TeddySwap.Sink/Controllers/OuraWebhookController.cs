@@ -25,7 +25,7 @@ public class OuraWebhookController : ControllerBase
     private readonly CardanoService _cardanoService;
     private readonly IEnumerable<IOuraReducer> _reducers;
     private readonly IOptions<TeddySwapSinkSettings> _settings;
-    private readonly CardanoFilters _cardanoFilters;
+    private readonly CardanoFilterService _cardanoFilterService;
 
     public OuraWebhookController(
         ILogger<OuraWebhookController> logger,
@@ -33,7 +33,7 @@ public class OuraWebhookController : ControllerBase
         CardanoService cardanoService,
         IEnumerable<IOuraReducer> reducers,
         IOptions<TeddySwapSinkSettings> settings,
-        CardanoFilters cardanoFilters
+        CardanoFilterService cardanoFilterService
     )
     {
         _logger = logger;
@@ -41,7 +41,7 @@ public class OuraWebhookController : ControllerBase
         _cardanoService = cardanoService;
         _reducers = reducers;
         _settings = settings;
-        _cardanoFilters = cardanoFilters;
+        _cardanoFilterService = cardanoFilterService;
     }
 
     [HttpPost]
@@ -144,8 +144,12 @@ public class OuraWebhookController : ControllerBase
 
                     if (blockEvent is null || blockEvent.Block is null || blockEvent.Block.Transactions is null) return Ok();
 
+                    List<OuraTransaction> transactions = _cardanoFilterService.FilterTransactions(blockEvent.Block.Transactions);
+                    List<OuraTxInput> inputs = blockEvent.Block.Transactions.SelectMany(t => t.Inputs!).ToList();
+                    List<OuraTxOutput> outputs = _cardanoFilterService.FilterTxOutputs(blockEvent.Block.Transactions.SelectMany(t => t.Outputs!).ToList());
+                    List<OuraAssetEvent> assets = _cardanoFilterService.FilterAssets(MapToOuraAssetEvents(blockEvent.Block.Transactions.SelectMany(t => t.Outputs!)).ToList());
+
                     // Core Reducers
-                    // @TODO: Cascade dbcontext foreach
                     await Task.WhenAll(_reducers.SelectMany(reducer =>
                     {
                         ICollection<OuraVariant> reducerVariants = _GetReducerVariants(reducer);
@@ -156,10 +160,10 @@ public class OuraWebhookController : ControllerBase
                                 return reducerVariant switch
                                 {
                                     OuraVariant.Block => reducer.HandleReduceAsync(blockEvent),
-                                    OuraVariant.Transaction => Task.WhenAll(blockEvent.Block.Transactions.Select(te => reducer.HandleReduceAsync(te))),
-                                    OuraVariant.TxInput => Task.WhenAll(blockEvent.Block.Transactions.SelectMany(t => t.Inputs!.ToList()).Select(i => reducer.HandleReduceAsync(i))),
-                                    OuraVariant.TxOutput => Task.WhenAll(blockEvent.Block.Transactions.SelectMany(t => t.Outputs!.ToList()).Select(o => reducer.HandleReduceAsync(o))),
-                                    OuraVariant.Asset => Task.WhenAll(MapToOuraAssetEvents(blockEvent.Block.Transactions.SelectMany(t => t.Outputs!)).ToList().Select(a => reducer.HandleReduceAsync(a))),
+                                    OuraVariant.Transaction => Task.WhenAll(transactions.Select(te => reducer.HandleReduceAsync(te))),
+                                    OuraVariant.TxInput => Task.WhenAll(inputs.Select(i => reducer.HandleReduceAsync(i))),
+                                    OuraVariant.TxOutput => Task.WhenAll(outputs.Select(o => reducer.HandleReduceAsync(o))),
+                                    OuraVariant.Asset => Task.WhenAll(assets.Select(a => reducer.HandleReduceAsync(a))),
                                     OuraVariant.CollateralInput => Task.WhenAll(blockEvent.Block.Transactions.Where(t => t.CollateralInputs is not null).SelectMany(t => t.CollateralInputs!).Select(ci => reducer.HandleReduceAsync(ci))),
                                     OuraVariant.CollateralOutput => Task.WhenAll(blockEvent.Block.Transactions.Where(t => t.CollateralOutput is not null).Select(t => t.CollateralOutput!).Select(co => reducer.HandleReduceAsync(co))),
                                     _ => Task.CompletedTask
@@ -173,52 +177,31 @@ public class OuraWebhookController : ControllerBase
                     }));
 
                     // Other reducers in order of 
-
-                    foreach (var transaction in blockEvent.Block.Transactions)
-                    {
-                        if (_reducers.Where(r => r is TransactionReducer).FirstOrDefault() is not TransactionReducer transactionReducer) continue;
-                        await transactionReducer.HandleReduceAsync(transaction);
-
-                        foreach (var reducer in _reducers)
+                    await Task.WhenAll(_reducers.SelectMany(reducer =>
                         {
-                            if (_settings.Value.Reducers.Any(rS => reducer.GetType().FullName?.Contains(rS) ?? false) && reducer is not IOuraCoreReducer)
+                            ICollection<OuraVariant> reducerVariants = _GetReducerVariants(reducer);
+                            return reducerVariants.Select(reducerVariant =>
                             {
-                                List<OuraVariant> reducerVariants = _GetReducerVariants(reducer).ToList();
-
-                                foreach (var reducerVariant in reducerVariants)
+                                if (_settings.Value.Reducers.Any(rS => reducer.GetType().FullName?.Contains(rS) ?? false) && reducer is not IOuraCoreReducer)
                                 {
-                                    switch (reducerVariant)
+                                    return reducerVariant switch
                                     {
-                                        case OuraVariant.Transaction:
-                                            await reducer.HandleReduceAsync(transaction);
-                                            break;
-                                        case OuraVariant.TxInput:
-                                            if (transaction.Inputs is null) break;
-                                            foreach (var input in transaction.Inputs) await reducer.HandleReduceAsync(input);
-                                            break;
-                                        case OuraVariant.TxOutput:
-                                            if (transaction.Outputs is null) break;
-                                            foreach (var output in transaction.Outputs) await reducer.HandleReduceAsync(output);
-                                            break;
-                                        case OuraVariant.Asset:
-                                            List<OuraAssetEvent> assets = MapToOuraAssetEvents(transaction.Outputs);
-                                            foreach (var asset in assets) await reducer.HandleReduceAsync(asset);
-                                            break;
-                                        case OuraVariant.CollateralInput:
-                                            if (transaction.CollateralInputs is null) break;
-                                            foreach (var collateralInput in transaction.CollateralInputs) await reducer.HandleReduceAsync(collateralInput);
-                                            break;
-                                        case OuraVariant.CollateralOutput:
-                                            if (!transaction.HasCollateralOutput) break;
-                                            await reducer.HandleReduceAsync(transaction.CollateralOutput);
-                                            break;
-                                        default:
-                                            break;
-                                    }
+                                        OuraVariant.Block => reducer.HandleReduceAsync(blockEvent),
+                                        OuraVariant.Transaction => Task.WhenAll(blockEvent.Block.Transactions.Select(te => reducer.HandleReduceAsync(te))),
+                                        OuraVariant.TxInput => Task.WhenAll(blockEvent.Block.Transactions.SelectMany(t => t.Inputs!.ToList()).Select(i => reducer.HandleReduceAsync(i))),
+                                        OuraVariant.TxOutput => Task.WhenAll(blockEvent.Block.Transactions.SelectMany(t => t.Outputs!.ToList()).Select(o => reducer.HandleReduceAsync(o))),
+                                        OuraVariant.Asset => Task.WhenAll(MapToOuraAssetEvents(blockEvent.Block.Transactions.SelectMany(t => t.Outputs!)).ToList().Select(a => reducer.HandleReduceAsync(a))),
+                                        OuraVariant.CollateralInput => Task.WhenAll(blockEvent.Block.Transactions.Where(t => t.CollateralInputs is not null).SelectMany(t => t.CollateralInputs!).Select(ci => reducer.HandleReduceAsync(ci))),
+                                        OuraVariant.CollateralOutput => Task.WhenAll(blockEvent.Block.Transactions.Where(t => t.CollateralOutput is not null).Select(t => t.CollateralOutput!).Select(co => reducer.HandleReduceAsync(co))),
+                                        _ => Task.CompletedTask
+                                    };
                                 }
-                            }
-                        }
-                    }
+                                else
+                                {
+                                    return Task.CompletedTask;
+                                }
+                            });
+                        }));
                     return Ok();
                 }
             }
