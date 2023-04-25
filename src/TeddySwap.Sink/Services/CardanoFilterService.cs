@@ -14,9 +14,9 @@ namespace TeddySwap.Sink.Services;
 public class CardanoFilterService
 {
     private readonly CardanoFilters _cardanoFilters;
-    public CardanoFilterService(CardanoFilters cardanoFilters)
+    public CardanoFilterService(IOptions<CardanoFilters> cardanoFilters)
     {
-        _cardanoFilters = cardanoFilters;
+        _cardanoFilters = cardanoFilters.Value;
     }
 
     public List<OuraTransaction> FilterTransactions(List<OuraTransaction>? ouraTransactions)

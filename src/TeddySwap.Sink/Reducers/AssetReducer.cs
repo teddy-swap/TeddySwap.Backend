@@ -6,8 +6,8 @@ using TeddySwap.Sink.Models.Oura;
 
 namespace TeddySwap.Sink.Reducers;
 
-[OuraReducer(OuraVariant.TxOutput)]
-public class AssetReducer : OuraReducerBase
+[OuraReducer(OuraVariant.Asset)]
+public class AssetReducer : OuraReducerBase, IOuraCoreReducer
 {
     private readonly IDbContextFactory<TeddySwapSinkCoreDbContext> _dbContextFactory;
     public AssetReducer(IDbContextFactory<TeddySwapSinkCoreDbContext> dbContextFactory)

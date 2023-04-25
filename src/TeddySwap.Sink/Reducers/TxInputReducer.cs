@@ -31,7 +31,7 @@ public class TxInputReducer : OuraReducerBase, IOuraCoreReducer
 
             await _dbContext.TxInputs.AddAsync(new()
             {
-                TxHash = txInput.TxHash,
+                TxHash = txInput.Context.TxHash,
                 TxOutputHash = txInput.TxHash,
                 TxOutputIndex = txInput.Index,
                 BlockHash = txInput.Context.BlockHash

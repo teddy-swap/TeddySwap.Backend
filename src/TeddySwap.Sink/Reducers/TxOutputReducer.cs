@@ -46,7 +46,7 @@ public class TxOutputReducer : OuraReducerBase, IOuraCoreReducer
     {
         using TeddySwapSinkCoreDbContext _dbContext = await _dbContextFactory.CreateDbContextAsync();
 
-        var outputs = await _dbContext.TxOutputs
+        List<TxOutput> outputs = await _dbContext.TxOutputs
             .Where(o => o.BlockHash == rollbackBlock.BlockHash)
             .ToListAsync();
 

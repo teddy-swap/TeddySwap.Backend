@@ -62,7 +62,6 @@ public class BlockReducer : OuraReducerBase, IOuraCoreReducer
             });
 
             await _dbContext.SaveChangesAsync();
-            await _dbContext.DisposeAsync();
         }
     }
 

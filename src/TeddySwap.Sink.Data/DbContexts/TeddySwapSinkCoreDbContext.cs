@@ -18,7 +18,7 @@ public class TeddySwapSinkCoreDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // Primary Keys
-        modelBuilder.Entity<TxInput>().HasKey(txInput => new { txInput.TxHash, txInput.TxOutputHash, txInput.TxOutputIndex });
+        modelBuilder.Entity<TxInput>().HasKey(txInput => new { txInput.TxHash, txInput.TxOutputHash, txInput.TxOutputIndex, txInput.BlockHash });
         modelBuilder.Entity<TxOutput>().HasKey(txOut => new { txOut.TxHash, txOut.Index });
         modelBuilder.Entity<CollateralTxOut>().HasKey(txOut => new { txOut.Address, txOut.TxHash });
         modelBuilder.Entity<CollateralTxIn>().HasKey(txInput => new { txInput.TxHash, txInput.TxOutputHash, txInput.TxOutputIndex });
