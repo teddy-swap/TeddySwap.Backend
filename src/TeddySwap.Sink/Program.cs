@@ -46,6 +46,7 @@ builder.Services.AddPooledDbContextFactory<TeddySwapSinkCoreDbContext>(options =
 builder.Services.AddPooledDbContextFactory<TeddySwapOrderSinkDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("TeddySwapSink")), 10);
 builder.Services.AddPooledDbContextFactory<TeddySwapNftSinkDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("TeddySwapSink")), 10);
 builder.Services.AddPooledDbContextFactory<TeddySwapFisoSinkDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("TeddySwapSink")), 10);
+builder.Services.AddPooledDbContextFactory<TeddySwapBadgerAddressSinkDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("TeddySwapSink")), 10);
 builder.Services.AddPooledDbContextFactory<CardanoDbSyncContext>(options =>
 {
     if (builder.Configuration["ASPNETCORE_ENVIRONMENT"]?.ToString() != "Production")
