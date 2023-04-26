@@ -2,6 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+body:has(.mud-drawer--open) {
+    height: 100vh;
+}
+
+.nft-rarity {
+    height: 42px;
+    width: 42px;
+    font-weight: 600;
+}
+
+.mud-drawer.mud-drawer--open {
+    position: fixed;
+}
+
 .mud-table-toolbar {
     padding: 0px !important;
 }

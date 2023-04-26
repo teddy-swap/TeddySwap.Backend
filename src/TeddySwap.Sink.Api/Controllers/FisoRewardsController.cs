@@ -23,7 +23,7 @@ public class FisoRewardsController : ControllerBase
     }
 
     [HttpGet("address/{stakeAddress}")]
-    public async Task<IActionResult> GetFisoRewardBreakdownAsync(string stakeAddress)
+    public async Task<ActionResult<FisoRewardBreakdownResponse>> GetFisoRewardBreakdownAsync(string stakeAddress)
     {
         if (string.IsNullOrEmpty(stakeAddress)) return BadRequest();
 

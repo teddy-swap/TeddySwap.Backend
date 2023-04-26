@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Teddy Sink Images
 
 on:
   push:

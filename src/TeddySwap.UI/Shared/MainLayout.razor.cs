@@ -16,6 +16,7 @@ public partial class MainLayout
         PaletteDark = new PaletteDark()
         {
             Primary = new MudColor("rgb(3, 105, 161)"),
+            PrimaryDarken = "rgb(6, 80, 120)",
             Secondary = new MudColor("rgb(3, 105, 161)"),
             SecondaryDarken = "rgb(3, 105, 161)",
             Surface = new MudColor("rgba(24, 24, 27, 0.7)"),

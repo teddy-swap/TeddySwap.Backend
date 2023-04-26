@@ -25,10 +25,14 @@ public class AssetsController : ControllerBase
     [HttpGet("policy/{policyId}/address/{address}")]
     public async Task<ActionResult<PaginatedAssetResponse>> GetNftOwnerAsync([FromRoute] string policyId, [FromRoute] string address, [FromQuery] PaginatedRequest request)
     {
-        if (request.Offset < 0 || request.Limit > 100 || string.IsNullOrEmpty(policyId) || string.IsNullOrEmpty(address)) return BadRequest();
-
         var res = await _assetService.GetNftOwnerAsync(request.Offset, request.Limit, address, policyId);
+        return Ok(res);
+    }
 
+    [HttpGet("policy/{policyId}/stakeAddress/{stakeAddress}")]
+    public async Task<ActionResult<PaginatedAssetResponse>> GetNftOwnerByStakeAddressAsync([FromRoute] string policyId, [FromRoute] string stakeAddress, [FromQuery] PaginatedRequest request)
+    {
+        var res = await _assetService.GetNftOwnerByStakeAddressAsync(request.Offset, request.Limit, stakeAddress, policyId);
         return Ok(res);
     }
 

@@ -406,7 +406,7 @@ public class LeaderboardService
             })
             .ToList();
 
-        if (users is null) return null;
+        if (users is null || users.Count <= 0) return null;
 
         LeaderBoardResponse combinedRewards = new()
         {

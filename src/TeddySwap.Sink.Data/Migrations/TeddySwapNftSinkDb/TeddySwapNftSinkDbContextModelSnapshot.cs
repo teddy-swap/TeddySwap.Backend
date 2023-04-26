@@ -161,6 +161,10 @@ namespace TeddySwap.Sink.Data.Migrations.TeddySwapNftSinkDb
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("StakeAddress")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.HasKey("PolicyId", "TokenName");
 
                     b.ToTable("NftOwners");

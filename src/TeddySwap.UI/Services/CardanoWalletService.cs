@@ -1,5 +1,6 @@
 using Blazored.LocalStorage;
 using Microsoft.JSInterop;
+using TeddySwap.Common.Models;
 using TeddySwap.UI.Models;
 
 namespace TeddySwap.UI.Services;
@@ -11,7 +12,7 @@ public class CardanoWalletService
     private readonly ILocalStorageService _localStorage;
 
     public event EventHandler? ConnectionStateChange;
-    public Guid SessionId { get; } = Guid.NewGuid();
+    public Guid SessionId { private set; get; } = Guid.NewGuid();
     public string? ConnectedAddress { get; set; }
     public CardanoWallet? ConnectedWallet { get; set; }
 
@@ -48,6 +49,8 @@ public class CardanoWalletService
             await _localStorage.SetItemAsync<CardanoWallet>("ConnectedWallet", ConnectedWallet);
             ConnectionStateChange?.Invoke(this, EventArgs.Empty);
         }
+        
+        SessionId = Guid.NewGuid();
 
         return result;
     }
@@ -58,6 +61,24 @@ public class CardanoWalletService
         return await _jsRuntime.InvokeAsync<string[]>("CardanoWalletService.getUsedAddressesAsync");
     }
 
+    public async Task<CardanoSignedMessage> SignMessage(string message)
+    {
+        ArgumentNullException.ThrowIfNull(_jsRuntime);
+        return await _jsRuntime.InvokeAsync<CardanoSignedMessage>("CardanoWalletService.signMessageAsync", message);
+    }
+
+    public async Task<string> GetAddressAsync()
+    {
+        ArgumentNullException.ThrowIfNull(_jsRuntime);
+        return await _jsRuntime.InvokeAsync<string>("CardanoWalletService.getAddressAsync");
+    }
+
+    public async Task<string> GetStakeAddressAsync()
+    {
+        ArgumentNullException.ThrowIfNull(_jsRuntime);
+        return await _jsRuntime.InvokeAsync<string>("CardanoWalletService.getStakeAddressAsync");
+    }
+
     public async Task DisconnectAsync()
     {
         ArgumentNullException.ThrowIfNull(_jsRuntime);
@@ -65,11 +86,5 @@ public class CardanoWalletService
         await _jsRuntime.InvokeVoidAsync("CardanoWalletService.disconnect");
         await _localStorage.RemoveItemAsync("ConnectedWallet");
         ConnectionStateChange?.Invoke(this, EventArgs.Empty);
-    }
-
-    public async Task<string> GetAddressAsync()
-    {
-        ArgumentNullException.ThrowIfNull(_jsRuntime);
-        return await _jsRuntime.InvokeAsync<string>("CardanoWalletService.getAddressAsync");
     }
 }

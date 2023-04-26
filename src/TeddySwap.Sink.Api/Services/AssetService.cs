@@ -36,6 +36,20 @@ public class AssetService
 
         var totalNfts = await nftOwnerQuery.CountAsync();
 
+        var mintTransactions = _dbContext.MintTransactions
+            .Where(mtx => mtx.PolicyId == policyId)
+            .Include(mtx => mtx.Transaction)
+            .ThenInclude(tx => tx.Block)
+            .OrderBy(mtx => mtx.Transaction.Block.Slot)
+            .ThenBy(mtx => mtx.Transaction.Index)
+            .Select(mtx => mtx.TokenName)
+            .ToList()
+            .Select(selector: (tn, i) => new
+            {
+                RowNumber = i + 1,
+                TokenName = tn
+            });
+
         List<AssetResponse> paginatedNfts = await nftOwnerQuery
             .Skip(offset)
             .Take(limit)
@@ -47,12 +61,66 @@ public class AssetService
             })
             .ToListAsync();
 
+        var filteredMintTransactions = mintTransactions
+            .Where(mtx => paginatedNfts.Select(pn => pn.Name).ToList().Contains(mtx.TokenName))
+            .ToList();
+
+        paginatedNfts.ForEach(pn => pn.MintOrder = filteredMintTransactions.FirstOrDefault(fmtx => fmtx.TokenName == pn.Name)!.RowNumber);
+
         return new()
         {
             TotalCount = totalNfts,
             PolicyId = policyId,
             Result = paginatedNfts,
             Address = address
+        };
+    }
+
+    public async Task<PaginatedAssetResponse> GetNftOwnerByStakeAddressAsync(int offset, int limit, string stakeAddress, string policyId)
+    {
+        var nftOwnerQuery = _dbContext.NftOwners
+            .Where(no => !string.IsNullOrEmpty(no.StakeAddress))
+            .Where(no => no.StakeAddress == stakeAddress && no.PolicyId == policyId.ToLower());
+
+        var totalNfts = await nftOwnerQuery.CountAsync();
+
+        var mintTransactions = _dbContext.MintTransactions
+            .Where(mtx => mtx.PolicyId == policyId)
+            .Include(mtx => mtx.Transaction)
+            .ThenInclude(tx => tx.Block)
+            .OrderBy(mtx => mtx.Transaction.Block.Slot)
+            .ThenBy(mtx => mtx.Transaction.Index)
+            .Select(mtx => mtx.TokenName)
+            .ToList()
+            .Select(selector: (tn, i) => new
+            {
+                RowNumber = i + 1,
+                TokenName = tn
+            });
+
+        List<AssetResponse> paginatedNfts = await nftOwnerQuery
+            .Skip(offset)
+            .Take(limit)
+            .Select(no => new AssetResponse()
+            {
+                Name = no.TokenName,
+                AsciiName = Encoding.ASCII.GetString(Convert.FromHexString(no.TokenName)),
+                Amount = 1
+            })
+            .ToListAsync();
+
+        var filteredMintTransactions = mintTransactions
+            .Where(mtx => paginatedNfts.Select(pn => pn.Name).ToList().Contains(mtx.TokenName))
+            .ToList();
+
+        paginatedNfts.ForEach(pn => pn.MintOrder = filteredMintTransactions.FirstOrDefault(fmtx => fmtx.TokenName == pn.Name)!.RowNumber);
+
+        return new()
+        {
+            TotalCount = totalNfts,
+            PolicyId = policyId,
+            Result = paginatedNfts,
+            Address = stakeAddress
         };
     }
 

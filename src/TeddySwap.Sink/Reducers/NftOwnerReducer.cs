@@ -15,17 +15,20 @@ public class NftOwnerReducer : OuraReducerBase
     private readonly IDbContextFactory<TeddySwapNftSinkDbContext> _dbContextFactory;
     private readonly TeddySwapSinkSettings _settings;
     private readonly MetadataService _metadataService;
+    private readonly CardanoService _cardanoService;
 
     public NftOwnerReducer(
         ILogger<NftOwnerReducer> logger,
         IDbContextFactory<TeddySwapNftSinkDbContext> dbContextFactory,
         IOptions<TeddySwapSinkSettings> settings,
-        MetadataService metadataService)
+        MetadataService metadataService,
+        CardanoService cardanoService)
     {
         _logger = logger;
         _dbContextFactory = dbContextFactory;
         _settings = settings.Value;
         _metadataService = metadataService;
+        _cardanoService = cardanoService;
     }
 
     public async Task ReduceAsync(OuraAssetEvent asset)
@@ -55,6 +58,7 @@ public class NftOwnerReducer : OuraReducerBase
                         Address = asset.Address,
                         PolicyId = asset.PolicyId.ToLower(),
                         TokenName = asset.TokenName.ToLower(),
+                        StakeAddress = _cardanoService.TryGetStakeAddress(asset.Address)
                     });
                 }
                 else
@@ -62,6 +66,7 @@ public class NftOwnerReducer : OuraReducerBase
                     if (owner.Address != asset.Address)
                     {
                         owner.Address = asset.Address;
+                        owner.StakeAddress = _cardanoService.TryGetStakeAddress(asset.Address);
                         _dbContext.NftOwners.Update(owner);
                     }
                 }

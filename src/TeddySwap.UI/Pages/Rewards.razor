@@ -1,42 +1,48 @@
 @page "/rewards"
 @inherits TeddySwapBasePage
+@using TeddySwap.Common.Models.Response;
+@using TeddySwap.UI.Services
+
+@inject IconsService IconsService
 
 <PageTitle>TeddySwap | Cardano | Rewards</PageTitle>
 
 <div class="flex gap-4">
-    <div Class="flex grow p-4 pb-0 flex-col">
-        <div class="flex grow max-h-[45px]">
-            <MudText Typo="Typo.h4" Class="!hidden md:!block font-bold">Rewards</MudText>
-            <MudSpacer />
-            <div class="flex gap-4 ">
-                <div class="grid content-center">
-                    <MudButton Disabled="true" Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Small"
+    @if (!string.IsNullOrEmpty(CardanoWalletService?.ConnectedAddress))
+    {
+        <div Class="flex grow p-4 pb-0 flex-col">
+            <div class="flex grow max-h-[45px]">
+                <MudText Typo="Typo.h4" Class="!hidden md:!block font-bold">Rewards</MudText>
+                <MudSpacer />
+                <div class="flex gap-4 ">
+                    <div class="grid content-center">
+                        <MudButton Disabled=@(string.IsNullOrEmpty(CardanoWalletService?.ConnectedAddress) || IsMainnet)
+                        OnClick="OnClaimClicked" Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Small"
                         Class="w-[100px] h-[36px] normal-case font-bold">
-                        CLAIM
-                    </MudButton>
-                </div>
-                <div class="flex flex-col">
-                    <MudText>Total Rewards</MudText>
-                    <MudText Color="Color.Success" Class="font-bold">@(TotalRewards.ToString("N2")) $TEDY</MudText>
+                            CLAIM
+                        </MudButton>
+                    </div>
+                    <div class="flex flex-col">
+                        <MudText>Total Rewards</MudText>
+                        <MudText Color="Color.Success" Class="font-bold">@(TotalRewards.ToString("#,##0.00")) $TEDY
+                        </MudText>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="flex mt-6 gap-1">
-            <div class="grid content-center">
-                @if (IsTestnetRewardsLoaded)
-                {
-                    <MudIcon Icon="@Icons.Material.Filled.KeyboardArrowRight" />
-                }
-                else
-                {
-                    <MudIcon Icon="@Icons.Material.Filled.Refresh" Class="animate-spin" />
-                }
+            <div class="flex mt-6 gap-1">
+                <div class="grid content-center">
+                    @if (IsTestnetRewardsLoaded)
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.KeyboardArrowRight" />
+                    }
+                    else
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.Refresh" Class="animate-spin" />
+                    }
+                </div>
+                <MudText Typo="Typo.h6" Class="!block font-bold">Testnet</MudText>
             </div>
-            <MudText Typo="Typo.h6" Class="!block font-bold">Testnet</MudText>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2 text-center">
-            @if (!string.IsNullOrEmpty(CardanoWalletService?.ConnectedAddress))
-            {
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2 text-center">
                 <MudCard Elevation="6" Class="grid content-center">
                     <MudCardContent>
                         <MudText Typo="Typo.caption">Total Points</MudText>
@@ -45,7 +51,7 @@
                         <MudDivider Class="my-4" />
                         <MudText Typo="Typo.caption">Base Reward</MudText>
                         <MudText Typo="Typo.h5" Color="Color.Success" Class="font-bold">
-                            @LeaderBoardResponse.BaseReward.ToString("N2") $TEDY</MudText>
+                            @LeaderBoardResponse.BaseReward.ToString("#,##0.00") $TEDY</MudText>
                     </MudCardContent>
                 </MudCard>
                 <MudCard Elevation="6" Class="grid content-center">
@@ -85,168 +91,134 @@
                 <MudCard Elevation="6">
                     <MudCardContent>
                         <MudText Typo="Typo.caption">Total NFTs</MudText>
-                        <MudText Typo="Typo.h5" Color="Color.Success" Class="font-bold">0</MudText>
+                        <MudText Typo="Typo.h5" Color="Color.Success" Class="font-bold"> @(TotalRoundOneNft +
+                        TotalRoundTwoNft) </MudText>
                         <MudDivider Class="my-4" />
                         <MudText Typo="Typo.caption">NFT Bonus</MudText>
-                        <MudText Typo="Typo.h5" Color="Color.Success" Class="font-bold">0%</MudText>
+                        <MudText Typo="Typo.h5" Color="Color.Success" Class="font-bold">@(TotalRoundOneItnNftBonus +
+                        TotalRoundTwoItnNftBonus) %</MudText>
                         <MudDivider Class="my-4" />
                         <MudText Typo="Typo.caption">Bonus Tokens</MudText>
-                        <MudText Typo="Typo.h5" Color="Color.Success" Class="font-bold">0 $TEDY</MudText>
+                        <MudText Typo="Typo.h5" Color="Color.Success" Class="font-bold">@TotalItnNftBonus.ToString("F2")
+                            $TEDY</MudText>
                     </MudCardContent>
                 </MudCard>
-            }
-            else
+            </div>
+            <div class="flex mt-6">
+                <div class="grid content-center">
+                    @if (IsTestnetRewardsLoaded)
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.KeyboardArrowRight" />
+                    }
+                    else
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.Refresh" Class="animate-spin" />
+                    }
+                </div>
+                <MudText Typo="Typo.h6" Class="!block font-bold">Staking</MudText>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2 text-center">
+                <MudCard Elevation="6">
+                    <MudCardContent Class="grid content-center">
+                        <MudText Typo="Typo.caption">Total Rewards</MudText>
+                        <MudText Typo="Typo.h5" Color="Color.Success" Class="font-bold">
+                            @TotalFisoRewards.ToString("#,##0.00") $TEDY</MudText>
+                        <MudText Typo="Typo.caption">Includes NFT Bonus</MudText>
+                        <MudDivider Class="my-4" />
+                        <MudText Typo="Typo.caption">Base Reward</MudText>
+                        <MudText Typo="Typo.h5" Color="Color.Success" Class="font-bold">
+                            @BaseFisoRewards.ToString("#,##0.00") $TEDY</MudText>
+                        <MudText Typo="Typo.caption">Includes Small Pool Bonus</MudText>
+                    </MudCardContent>
+                </MudCard>
+                <MudCard Elevation="6">
+                    <MudCardContent Class="grid content-center">
+                        <MudText Typo="Typo.caption">Total Round 1 Bonus</MudText>
+                        <MudText Typo="Typo.h5" Color="Color.Success" Class="font-bold">@((BaseFisoRewards *
+                        TotalRoundOneNft * 0.05M).ToString("#,##0.00")) $TEDY</MudText>
+                        <MudText Typo="Typo.caption">5% per NFT Bonus</MudText>
+                        <MudDivider Class="my-4" />
+                        <MudText Typo="Typo.caption">Total Round 2 Bonus</MudText>
+                        <MudText Typo="Typo.h5" Color="Color.Success" Class="font-bold">@((BaseFisoRewards *
+                        TotalRoundTwoNft * 0.02M).ToString("#,##0.00")) $TEDY</MudText>
+                        <MudText Typo="Typo.caption">2% per NFT Bonus</MudText>
+                    </MudCardContent>
+                </MudCard>
+                <MudCard Elevation="6">
+                    <MudCardContent Class="grid content-center">
+                        <MudText Typo="Typo.caption">Total Round 1 Bonus</MudText>
+                        <MudText Typo="Typo.h5" Color="Color.Success" Class="font-bold">@TotalRoundOneItnNftBonus %
+                        </MudText>
+                        <MudText Typo="Typo.caption">5% per NFT Bonus</MudText>
+                        <MudDivider Class="my-4" />
+                        <MudText Typo="Typo.caption">Total Round 2 Bonus</MudText>
+                        <MudText Typo="Typo.h5" Color="Color.Success" Class="font-bold">@TotalRoundTwoItnNftBonus %
+                        </MudText>
+                        <MudText Typo="Typo.caption">2% per NFT Bonus</MudText>
+                    </MudCardContent>
+                </MudCard>
+            </div>
+            <div class="flex mt-6">
+                <div class="grid content-center">
+                    @if (IsTestnetRewardsLoaded)
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.KeyboardArrowRight" />
+                    }
+                    else
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.Refresh" Class="animate-spin" />
+                    }
+                </div>
+                <MudText Typo="Typo.h6" Class="font-bold">NFTs</MudText>
+            </div>
+            @if (RoundOneAssets is not null && RoundOneAssets.TotalCount > 0)
             {
-                <MudText Class="col-span-3 font-bold" Typo="Typo.h5">Please connect your wallet.</MudText>
+                <div class="mt-10 mb-4 flex flex-col md:flex-row md:justify-between md:items-center gap-2">
+                    <MudText Typo="Typo.h6" Class="font-semibold text-[19px] md:order-1">Round One</MudText>
+                    <MudPagination Variant="Variant.Filled" Count=@((int)Math.Ceiling((decimal)RoundOneAssets.Result.Count() / 4)) @bind-Selected="RoundOnePage"/>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-2 text-center">
+                    @foreach (AssetResponse nft in RoundOneAssets.Result.Skip((RoundOnePage - 1) * 4).Take(4))
+                    {
+                        <NftCard NftDetails="nft" PolicyId="ab182ed76b669b49ee54a37dee0d0064ad4208a859cc4fdf3f906d87" />
+                    }
+                </div>
+            }
+            @if (RoundTwoAssets is not null && RoundTwoAssets.TotalCount > 0)
+            {
+                <div class="mt-10 mb-4 flex flex-col md:flex-row md:justify-between md:items-center gap-2">
+                    <MudText Typo="Typo.h6" Class="font-semibold text-[19px] md:order-1">Round Two</MudText>
+                    <MudPagination Variant="Variant.Filled" Count=@((int)Math.Ceiling((decimal)RoundTwoAssets.Result.Count() / 4)) @bind-Selected="RoundTwoPage"/>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-2 text-center">
+                    @foreach (AssetResponse nft in RoundTwoAssets.Result.Skip((RoundTwoPage - 1) * 4).Take(4))
+                    {
+                        <NftCard NftDetails="nft" PolicyId="da3562fad43b7759f679970fb4e0ec07ab5bebe5c703043acda07a3c" />
+                    }
+                </div>
             }
         </div>
-        <div class="flex mt-6">
-            <div class="grid content-center">
-                <MudIcon Icon="@Icons.Material.Filled.KeyboardArrowRight" />
-            </div>
-            <MudText Typo="Typo.h6" Class="!block font-bold">Staking</MudText>
+    }
+    else
+    {
+        <div class="text-center w-full h-[100vh] mt-[200px]">
+            <MudText Class="col-span-3 font-bold" Typo="Typo.h5">Please connect your wallet.</MudText>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2 text-center">
-            <MudCard Elevation="6">
-                <MudCardContent Class="grid content-center h-[100px]">
-                    <MudText>Coming soon...</MudText>
-                    @* <MudText Typo="Typo.caption">Total Stake</MudText>
-                    <MudText Typo="Typo.h5" Color="Color.Success" Class="font-bold">127,312,879.62 ₳</MudText>
-                    <MudText Typo="Typo.caption">All Time</MudText>
-                    <MudDivider Class="my-4" />
-                    <MudText Typo="Typo.caption">Total Growth Since</MudText>
-                    <MudText Typo="Typo.h5" Color="Color.Success" Class="font-bold">86,494,729.22 ₳</MudText> *@
-                </MudCardContent>
-            </MudCard>
-            <MudCard Elevation="6">
-                <MudCardContent Class="grid content-center h-[100px]">
-                    <MudText>Coming soon...</MudText>
-                    @* <MudText Typo="Typo.caption">Total Growth</MudText>
-                    <MudText Typo="Typo.h5" Color="Color.Success" Class="font-bold">2,755,847.25 ₳</MudText>
-                    <MudText Typo="Typo.caption">last 24 hours</MudText>
-                    <MudDivider Class="my-4" />
-                    <MudText Typo="Typo.caption">Total Delegators</MudText>
-                    <MudText Typo="Typo.h5" Color="Color.Success" Class="font-bold">8104</MudText> *@
-                </MudCardContent>
-            </MudCard>
-            <MudCard Elevation="6">
-                <MudCardContent Class="grid content-center h-[100px]">
-                    <MudText>Coming soon...</MudText>
-                    @* <MudText Typo="Typo.caption">Total Growth</MudText>
-                    <MudText Typo="Typo.h5" Color="Color.Success" Class="font-bold">2,755,847.25 ₳</MudText>
-                    <MudText Typo="Typo.caption">last hour</MudText>
-                    <MudDivider Class="my-4" />
-                    <MudText Typo="Typo.caption">Total Growth Live</MudText>
-                    <MudText Typo="Typo.h5" Color="Color.Success" Class="font-bold">-2,843.33 ₳</MudText> *@
-                </MudCardContent>
-            </MudCard>
-        </div>
-        <div class="flex mt-6">
-            <div class="grid content-center">
-                <MudIcon Icon="@Icons.Material.Filled.KeyboardArrowRight" />
-            </div>
-            <MudText Typo="Typo.h6" Class="!hidden md:!block font-bold">NFTs</MudText>
-        </div>
-        <div class="my-4 flex justify-start">
-            <MudPagination Variant="Variant.Outlined" Count="4" />
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-2 text-center">
-            <MudCard Elevation="6">
-                <MudCardContent Class="grid content-center h-[100px]">
-                    <MudText>Coming soon...</MudText>
-                    @* <MudText Typo="Typo.caption">Total Stake</MudText>
-                    <MudText Typo="Typo.h5" Color="Color.Success" Class="font-bold">127,312,879.62 ₳</MudText>
-                    <MudText Typo="Typo.caption">All Time</MudText>
-                    <MudDivider Class="my-4" />
-                    <MudText Typo="Typo.caption">Total Growth Since</MudText>
-                    <MudText Typo="Typo.h5" Color="Color.Success" Class="font-bold">86,494,729.22 ₳</MudText> *@
-                </MudCardContent>
-            </MudCard>
-            <MudCard Elevation="6">
-                <MudCardContent Class="grid content-center h-[100px]">
-                    <MudText>Coming soon...</MudText>
-                    @* <MudText Typo="Typo.caption">Total Growth</MudText>
-                    <MudText Typo="Typo.h5" Color="Color.Success" Class="font-bold">2,755,847.25 ₳</MudText>
-                    <MudText Typo="Typo.caption">last 24 hours</MudText>
-                    <MudDivider Class="my-4" />
-                    <MudText Typo="Typo.caption">Total Delegators</MudText>
-                    <MudText Typo="Typo.h5" Color="Color.Success" Class="font-bold">8104</MudText> *@
-                </MudCardContent>
-            </MudCard>
-            <MudCard Elevation="6">
-                <MudCardContent Class="grid content-center h-[100px]">
-                    <MudText>Coming soon...</MudText>
-                    @* <MudText Typo="Typo.caption">Total Growth</MudText>
-                    <MudText Typo="Typo.h5" Color="Color.Success" Class="font-bold">2,755,847.25 ₳</MudText>
-                    <MudText Typo="Typo.caption">last hour</MudText>
-                    <MudDivider Class="my-4" />
-                    <MudText Typo="Typo.caption">Total Growth Live</MudText>
-                    <MudText Typo="Typo.h5" Color="Color.Success" Class="font-bold">-2,843.33 ₳</MudText> *@
-                </MudCardContent>
-            </MudCard>
-            <MudCard Elevation="6">
-                <MudCardContent Class="grid content-center h-[100px]">
-                    <MudText>Coming soon...</MudText>
-                    @* <MudText Typo="Typo.caption">Total Growth</MudText>
-                    <MudText Typo="Typo.h5" Color="Color.Success" Class="font-bold">2,755,847.25 ₳</MudText>
-                    <MudText Typo="Typo.caption">last hour</MudText>
-                    <MudDivider Class="my-4" />
-                    <MudText Typo="Typo.caption">Total Growth Live</MudText>
-                    <MudText Typo="Typo.h5" Color="Color.Success" Class="font-bold">-2,843.33 ₳</MudText> *@
-                </MudCardContent>
-            </MudCard>
-            @* <MudCard Elevation="6">
-            <MudCardMedia
-            Image="https://teddyswap.infura-ipfs.io/ipfs/QmWBffPMZCGYrEEULxmVcoZjYdNkwqcTwJFYfsY3zN1a21" />
-            <MudCardContent>
-            <MudAvatar Color="Color.Secondary" Class="font-bold">#1</MudAvatar>
-            <MudText Typo="Typo.h6" Class="font-bold">Teddy Bears Club #9331</MudText>
-            <MudText Typo="Typo.caption" Color="Color.Default">28000 $TEDY Tokens + 10% Bonus</MudText>
-            <br />
-            <MudText Typo="Typo.caption" Color="Color.Default">10% FISO Bonus</MudText>
-            <br />
-            <MudText Typo="Typo.caption" Color="Color.Default">1% LBE & Yield Farming Bonus</MudText>
-            </MudCardContent>
-            </MudCard>
-            <MudCard Elevation="6">
-            <MudCardMedia
-            Image="https://teddyswap.infura-ipfs.io/ipfs/QmWBffPMZCGYrEEULxmVcoZjYdNkwqcTwJFYfsY3zN1a21" />
-            <MudCardContent>
-            <MudAvatar Color="Color.Secondary" Class="font-bold">#2</MudAvatar>
-            <MudText Typo="Typo.h6" Class="font-bold">Teddy Bears Club #9331</MudText>
-            <MudText Typo="Typo.caption" Color="Color.Default">28000 $TEDY Tokens + 10% Bonus</MudText>
-            <br />
-            <MudText Typo="Typo.caption" Color="Color.Default">10% FISO Bonus</MudText>
-            <br />
-            <MudText Typo="Typo.caption" Color="Color.Default">1% LBE & Yield Farming Bonus</MudText>
-            </MudCardContent>
-            </MudCard>
-            <MudCard Elevation="6">
-            <MudCardMedia
-            Image="https://teddyswap.infura-ipfs.io/ipfs/QmWBffPMZCGYrEEULxmVcoZjYdNkwqcTwJFYfsY3zN1a21" />
-            <MudCardContent>
-            <MudAvatar Color="Color.Secondary" Class="font-bold">#3</MudAvatar>
-            <MudText Typo="Typo.h6" Class="font-bold">Teddy Bears Club #9331</MudText>
-            <MudText Typo="Typo.caption" Color="Color.Default">28000 $TEDY Tokens + 10% Bonus</MudText>
-            <br />
-            <MudText Typo="Typo.caption" Color="Color.Default">10% FISO Bonus</MudText>
-            <br />
-            <MudText Typo="Typo.caption" Color="Color.Default">1% LBE & Yield Farming Bonus</MudText>
-            </MudCardContent>
-            </MudCard>
-            <MudCard Elevation="6">
-            <MudCardMedia
-            Image="https://teddyswap.infura-ipfs.io/ipfs/QmWBffPMZCGYrEEULxmVcoZjYdNkwqcTwJFYfsY3zN1a21" />
-            <MudCardContent>
-            <MudAvatar Color="Color.Secondary" Class="font-bold">#3</MudAvatar>
-            <MudText Typo="Typo.h6" Class="font-bold">Teddy Bears Club #9331</MudText>
-            <MudText Typo="Typo.caption" Color="Color.Default">28000 $TEDY Tokens + 10% Bonus</MudText>
-            <br />
-            <MudText Typo="Typo.caption" Color="Color.Default">10% FISO Bonus</MudText>
-            <br />
-            <MudText Typo="Typo.caption" Color="Color.Default">1% LBE & Yield Farming Bonus</MudText>
-            </MudCardContent>
-            </MudCard> *@
-        </div>
-    </div>
+    }
 </div>
+
+<MudDialog @bind-IsVisible="IsClaimDialogShown" Class="w-[400px]">
+    <TitleContent>
+        <MudText Typo="Typo.h6" Class="!hidden md:!block font-bold">Link Mainnet Wallet</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField T="string" Label="Enter mainnet address..." @bind-Value="MainnetAddress"></MudTextField>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="() => IsClaimDialogShown = false">Cancel</MudButton>
+        <MudButton OnClick="OnClaimSubmit" Variant="Variant.Filled" Color="Color.Secondary" Size="Size.Small"
+            Class="w-[100px] h-[36px] normal-case font-bold">
+            Link
+        </MudButton>
+    </DialogActions>
+</MudDialog>
