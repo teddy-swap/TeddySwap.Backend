@@ -38,10 +38,8 @@ public class AssetService
 
         var mintTransactions = _dbContext.MintTransactions
             .Where(mtx => mtx.PolicyId == policyId)
-            .Join(mtx => mtx.Transaction)
-            .ThenInclude(tx => tx.Block)
-            .OrderBy(mtx => mtx.Transaction.Block.Slot)
-            .ThenBy(mtx => mtx.Transaction.Index)
+            .OrderBy(mtx => mtx.Slot)
+            .ThenBy(mtx => mtx.TxIndex)
             .Select(mtx => mtx.TokenName)
             .ToList()
             .Select(selector: (tn, i) => new
@@ -86,10 +84,8 @@ public class AssetService
 
         var mintTransactions = _dbContext.MintTransactions
             .Where(mtx => mtx.PolicyId == policyId)
-            .Include(mtx => mtx.Transaction)
-            .ThenInclude(tx => tx.Block)
-            .OrderBy(mtx => mtx.Transaction.Block.Slot)
-            .ThenBy(mtx => mtx.Transaction.Index)
+            .OrderBy(mtx => mtx.Slot)
+            .ThenBy(mtx => mtx.TxIndex)
             .Select(mtx => mtx.TokenName)
             .ToList()
             .Select(selector: (tn, i) => new

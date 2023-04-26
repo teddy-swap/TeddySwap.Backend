@@ -13,8 +13,8 @@ using TeddySwap.Sink.Data;
 namespace TeddySwap.Sink.Data.Migrations.TeddySwapNftSinkDb
 {
     [DbContext(typeof(TeddySwapNftSinkDbContext))]
-    [Migration("20230424134736_UpdatedNfSink")]
-    partial class UpdatedNfSink
+    [Migration("20230426140957_MintTxInitialCreate")]
+    partial class MintTxInitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -130,6 +130,9 @@ namespace TeddySwap.Sink.Data.Migrations.TeddySwapNftSinkDb
                     b.Property<string>("TokenName")
                         .HasColumnType("text");
 
+                    b.Property<string>("TxHash")
+                        .HasColumnType("text");
+
                     b.Property<string>("AsciiTokenName")
                         .IsRequired()
                         .HasColumnType("text");
@@ -144,11 +147,10 @@ namespace TeddySwap.Sink.Data.Migrations.TeddySwapNftSinkDb
                     b.Property<decimal>("Slot")
                         .HasColumnType("numeric(20,0)");
 
-                    b.Property<string>("TxHash")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<decimal>("TxIndex")
+                        .HasColumnType("numeric(20,0)");
 
-                    b.HasKey("PolicyId", "TokenName");
+                    b.HasKey("PolicyId", "TokenName", "TxHash");
 
                     b.ToTable("MintTransactions");
                 });
@@ -163,6 +165,9 @@ namespace TeddySwap.Sink.Data.Migrations.TeddySwapNftSinkDb
 
                     b.Property<string>("Address")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("StakeAddress")
                         .HasColumnType("text");
 
                     b.HasKey("PolicyId", "TokenName");
@@ -211,13 +216,12 @@ namespace TeddySwap.Sink.Data.Migrations.TeddySwapNftSinkDb
                         .HasColumnType("numeric(20,0)");
 
                     b.Property<string>("BlockHash")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<byte?>("InlineDatum")
                         .HasColumnType("smallint");
 
-                    b.HasKey("TxHash", "TxOutputHash", "TxOutputIndex");
+                    b.HasKey("TxHash", "TxOutputHash", "TxOutputIndex", "BlockHash");
 
                     b.ToTable("TxInputs");
                 });

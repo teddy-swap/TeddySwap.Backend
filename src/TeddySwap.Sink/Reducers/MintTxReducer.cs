@@ -15,13 +15,13 @@ namespace TeddySwap.Sink.Reducers;
 
 [OuraReducer(OuraVariant.Transaction)]
 [DbContext(DbContextVariant.Nft)]
-public class MintTransactionReducer : OuraReducerBase
+public class MintTxReducer : OuraReducerBase
 {
     private readonly TeddySwapSinkSettings _settings;
     private readonly MetadataService _metadataService;
     private readonly CardanoService _cardanoService;
 
-    public MintTransactionReducer(
+    public MintTxReducer(
         IOptions<TeddySwapSinkSettings> settings,
         MetadataService metadataService,
         CardanoService cardanoService)
@@ -66,6 +66,7 @@ public class MintTransactionReducer : OuraReducerBase
                     AsciiTokenName = Encoding.ASCII.GetString(Convert.FromHexString(asset.Asset).Where(b => b < 128 && b != 0x00).ToArray()),
                     Metadata = metadata,
                     TxHash = transaction.Hash,
+                    TxIndex = (ulong)transaction.Index,
                     BlockHash = transaction.Context.BlockHash,
                     Slot = (ulong)transaction.Context.Slot
                 });

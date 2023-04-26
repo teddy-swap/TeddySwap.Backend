@@ -144,6 +144,9 @@ namespace TeddySwap.Sink.Data.Migrations.TeddySwapNftSinkDb
                     b.Property<decimal>("Slot")
                         .HasColumnType("numeric(20,0)");
 
+                    b.Property<decimal>("TxIndex")
+                        .HasColumnType("numeric(20,0)");
+
                     b.HasKey("PolicyId", "TokenName", "TxHash");
 
                     b.ToTable("MintTransactions");
@@ -162,7 +165,6 @@ namespace TeddySwap.Sink.Data.Migrations.TeddySwapNftSinkDb
                         .HasColumnType("text");
 
                     b.Property<string>("StakeAddress")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("PolicyId", "TokenName");
@@ -211,13 +213,12 @@ namespace TeddySwap.Sink.Data.Migrations.TeddySwapNftSinkDb
                         .HasColumnType("numeric(20,0)");
 
                     b.Property<string>("BlockHash")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<byte?>("InlineDatum")
                         .HasColumnType("smallint");
 
-                    b.HasKey("TxHash", "TxOutputHash", "TxOutputIndex");
+                    b.HasKey("TxHash", "TxOutputHash", "TxOutputIndex", "BlockHash");
 
                     b.ToTable("TxInputs");
                 });

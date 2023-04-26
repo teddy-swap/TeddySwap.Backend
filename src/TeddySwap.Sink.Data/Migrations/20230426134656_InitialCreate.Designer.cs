@@ -10,11 +10,11 @@ using TeddySwap.Sink.Data;
 
 #nullable disable
 
-namespace TeddySwap.Sink.Data.Migrations.TeddySwapBadgerAddressSinkDb
+namespace TeddySwap.Sink.Data.Migrations
 {
     [DbContext(typeof(TeddySwapBadgerAddressSinkDbContext))]
-    [Migration("20230425143218_UpdateBadgerAddressReducer")]
-    partial class UpdateBadgerAddressReducer
+    [Migration("20230426134656_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

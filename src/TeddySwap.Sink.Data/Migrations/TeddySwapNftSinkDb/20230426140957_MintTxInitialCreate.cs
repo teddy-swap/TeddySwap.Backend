@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TeddySwap.Sink.Data.Migrations.TeddySwapNftSinkDb
 {
     /// <inheritdoc />
-    public partial class UpdatedNfSink : Migration
+    public partial class MintTxInitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -76,9 +76,10 @@ namespace TeddySwap.Sink.Data.Migrations.TeddySwapNftSinkDb
                 name: "MintTransactions",
                 columns: table => new
                 {
+                    TxHash = table.Column<string>(type: "text", nullable: false),
                     PolicyId = table.Column<string>(type: "text", nullable: false),
                     TokenName = table.Column<string>(type: "text", nullable: false),
-                    TxHash = table.Column<string>(type: "text", nullable: false),
+                    TxIndex = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
                     AsciiTokenName = table.Column<string>(type: "text", nullable: false),
                     Metadata = table.Column<string>(type: "text", nullable: true),
                     Slot = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
@@ -86,7 +87,7 @@ namespace TeddySwap.Sink.Data.Migrations.TeddySwapNftSinkDb
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_MintTransactions", x => new { x.PolicyId, x.TokenName });
+                    table.PrimaryKey("PK_MintTransactions", x => new { x.PolicyId, x.TokenName, x.TxHash });
                 });
 
             migrationBuilder.CreateTable(
@@ -95,7 +96,8 @@ namespace TeddySwap.Sink.Data.Migrations.TeddySwapNftSinkDb
                 {
                     PolicyId = table.Column<string>(type: "text", nullable: false),
                     TokenName = table.Column<string>(type: "text", nullable: false),
-                    Address = table.Column<string>(type: "text", nullable: false)
+                    Address = table.Column<string>(type: "text", nullable: false),
+                    StakeAddress = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -126,12 +128,12 @@ namespace TeddySwap.Sink.Data.Migrations.TeddySwapNftSinkDb
                     TxHash = table.Column<string>(type: "text", nullable: false),
                     TxOutputHash = table.Column<string>(type: "text", nullable: false),
                     TxOutputIndex = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
-                    InlineDatum = table.Column<byte>(type: "smallint", nullable: true),
-                    BlockHash = table.Column<string>(type: "text", nullable: false)
+                    BlockHash = table.Column<string>(type: "text", nullable: false),
+                    InlineDatum = table.Column<byte>(type: "smallint", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TxInputs", x => new { x.TxHash, x.TxOutputHash, x.TxOutputIndex });
+                    table.PrimaryKey("PK_TxInputs", x => new { x.TxHash, x.TxOutputHash, x.TxOutputIndex, x.BlockHash });
                 });
 
             migrationBuilder.CreateTable(

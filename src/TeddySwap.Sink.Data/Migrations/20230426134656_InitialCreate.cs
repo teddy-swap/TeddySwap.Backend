@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace TeddySwap.Sink.Data.Migrations.TeddySwapBadgerAddressSinkDb
+namespace TeddySwap.Sink.Data.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration
@@ -35,6 +35,7 @@ namespace TeddySwap.Sink.Data.Migrations.TeddySwapBadgerAddressSinkDb
                     TxHash = table.Column<string>(type: "text", nullable: false),
                     LinkAddress = table.Column<string>(type: "text", nullable: true),
                     StakeAddress = table.Column<string>(type: "text", nullable: true),
+                    LinkStakeAddress = table.Column<string>(type: "text", nullable: true),
                     Slot = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
                     BlockHash = table.Column<string>(type: "text", nullable: false)
                 },

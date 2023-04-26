@@ -5,6 +5,7 @@ namespace TeddySwap.Common.Models;
 public class MintTransaction
 {
     public string TxHash { get; init; } = string.Empty;
+    public ulong TxIndex { get; init; }
     public string PolicyId { get; init; } = string.Empty;
     public string TokenName { get; init; } = string.Empty;
     public string AsciiTokenName { get; init; } = string.Empty;
