@@ -28,20 +28,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-// builder.Services.AddPooledDbContextFactory<TeddySwapSinkCoreDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("TeddySwapSink")));
-// builder.Services.AddPooledDbContextFactory<TeddySwapOrderSinkDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("TeddySwapSink")));
-// builder.Services.AddPooledDbContextFactory<TeddySwapNftSinkDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("TeddySwapSink")));
-// builder.Services.AddPooledDbContextFactory<TeddySwapFisoSinkDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("TeddySwapSink")));
-// builder.Services.AddPooledDbContextFactory<CardanoDbSyncContext>(options =>
-// {
-//     if (builder.Configuration["ASPNETCORE_ENVIRONMENT"]?.ToString() != "Production")
-//         options.EnableSensitiveDataLogging(true);
-//     options.UseNpgsql(connectionString, pgOptions =>
-//     {
-//         pgOptions.EnableRetryOnFailure(3);
-//         pgOptions.CommandTimeout(999999);
-//     });
-// }, 10);
+
 builder.Services.AddPooledDbContextFactory<TeddySwapSinkCoreDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("TeddySwapSink")), 10);
 builder.Services.AddPooledDbContextFactory<TeddySwapOrderSinkDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("TeddySwapSink")), 10);
 builder.Services.AddPooledDbContextFactory<TeddySwapNftSinkDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("TeddySwapSink")), 10);

@@ -38,7 +38,7 @@ public class AssetService
 
         var mintTransactions = _dbContext.MintTransactions
             .Where(mtx => mtx.PolicyId == policyId)
-            .Include(mtx => mtx.Transaction)
+            .Join(mtx => mtx.Transaction)
             .ThenInclude(tx => tx.Block)
             .OrderBy(mtx => mtx.Transaction.Block.Slot)
             .ThenBy(mtx => mtx.Transaction.Index)

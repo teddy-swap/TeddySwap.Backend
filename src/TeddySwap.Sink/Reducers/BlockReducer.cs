@@ -5,37 +5,35 @@ using Microsoft.Extensions.Options;
 using TeddySwap.Common.Models;
 using TeddySwap.Sink.Data;
 using TeddySwap.Sink.Models;
+using TeddySwap.Sink.Models.Models;
 using TeddySwap.Sink.Models.Oura;
 using TeddySwap.Sink.Services;
 
 namespace TeddySwap.Sink.Reducers;
 
 [OuraReducer(OuraVariant.Block)]
+[DbContext(DbContextVariant.Core)]
 public class BlockReducer : OuraReducerBase, IOuraCoreReducer
 {
     private readonly ILogger<BlockReducer> _logger;
-    private readonly IDbContextFactory<TeddySwapSinkCoreDbContext> _dbContextFactory;
     private readonly CardanoService _cardanoService;
     private readonly IServiceProvider _serviceProvider;
     private readonly TeddySwapSinkSettings _settings;
 
     public BlockReducer(
         ILogger<BlockReducer> logger,
-        IDbContextFactory<TeddySwapSinkCoreDbContext> dbContextFactory,
         CardanoService cardanoService,
         IOptions<TeddySwapSinkSettings> settings,
         IServiceProvider serviceProvider)
     {
         _logger = logger;
-        _dbContextFactory = dbContextFactory;
         _cardanoService = cardanoService;
         _serviceProvider = serviceProvider;
         _settings = settings.Value;
     }
 
-    public async Task ReduceAsync(OuraBlockEvent blockEvent)
+    public async Task ReduceAsync(OuraBlockEvent blockEvent, TeddySwapSinkCoreDbContext _dbContext)
     {
-        using TeddySwapSinkCoreDbContext _dbContext = await _dbContextFactory.CreateDbContextAsync();
         if (blockEvent.Context is not null &&
             blockEvent.Context.BlockNumber is not null &&
             blockEvent.Context.Slot is not null &&
@@ -43,7 +41,7 @@ public class BlockReducer : OuraReducerBase, IOuraCoreReducer
             blockEvent.Block is not null &&
             blockEvent.Block.Era is not null)
         {
-            await RollbackBySlotAsync((ulong)blockEvent.Context.Slot);
+            await RollbackBySlotAsync((ulong)blockEvent.Context.Slot, _dbContext);
 
             Block? existingBlock = await _dbContext.Blocks.Where(block => block.BlockNumber == blockEvent.Context.BlockNumber).FirstOrDefaultAsync();
 
@@ -65,16 +63,14 @@ public class BlockReducer : OuraReducerBase, IOuraCoreReducer
         }
     }
 
-    public async Task RollbackAsync(Block rollbackBlock)
+    public async Task RollbackAsync(Block rollbackBlock, TeddySwapSinkCoreDbContext _dbContext)
     {
-        using TeddySwapSinkCoreDbContext _dbContext = await _dbContextFactory.CreateDbContextAsync();
         _dbContext.Blocks.Remove(rollbackBlock);
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task RollbackBySlotAsync(ulong rollbackSlot)
+    public async Task RollbackBySlotAsync(ulong rollbackSlot, TeddySwapSinkCoreDbContext _dbContext)
     {
-        using TeddySwapSinkCoreDbContext _dbContext = await _dbContextFactory.CreateDbContextAsync();
         ulong currentTipSlot = await _dbContext.Blocks.AnyAsync() ? await _dbContext.Blocks.MaxAsync(block => block.Slot) : 0;
 
         // Check if current database tip clashes with the current tip oura is pushing
@@ -99,10 +95,10 @@ public class BlockReducer : OuraReducerBase, IOuraCoreReducer
                     )
                     .Select((reducer) => Task.Run(async () =>
                     {
-                        await reducer.HandleRollbackAsync(rollbackBlock);
+                        await reducer.HandleRollbackAsync(rollbackBlock, _dbContext);
                     }))
                 );
-                await this.HandleRollbackAsync(rollbackBlock);
+                await this.HandleRollbackAsync(rollbackBlock, _dbContext);
             }
         }
     }

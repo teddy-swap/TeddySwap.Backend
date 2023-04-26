@@ -4,37 +4,30 @@ using Microsoft.EntityFrameworkCore;
 using TeddySwap.Common.Enums;
 using TeddySwap.Common.Models;
 using TeddySwap.Sink.Data;
+using TeddySwap.Sink.Models.Models;
 using TeddySwap.Sink.Models.Oura;
 using TeddySwap.Sink.Services;
 
 namespace TeddySwap.Sink.Reducers;
 
 [OuraReducer(OuraVariant.Transaction)]
+[DbContext(DbContextVariant.Order)]
 public class OrderReducer : OuraReducerBase
 {
-    private readonly ILogger<OrderReducer> _logger;
-    private readonly IDbContextFactory<TeddySwapOrderSinkDbContext> _dbContextFactory;
     private readonly OrderService _orderService;
 
-    public OrderReducer(
-        ILogger<OrderReducer> logger,
-        IDbContextFactory<TeddySwapOrderSinkDbContext> dbContextFactory,
-        OrderService orderService)
+    public OrderReducer(OrderService orderService)
     {
-        _logger = logger;
-        _dbContextFactory = dbContextFactory;
         _orderService = orderService;
     }
 
-    public async Task ReduceAsync(OuraTransaction transaction)
+    public async Task ReduceAsync(OuraTransaction transaction, TeddySwapOrderSinkDbContext _dbContext)
     {
 
         if (transaction is not null &&
             transaction.Context is not null &&
             transaction.Fee is not null)
         {
-
-            using TeddySwapOrderSinkDbContext? _dbContext = await _dbContextFactory.CreateDbContextAsync();
             if (_dbContext is null) return;
 
             Block? block = await _dbContext.Blocks
@@ -103,12 +96,10 @@ public class OrderReducer : OuraReducerBase
 
         return decimal.Parse(result.ToString());
     }
-    public async Task RollbackAsync(Block rollbackBlock)
+    public async Task RollbackAsync(Block rollbackBlock, TeddySwapOrderSinkDbContext _dbContext)
     {
         if (rollbackBlock is not null)
         {
-            using TeddySwapOrderSinkDbContext? _dbContext = await _dbContextFactory.CreateDbContextAsync();
-
             List<Order>? orders = await _dbContext.Orders
                 .Include(o => o.Block)
                 .Where(o => o.Block == rollbackBlock)

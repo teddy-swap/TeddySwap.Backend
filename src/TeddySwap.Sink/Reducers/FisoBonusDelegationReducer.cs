@@ -5,35 +5,28 @@ using Microsoft.Extensions.Options;
 using TeddySwap.Common.Models;
 using TeddySwap.Sink.Data;
 using TeddySwap.Sink.Models;
+using TeddySwap.Sink.Models.Models;
 using TeddySwap.Sink.Models.Oura;
 using TeddySwap.Sink.Services;
 
 namespace TeddySwap.Sink.Reducers;
 
 [OuraReducer(OuraVariant.StakeDelegation)]
+[DbContext(DbContextVariant.Fiso)]
 public class FisoBonusDelegationReducer : OuraReducerBase
 {
-    private readonly ILogger<FisoBonusDelegationReducer> _logger;
-    private readonly IDbContextFactory<TeddySwapFisoSinkDbContext> _dbContextFactory;
-    private readonly IDbContextFactory<CardanoDbSyncContext> _cardanoDbSyncContextFactory;
     private readonly CardanoService _cardanoService;
     private readonly TeddySwapSinkSettings _settings;
 
     public FisoBonusDelegationReducer(
-        ILogger<FisoBonusDelegationReducer> logger,
-        IDbContextFactory<TeddySwapFisoSinkDbContext> dbContextFactory,
-        IDbContextFactory<CardanoDbSyncContext> cardanoDbSyncContextFactory,
         IOptions<TeddySwapSinkSettings> settings,
         CardanoService cardanoService)
     {
-        _logger = logger;
-        _dbContextFactory = dbContextFactory;
-        _cardanoDbSyncContextFactory = cardanoDbSyncContextFactory;
         _cardanoService = cardanoService;
         _settings = settings.Value;
     }
 
-    public async Task ReduceAsync(OuraStakeDelegationEvent stakeDelegationEvent)
+    public async Task ReduceAsync(OuraStakeDelegationEvent stakeDelegationEvent, TeddySwapFisoSinkDbContext _dbContext)
     {
 
         if (stakeDelegationEvent is not null &&
@@ -48,9 +41,6 @@ public class FisoBonusDelegationReducer : OuraReducerBase
             ulong epoch = _cardanoService.CalculateEpochBySlot((ulong)stakeDelegationEvent.Context.Slot!);
 
             if (epoch < _settings.FisoStartEpoch - 1 || epoch >= _settings.FisoEndEpoch) return;
-
-            using TeddySwapFisoSinkDbContext _dbContext = await _dbContextFactory.CreateDbContextAsync();
-
             if (_cardanoService.IsInvalidTransaction(stakeDelegationEvent.Context.InvalidTransactions, (ulong)stakeDelegationEvent.Context.TxIdx)) return;
 
             string? stakeAddress = _cardanoService.GetStakeAddressFromEvent(stakeDelegationEvent);
@@ -99,10 +89,8 @@ public class FisoBonusDelegationReducer : OuraReducerBase
         }
     }
 
-    public async Task RollbackAsync(Block rollbackBlock)
+    public async Task RollbackAsync(Block rollbackBlock, TeddySwapFisoSinkDbContext _dbContext)
     {
-        using TeddySwapFisoSinkDbContext _dbContext = await _dbContextFactory.CreateDbContextAsync();
-
         var fisoBonusDelegations = await _dbContext.FisoBonusDelegations
             .Where(fbd => fbd.BlockNumber == rollbackBlock.BlockNumber)
             .ToListAsync();

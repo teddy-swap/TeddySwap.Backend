@@ -3,35 +3,32 @@ using Microsoft.Extensions.Options;
 using TeddySwap.Common.Models;
 using TeddySwap.Sink.Data;
 using TeddySwap.Sink.Models;
+using TeddySwap.Sink.Models.Models;
 using TeddySwap.Sink.Models.Oura;
 using TeddySwap.Sink.Services;
 
 namespace TeddySwap.Sink.Reducers;
 
 [OuraReducer(OuraVariant.Asset)]
+[DbContext(DbContextVariant.Nft)]
 public class NftOwnerReducer : OuraReducerBase
 {
-    private readonly ILogger<NftOwnerReducer> _logger;
-    private readonly IDbContextFactory<TeddySwapNftSinkDbContext> _dbContextFactory;
     private readonly TeddySwapSinkSettings _settings;
     private readonly MetadataService _metadataService;
     private readonly CardanoService _cardanoService;
 
     public NftOwnerReducer(
-        ILogger<NftOwnerReducer> logger,
-        IDbContextFactory<TeddySwapNftSinkDbContext> dbContextFactory,
         IOptions<TeddySwapSinkSettings> settings,
         MetadataService metadataService,
         CardanoService cardanoService)
     {
-        _logger = logger;
-        _dbContextFactory = dbContextFactory;
+
         _settings = settings.Value;
         _metadataService = metadataService;
         _cardanoService = cardanoService;
     }
 
-    public async Task ReduceAsync(OuraAssetEvent asset)
+    public async Task ReduceAsync(OuraAssetEvent asset, TeddySwapNftSinkDbContext _dbContext)
     {
         if (asset is not null &&
             asset.Address is not null &&
@@ -45,8 +42,6 @@ public class NftOwnerReducer : OuraReducerBase
 
             if (_settings.NftPolicyIds.Contains(asset.PolicyId))
             {
-                using TeddySwapNftSinkDbContext? _dbContext = await _dbContextFactory.CreateDbContextAsync();
-
                 NftOwner? owner = await _dbContext.NftOwners
                     .Where(n => n.PolicyId == asset.PolicyId.ToLower() && n.TokenName == asset.TokenName.ToLower())
                     .FirstOrDefaultAsync();
@@ -75,11 +70,8 @@ public class NftOwnerReducer : OuraReducerBase
         }
     }
 
-    public async Task RollbackAsync(Block rollbackBlock)
+    public async Task RollbackAsync(Block rollbackBlock, TeddySwapNftSinkDbContext _dbContext)
     {
-
-        using TeddySwapNftSinkDbContext _dbContext = await _dbContextFactory.CreateDbContextAsync();
-
         List<Transaction>? transactions = await _dbContext.Transactions
              .Where(t => t.BlockHash == rollbackBlock.BlockHash)
              .ToListAsync();

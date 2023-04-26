@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TeddySwap.Sink.Data;
@@ -12,9 +13,11 @@ using TeddySwap.Sink.Data;
 namespace TeddySwap.Sink.Data.Migrations.TeddySwapBadgerAddressSinkDb
 {
     [DbContext(typeof(TeddySwapBadgerAddressSinkDbContext))]
-    partial class TeddySwapBadgerAddressSinkDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230425143218_UpdateBadgerAddressReducer")]
+    partial class UpdateBadgerAddressReducer
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using TeddySwap.Sink.Data;
 using TeddySwap.Sink.Filters;
 using TeddySwap.Sink.Models;
+using TeddySwap.Sink.Models.Models;
 using TeddySwap.Sink.Models.Oura;
 using TeddySwap.Sink.Reducers;
 using TeddySwap.Sink.Services;
@@ -17,7 +18,11 @@ namespace TeddySwap.Sink.Controllers;
 public class OuraWebhookController : ControllerBase
 {
     private readonly ILogger<OuraWebhookController> _logger;
-    private readonly IDbContextFactory<TeddySwapSinkCoreDbContext> _dbContextFactory;
+    private readonly IDbContextFactory<TeddySwapSinkCoreDbContext> _coreDbContextFactory;
+    private readonly IDbContextFactory<TeddySwapFisoSinkDbContext> _fisoDbContextFactory;
+    private readonly IDbContextFactory<TeddySwapNftSinkDbContext> _nftDbContextFactory;
+    private readonly IDbContextFactory<TeddySwapOrderSinkDbContext> _orderDbContextFactory;
+    private readonly IDbContextFactory<TeddySwapBadgerAddressSinkDbContext> _badgerAddressDbContextFactory;
     private readonly JsonSerializerOptions ConclaveJsonSerializerOptions = new JsonSerializerOptions()
     {
         PropertyNameCaseInsensitive = true
@@ -29,7 +34,11 @@ public class OuraWebhookController : ControllerBase
 
     public OuraWebhookController(
         ILogger<OuraWebhookController> logger,
-        IDbContextFactory<TeddySwapSinkCoreDbContext> dbContextFactory,
+        IDbContextFactory<TeddySwapSinkCoreDbContext> coreDbContextFactory,
+        IDbContextFactory<TeddySwapFisoSinkDbContext> fisoDbContextFactory,
+        IDbContextFactory<TeddySwapNftSinkDbContext> nftDbContextFactory,
+        IDbContextFactory<TeddySwapOrderSinkDbContext> orderDbContextFactory,
+        IDbContextFactory<TeddySwapBadgerAddressSinkDbContext> badgerAddressDbContextFactory,
         CardanoService cardanoService,
         IEnumerable<IOuraReducer> reducers,
         IOptions<TeddySwapSinkSettings> settings,
@@ -37,7 +46,11 @@ public class OuraWebhookController : ControllerBase
     )
     {
         _logger = logger;
-        _dbContextFactory = dbContextFactory;
+        _coreDbContextFactory = coreDbContextFactory;
+        _fisoDbContextFactory = fisoDbContextFactory;
+        _nftDbContextFactory = nftDbContextFactory;
+        _orderDbContextFactory = orderDbContextFactory;
+        _badgerAddressDbContextFactory = badgerAddressDbContextFactory;
         _cardanoService = cardanoService;
         _reducers = reducers;
         _settings = settings;
@@ -51,6 +64,7 @@ public class OuraWebhookController : ControllerBase
 
         if (_event is not null && _event.Context is not null)
         {
+            using var blockDbContext = await _CreateDbContext(DbContextVariant.Core);
             if (_event.Variant == OuraVariant.RollBack)
             {
                 OuraRollbackEvent? rollbackEvent = _eventJson.Deserialize<OuraRollbackEvent?>();
@@ -61,7 +75,9 @@ public class OuraWebhookController : ControllerBase
                     BlockReducer? blockReducer = _reducers.Where(r => r is BlockReducer).FirstOrDefault() as BlockReducer;
 
                     if (blockReducer is not null)
-                        await blockReducer.RollbackBySlotAsync((ulong)rollbackEvent.RollBack.BlockSlot);
+                    {
+                        await blockReducer.RollbackBySlotAsync((ulong)rollbackEvent.RollBack.BlockSlot, (blockDbContext as TeddySwapSinkCoreDbContext)!);
+                    }
                 }
             }
             else
@@ -76,12 +92,13 @@ public class OuraWebhookController : ControllerBase
 
                         if (_settings.Value.Reducers.Any(rS => reducer.GetType().FullName?.Contains(rS) ?? false) || reducer is IOuraCoreReducer)
                         {
+                            using var reducerDbContext = await _CreateDbContext(_GetDbContextVariant(reducer));
                             foreach (var reducerVariant in reducerVariants)
                             {
                                 switch (reducerVariant)
                                 {
                                     case OuraVariant.StakeDelegation:
-                                        await reducer.HandleReduceAsync(_eventJson.Deserialize<OuraStakeDelegationEvent>(ConclaveJsonSerializerOptions));
+                                        await reducer.HandleReduceAsync(_eventJson.Deserialize<OuraStakeDelegationEvent>(ConclaveJsonSerializerOptions), reducerDbContext);
                                         break;
                                     default:
                                         break;
@@ -100,44 +117,8 @@ public class OuraWebhookController : ControllerBase
                         if (blockEvent is not null && blockEvent.Block is not null)
                         {
                             if (blockEvent.Context is not null) blockEvent.Context.InvalidTransactions = blockEvent.Block.InvalidTransactions;
-                            blockEvent.Block.Transactions = blockEvent.Block.Transactions?.Select((t, ti) =>
-                            {
-                                t.Index = ti;
-                                t.Context = blockEvent.Context;
-                                t.Context!.TxHash = t.Hash;
-                                t.Outputs = t.Outputs?.Select((o, oi) =>
-                                {
-                                    o.Context = blockEvent.Context;
-                                    o.OutputIndex = (ulong)oi;
-                                    o.TxHash = t.Hash;
-                                    o.TxIndex = (ulong)ti;
-                                    o.Variant = OuraVariant.TxOutput;
-                                    return o;
-                                });
-                                t.Inputs = t.Inputs?.Select(i =>
-                                {
-                                    i.Context = blockEvent.Context;
-                                    i.Context!.TxIdx = (ulong)ti;
-                                    i.Variant = OuraVariant.TxInput;
-                                    return i;
-                                });
-                                t.CollateralInputs = t.CollateralInputs?.Select(ci =>
-                                {
-                                    ci.Context = blockEvent.Context;
-                                    ci.Context!.TxIdx = (ulong)ti;
-                                    ci.Variant = OuraVariant.CollateralInput;
-                                    return ci;
-                                });
-                                if (t.HasCollateralOutput)
-                                {
-                                    t.CollateralOutput!.Context = blockEvent.Context;
-                                    t.CollateralOutput.Context!.HasCollateralOutput = t.HasCollateralOutput;
-                                    t.CollateralOutput.Context.TxHash = t.Hash;
-                                    t.CollateralOutput.Variant = OuraVariant.CollateralOutput;
-                                }
-                                return t;
-                            }).ToList();
-                            await blockReducer.HandleReduceAsync(blockEvent);
+                            blockEvent = HydrateBlock(blockEvent);
+                            await blockReducer.HandleReduceAsync(blockEvent, blockDbContext);
                         }
                     }
 
@@ -147,201 +128,15 @@ public class OuraWebhookController : ControllerBase
                     List<OuraTxInput> inputs = blockEvent.Block.Transactions.SelectMany(t => t.Inputs!).ToList();
                     List<OuraTxOutput> outputs = _cardanoFilterService.FilterTxOutputs(blockEvent.Block.Transactions.SelectMany(t => t.Outputs!).ToList());
                     List<OuraAssetEvent> assets = _cardanoFilterService.FilterAssets(MapToOuraAssetEvents(blockEvent.Block.Transactions.SelectMany(t => t.Outputs!)).ToList());
+                    List<OuraTxInput> collateralInputs = blockEvent.Block.Transactions.Where(t => t.CollateralInputs is not null).SelectMany(t => t.CollateralInputs!).ToList();
+                    List<OuraCollateralOutput> collateralOutputs = blockEvent.Block.Transactions.Where(t => t.CollateralOutput is not null).Select(t => t.CollateralOutput!).ToList();
 
-                    Dictionary<OuraVariant, SemaphoreSlim> semaphores = new Dictionary<OuraVariant, SemaphoreSlim>
-                        {
-                            { OuraVariant.Block, new SemaphoreSlim(1) },
-                            { OuraVariant.Transaction, new SemaphoreSlim(3) },
-                            { OuraVariant.TxInput, new SemaphoreSlim(5) },
-                            { OuraVariant.TxOutput, new SemaphoreSlim(5) },
-                            { OuraVariant.Asset, new SemaphoreSlim(5) },
-                            { OuraVariant.CollateralInput, new SemaphoreSlim(1) },
-                            { OuraVariant.CollateralOutput, new SemaphoreSlim(1) }
-                        };
+                    IEnumerable<IOuraReducer> coreReducers = _reducers.Where(reducer => _settings.Value.Reducers.Any(rS => reducer.GetType().FullName?.Contains(rS) ?? false) && reducer is IOuraCoreReducer);
+                    IEnumerable<IOuraReducer> otherReducers = _reducers.Where(reducer => _settings.Value.Reducers.Any(rS => reducer.GetType().FullName?.Contains(rS) ?? false) && reducer is not IOuraCoreReducer);
 
-                    await Task.WhenAll(_reducers.SelectMany(reducer =>
-                    {
-                        ICollection<OuraVariant> reducerVariants = _GetReducerVariants(reducer);
-                        return reducerVariants.Select(reducerVariant =>
-                        {
-                            if (_settings.Value.Reducers.Any(rS => reducer.GetType().FullName?.Contains(rS) ?? false) && reducer is IOuraCoreReducer)
-                            {
-                                return reducerVariant switch
-                                {
-                                    OuraVariant.Block => reducer.HandleReduceAsync(blockEvent),
-                                    OuraVariant.Transaction => Task.WhenAll(transactions.Select(async te =>
-                                    {
-                                        await semaphores[OuraVariant.Transaction].WaitAsync();
-                                        try
-                                        {
-                                            await reducer.HandleReduceAsync(te);
-                                        }
-                                        finally
-                                        {
-                                            semaphores[OuraVariant.Transaction].Release();
-                                        }
-                                    })),
-                                    OuraVariant.TxInput => Task.WhenAll(inputs.Select(async i =>
-                                    {
-                                        await semaphores[OuraVariant.TxInput].WaitAsync();
-                                        try
-                                        {
-                                            await reducer.HandleReduceAsync(i);
-                                        }
-                                        finally
-                                        {
-                                            semaphores[OuraVariant.TxInput].Release();
-                                        }
-                                    })),
-                                    OuraVariant.TxOutput => Task.WhenAll(outputs.Select(async o =>
-                                    {
-                                        await semaphores[OuraVariant.TxOutput].WaitAsync();
-                                        try
-                                        {
-                                            await reducer.HandleReduceAsync(o);
-                                        }
-                                        finally
-                                        {
-                                            semaphores[OuraVariant.TxOutput].Release();
-                                        }
-                                    })),
-                                    OuraVariant.Asset => Task.WhenAll(assets.Select(async a =>
-                                    {
-                                        await semaphores[OuraVariant.Asset].WaitAsync();
-                                        try
-                                        {
-                                            await reducer.HandleReduceAsync(a);
-                                        }
-                                        finally
-                                        {
-                                            semaphores[OuraVariant.Asset].Release();
-                                        }
-                                    })),
-                                    OuraVariant.CollateralInput => Task.WhenAll(blockEvent.Block.Transactions.Where(t => t.CollateralInputs is not null).SelectMany(t => t.CollateralInputs!).Select(async ci =>
-                                    {
-                                        await semaphores[OuraVariant.CollateralInput].WaitAsync();
-                                        try
-                                        {
-                                            await reducer.HandleReduceAsync(ci);
-                                        }
-                                        finally
-                                        {
-                                            semaphores[OuraVariant.CollateralInput].Release();
-                                        }
-                                    })),
-                                    OuraVariant.CollateralOutput => Task.WhenAll(blockEvent.Block.Transactions.Where(t => t.CollateralOutput is not null).Select(t => t.CollateralOutput!).Select(async co =>
-                                    {
-                                        await semaphores[OuraVariant.CollateralOutput].WaitAsync();
-                                        try
-                                        {
-                                            await reducer.HandleReduceAsync(co);
-                                        }
-                                        finally
-                                        {
-                                            semaphores[OuraVariant.CollateralOutput].Release();
-                                        }
-                                    })),
-                                    _ => Task.CompletedTask
-                                };
-                            }
-                            else
-                            {
-                                return Task.CompletedTask;
-                            }
-                        });
-                    }));
+                    await HandleReducers(coreReducers, blockEvent, transactions, inputs, outputs, assets, collateralInputs, collateralOutputs);
+                    await HandleReducers(otherReducers, blockEvent, transactions, inputs, outputs, assets, collateralInputs, collateralOutputs);
 
-                    await Task.WhenAll(_reducers.SelectMany(reducer =>
-                        {
-                            ICollection<OuraVariant> reducerVariants = _GetReducerVariants(reducer);
-                            return reducerVariants.Select(reducerVariant =>
-                            {
-                                if (_settings.Value.Reducers.Any(rS => reducer.GetType().FullName?.Contains(rS) ?? false) && reducer is not IOuraCoreReducer)
-                                {
-                                    return reducerVariant switch
-                                    {
-                                        OuraVariant.Block => reducer.HandleReduceAsync(blockEvent),
-                                        OuraVariant.Transaction => Task.WhenAll(transactions.Select(async te =>
-                                        {
-                                            await semaphores[OuraVariant.Transaction].WaitAsync();
-                                            try
-                                            {
-                                                await reducer.HandleReduceAsync(te);
-                                            }
-                                            finally
-                                            {
-                                                semaphores[OuraVariant.Transaction].Release();
-                                            }
-                                        })),
-                                        OuraVariant.TxInput => Task.WhenAll(inputs.Select(async i =>
-                                        {
-                                            await semaphores[OuraVariant.TxInput].WaitAsync();
-                                            try
-                                            {
-                                                await reducer.HandleReduceAsync(i);
-                                            }
-                                            finally
-                                            {
-                                                semaphores[OuraVariant.TxInput].Release();
-                                            }
-                                        })),
-                                        OuraVariant.TxOutput => Task.WhenAll(outputs.Select(async o =>
-                                        {
-                                            await semaphores[OuraVariant.TxOutput].WaitAsync();
-                                            try
-                                            {
-                                                await reducer.HandleReduceAsync(o);
-                                            }
-                                            finally
-                                            {
-                                                semaphores[OuraVariant.TxOutput].Release();
-                                            }
-                                        })),
-                                        OuraVariant.Asset => Task.WhenAll(assets.Select(async a =>
-                                        {
-                                            await semaphores[OuraVariant.Asset].WaitAsync();
-                                            try
-                                            {
-                                                await reducer.HandleReduceAsync(a);
-                                            }
-                                            finally
-                                            {
-                                                semaphores[OuraVariant.Asset].Release();
-                                            }
-                                        })),
-                                        OuraVariant.CollateralInput => Task.WhenAll(blockEvent.Block.Transactions.Where(t => t.CollateralInputs is not null).SelectMany(t => t.CollateralInputs!).Select(async ci =>
-                                        {
-                                            await semaphores[OuraVariant.CollateralInput].WaitAsync();
-                                            try
-                                            {
-                                                await reducer.HandleReduceAsync(ci);
-                                            }
-                                            finally
-                                            {
-                                                semaphores[OuraVariant.CollateralInput].Release();
-                                            }
-                                        })),
-                                        OuraVariant.CollateralOutput => Task.WhenAll(blockEvent.Block.Transactions.Where(t => t.CollateralOutput is not null).Select(t => t.CollateralOutput!).Select(async co =>
-                                        {
-                                            await semaphores[OuraVariant.CollateralOutput].WaitAsync();
-                                            try
-                                            {
-                                                await reducer.HandleReduceAsync(co);
-                                            }
-                                            finally
-                                            {
-                                                semaphores[OuraVariant.CollateralOutput].Release();
-                                            }
-                                        })),
-                                        _ => Task.CompletedTask
-                                    };
-                                }
-                                else
-                                {
-                                    return Task.CompletedTask;
-                                }
-                            });
-                        }));
                     return Ok();
                 }
             }
@@ -357,6 +152,15 @@ public class OuraWebhookController : ControllerBase
             )
             .Select(reducerAttributeObject => reducerAttributeObject as OuraReducerAttribute).FirstOrDefault();
         return reducerAttribute?.Variants ?? new OuraVariant[] { OuraVariant.Unknown }.ToList();
+    }
+
+    private DbContextVariant _GetDbContextVariant(IOuraReducer reducer)
+    {
+        DbContextAttribute? dbContextAttribute = reducer.GetType().GetCustomAttributes(typeof(DbContextAttribute), true)
+            .Where(dbContextAttribute => dbContextAttribute as DbContextAttribute is not null)
+            .Select(dbContextAttributeObject => dbContextAttributeObject as DbContextAttribute)
+            .FirstOrDefault();
+        return dbContextAttribute?.Variants.FirstOrDefault() ?? DbContextVariant.Unknown;
     }
 
     private static List<OuraAssetEvent> MapToOuraAssetEvents(IEnumerable<OuraTxOutput>? outputs)
@@ -380,6 +184,111 @@ public class OuraWebhookController : ControllerBase
         return assets;
     }
 
+    private async Task<DbContext> _CreateDbContext(DbContextVariant variant)
+    {
+        return variant switch
+        {
+            DbContextVariant.Core => await _coreDbContextFactory.CreateDbContextAsync(),
+            DbContextVariant.Fiso => await _fisoDbContextFactory.CreateDbContextAsync(),
+            DbContextVariant.Nft => await _nftDbContextFactory.CreateDbContextAsync(),
+            DbContextVariant.Order => await _orderDbContextFactory.CreateDbContextAsync(),
+            DbContextVariant.BadgerAddress => await _badgerAddressDbContextFactory.CreateDbContextAsync(),
+            _ => throw new Exception("Invalid DbContext Variant")
+        };
+    }
+
+    private static OuraBlockEvent? HydrateBlock(OuraBlockEvent blockEvent)
+    {
+        if (blockEvent.Block is null) return null;
+        blockEvent.Block.Transactions = blockEvent.Block.Transactions?.Select((t, ti) =>
+         {
+             t.Index = ti;
+             t.Context = blockEvent.Context;
+             t.Context!.TxHash = t.Hash;
+             t.Outputs = t.Outputs?.Select((o, oi) =>
+             {
+                 o.Context = blockEvent.Context;
+                 o.OutputIndex = (ulong)oi;
+                 o.TxHash = t.Hash;
+                 o.TxIndex = (ulong)ti;
+                 o.Variant = OuraVariant.TxOutput;
+                 return o;
+             });
+             t.Inputs = t.Inputs?.Select(i =>
+             {
+                 i.Context = blockEvent.Context;
+                 i.Context!.TxIdx = (ulong)ti;
+                 i.Variant = OuraVariant.TxInput;
+                 return i;
+             });
+             t.CollateralInputs = t.CollateralInputs?.Select(ci =>
+             {
+                 ci.Context = blockEvent.Context;
+                 ci.Context!.TxIdx = (ulong)ti;
+                 ci.Variant = OuraVariant.CollateralInput;
+                 return ci;
+             });
+             if (t.HasCollateralOutput)
+             {
+                 t.CollateralOutput!.Context = blockEvent.Context;
+                 t.CollateralOutput.Context!.HasCollateralOutput = t.HasCollateralOutput;
+                 t.CollateralOutput.Context.TxHash = t.Hash;
+                 t.CollateralOutput.Variant = OuraVariant.CollateralOutput;
+             }
+             return t;
+         }).ToList();
+
+        return blockEvent;
+    }
+
+    private async Task HandleReducers(
+        IEnumerable<IOuraReducer> reducers,
+        OuraBlockEvent blockEvent,
+        List<OuraTransaction> transactions,
+        List<OuraTxInput> inputs,
+        List<OuraTxOutput> outputs,
+        List<OuraAssetEvent> assets,
+        List<OuraTxInput> collateralInputs,
+        List<OuraCollateralOutput> collateralOutputs)
+    {
+        var reducerTasks = reducers.Select(async reducer =>
+            {
+                ICollection<OuraVariant> reducerVariants = _GetReducerVariants(reducer);
+                DbContextVariant reducerDbContextVariant = _GetDbContextVariant(reducer);
+                using DbContext reducerDbContext = await _CreateDbContext(reducerDbContextVariant);
+
+                foreach (var reducerVariant in reducerVariants)
+                {
+                    switch (reducerVariant)
+                    {
+                        case OuraVariant.Block:
+                            await reducer.HandleReduceAsync(blockEvent, reducerDbContext);
+                            break;
+                        case OuraVariant.Transaction:
+                            foreach (var transaction in transactions) await reducer.HandleReduceAsync(transaction, reducerDbContext);
+                            break;
+                        case OuraVariant.TxInput:
+                            foreach (var input in inputs) await reducer.HandleReduceAsync(input, reducerDbContext);
+                            break;
+                        case OuraVariant.TxOutput:
+                            foreach (var output in outputs) await reducer.HandleReduceAsync(output, reducerDbContext);
+                            break;
+                        case OuraVariant.Asset:
+                            foreach (var asset in assets) await reducer.HandleReduceAsync(asset, reducerDbContext);
+                            break;
+                        case OuraVariant.CollateralInput:
+                            foreach (var collateralInput in collateralInputs) await reducer.HandleReduceAsync(collateralInput, reducerDbContext);
+                            break;
+                        case OuraVariant.CollateralOutput:
+                            foreach (var collateralOutput in collateralOutputs) await reducer.HandleReduceAsync(collateralOutput, reducerDbContext);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            });
+        await Task.WhenAll(reducerTasks);
+    }
 }
 
 
