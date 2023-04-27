@@ -64,33 +64,33 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-else
+
+
+// Set up oura cursor
+var ouraSettings = builder.Configuration.GetSection("OuraSettings");
+var slot = ouraSettings.GetValue<string>("DefaultSlot");
+var hash = ouraSettings.GetValue<string>("DefaultBlockHash");
+var path = ouraSettings.GetValue<string>("CursorPath");
+var offset = ouraSettings.GetValue<int>("Offset");
+
+using var scopedProvider = app.Services.CreateScope();
+IServiceProvider service = scopedProvider.ServiceProvider;
+IDbContextFactory<TeddySwapSinkCoreDbContext> dbContextFactory = service.GetRequiredService<IDbContextFactory<TeddySwapSinkCoreDbContext>>();
+using TeddySwapSinkCoreDbContext? dbContext = await dbContextFactory.CreateDbContextAsync();
+
+if (dbContext is not null)
 {
+    Block? block = await dbContext.Blocks.OrderByDescending(b => b.BlockNumber).Take(offset).LastOrDefaultAsync();
 
-    // Set up oura cursor
-    var ouraSettings = builder.Configuration.GetSection("OuraSettings");
-    var slot = ouraSettings.GetValue<string>("DefaultSlot");
-    var hash = ouraSettings.GetValue<string>("DefaultBlockHash");
-    var path = ouraSettings.GetValue<string>("CursorPath");
-    var offset = ouraSettings.GetValue<int>("Offset");
-
-    using var scopedProvider = app.Services.CreateScope();
-    var service = scopedProvider.ServiceProvider;
-    var dbContext = service.GetRequiredService<TeddySwapSinkCoreDbContext>();
-
-    if (dbContext is not null)
+    if (block is not null)
     {
-        Block? block = await dbContext.Blocks.OrderByDescending(b => b.BlockNumber).Take(offset).LastOrDefaultAsync();
-
-        if (block is not null)
-        {
-            slot = block.Slot.ToString();
-            hash = block.BlockHash;
-        }
+        slot = block.Slot.ToString();
+        hash = block.BlockHash;
     }
-
-    await File.WriteAllTextAsync(Path.Combine(path ?? "../../deployments/config", "cursor"), $"{slot},{hash}");
 }
+
+await File.WriteAllTextAsync(Path.Combine(path ?? "../../deployments/config", "cursor"), $"{slot},{hash}");
+
 
 app.UseHttpsRedirection();
 
