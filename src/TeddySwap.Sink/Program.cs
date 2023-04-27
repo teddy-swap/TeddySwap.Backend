@@ -53,6 +53,7 @@ builder.Services.AddSingleton<CborService>();
 builder.Services.AddSingleton<DatumService>();
 builder.Services.AddSingleton<MetadataService>();
 builder.Services.AddScoped<OrderService>();
+builder.Services.AddSingleton<OuraService>();
 builder.Services.AddOuraReducers();
 builder.Services.AddKoios(koiosEndpoint);
 
@@ -64,7 +65,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
 
 // Set up oura cursor
 var ouraSettings = builder.Configuration.GetSection("OuraSettings");
