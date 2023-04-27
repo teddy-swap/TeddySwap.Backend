@@ -64,7 +64,7 @@ public class OuraWebhookController : ControllerBase
 
         if (_event is not null && _event.Context is not null)
         {
-            using var blockDbContext = await _CreateDbContext(DbContextVariant.Core);
+            using var blockDbContext = await _CreateDbContextAsync(DbContextVariant.Core);
             if (_event.Variant == OuraVariant.RollBack)
             {
                 OuraRollbackEvent? rollbackEvent = _eventJson.Deserialize<OuraRollbackEvent?>();
@@ -92,7 +92,7 @@ public class OuraWebhookController : ControllerBase
 
                         if (_settings.Value.Reducers.Any(rS => reducer.GetType().FullName?.Contains(rS) ?? false) || reducer is IOuraCoreReducer)
                         {
-                            using var reducerDbContext = await _CreateDbContext(_GetDbContextVariant(reducer));
+                            using var reducerDbContext = await _CreateDbContextAsync(_GetDbContextVariant(reducer));
                             foreach (var reducerVariant in reducerVariants)
                             {
                                 switch (reducerVariant)
@@ -184,7 +184,7 @@ public class OuraWebhookController : ControllerBase
         return assets;
     }
 
-    private async Task<DbContext> _CreateDbContext(DbContextVariant variant)
+    private async Task<DbContext> _CreateDbContextAsync(DbContextVariant variant)
     {
         return variant switch
         {
@@ -255,7 +255,7 @@ public class OuraWebhookController : ControllerBase
             {
                 ICollection<OuraVariant> reducerVariants = _GetReducerVariants(reducer);
                 DbContextVariant reducerDbContextVariant = _GetDbContextVariant(reducer);
-                using DbContext reducerDbContext = await _CreateDbContext(reducerDbContextVariant);
+                using DbContext reducerDbContext = await _CreateDbContextAsync(reducerDbContextVariant);
 
                 foreach (var reducerVariant in reducerVariants)
                 {

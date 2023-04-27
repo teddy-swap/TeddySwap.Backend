@@ -47,6 +47,7 @@ public class TestnetBadgerAddressReducer : OuraReducerBase
                     string? linkAddress = string.Join("", testnetBadgerAddress["mainnetAddress"]);
                     string? stakeAddress = _cardanoService.TryGetStakeAddress(address);
                     string? linkStakeAddress = _cardanoService.TryGetStakeAddress(linkAddress);
+
                     await _dbContext.BadgerAddressVerifications.AddAsync(new()
                     {
                         Address = address,
