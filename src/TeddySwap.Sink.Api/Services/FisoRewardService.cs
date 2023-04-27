@@ -44,7 +44,6 @@ public class FisoRewardService
             })
             .ToListAsync();
 
-
         ulong maxEpoch = await _dbContext.FisoPoolActiveStakes
             .Select(fpas => fpas.EpochNumber)
             .MaxAsync();

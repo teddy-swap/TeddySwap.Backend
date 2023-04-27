@@ -18,7 +18,7 @@ public class TeddySwapSinkCoreDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // Primary Keys
-        modelBuilder.Entity<TxInput>().HasKey(txInput => new { txInput.TxHash, txInput.TxOutputHash, txInput.TxOutputIndex });
+        modelBuilder.Entity<TxInput>().HasKey(txInput => new { txInput.TxHash, txInput.TxOutputHash, txInput.TxOutputIndex, txInput.BlockHash });
         modelBuilder.Entity<TxOutput>().HasKey(txOut => new { txOut.TxHash, txOut.Index });
         modelBuilder.Entity<CollateralTxOut>().HasKey(txOut => new { txOut.Address, txOut.TxHash });
         modelBuilder.Entity<CollateralTxIn>().HasKey(txInput => new { txInput.TxHash, txInput.TxOutputHash, txInput.TxOutputIndex });
@@ -26,60 +26,6 @@ public class TeddySwapSinkCoreDbContext : DbContext
         modelBuilder.Entity<Block>().HasKey(block => block.BlockHash);
         modelBuilder.Entity<Transaction>().HasKey(tx => tx.Hash);
         modelBuilder.Entity<Block>().Property(block => block.InvalidTransactions).HasColumnType("jsonb");
-
-        modelBuilder.Entity<Block>()
-            .HasMany(b => b.Transactions)
-            .WithOne(t => t.Block)
-            .HasForeignKey(b => b.Blockhash)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<Transaction>()
-            .HasOne(t => t.Block)
-            .WithMany(b => b.Transactions)
-            .HasForeignKey(t => t.Blockhash);
-
-        modelBuilder.Entity<Transaction>()
-            .HasMany(t => t.Inputs)
-            .WithOne(i => i.Transaction)
-            .HasForeignKey(i => i.TxHash)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<Transaction>()
-            .HasMany(t => t.Outputs)
-            .WithOne(o => o.Transaction)
-            .HasForeignKey(o => o.TxHash)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<TxInput>()
-            .HasOne<TxOutput>(txInput => txInput.TxOutput)
-            .WithMany(txOutput => txOutput.Inputs)
-            .HasForeignKey(txInput => new { txInput.TxOutputHash, txInput.TxOutputIndex });
-
-        modelBuilder.Entity<TxInput>()
-            .HasOne<Transaction>(txInput => txInput.Transaction)
-            .WithMany(tx => tx.Inputs)
-            .HasForeignKey(txInput => txInput.TxHash);
-
-        modelBuilder.Entity<TxOutput>()
-            .HasOne<Transaction>(txOutput => txOutput.Transaction)
-            .WithMany(tx => tx.Outputs)
-            .HasForeignKey(txOutput => txOutput.TxHash);
-
-        modelBuilder.Entity<CollateralTxIn>()
-            .HasOne<Transaction>(txInput => txInput.Transaction)
-            .WithMany(tx => tx.CollateralTxIns)
-            .HasForeignKey(txInput => txInput.TxHash);
-
-        modelBuilder.Entity<Asset>()
-            .HasOne<TxOutput>(asset => asset.TxOutput)
-            .WithMany(txOutput => txOutput.Assets)
-            .HasForeignKey(asset => new { asset.TxOutputHash, asset.TxOutputIndex });
-
-        modelBuilder.Entity<CollateralTxOut>()
-            .HasOne<Transaction>(txOutput => txOutput.Transaction)
-            .WithOne(tx => tx.CollateralTxOut)
-            .HasForeignKey<CollateralTxOut>(txOut => txOut.TxHash);
-
         base.OnModelCreating(modelBuilder);
     }
 }

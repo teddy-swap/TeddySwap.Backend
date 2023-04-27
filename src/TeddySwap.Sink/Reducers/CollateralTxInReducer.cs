@@ -7,9 +7,9 @@ using TeddySwap.Sink.Models.Oura;
 
 namespace TeddySwap.Sink.Reducers;
 
-[OuraReducer(OuraVariant.TxInput)]
+[OuraReducer(OuraVariant.CollateralInput)]
 [DbContext(DbContextVariant.Core)]
-public class TxInputReducer : OuraReducerBase, IOuraCoreReducer
+public class CollateralTxInReducer : OuraReducerBase
 {
     public async Task ReduceAsync(OuraTxInput txInput, TeddySwapSinkCoreDbContext _dbContext)
     {
@@ -19,9 +19,9 @@ public class TxInputReducer : OuraReducerBase, IOuraCoreReducer
             txInput.Context.TxHash is not null &&
             txInput.Context.BlockHash is not null)
         {
-            await _dbContext.TxInputs.AddAsync(new()
+            await _dbContext.CollateralTxIns.AddAsync(new()
             {
-                TxHash = txInput.Context.TxHash,
+                TxHash = txInput.TxHash,
                 TxOutputHash = txInput.TxHash,
                 TxOutputIndex = txInput.Index,
                 BlockHash = txInput.Context.BlockHash
@@ -33,11 +33,11 @@ public class TxInputReducer : OuraReducerBase, IOuraCoreReducer
 
     public async Task RollbackAsync(Block rollbackBlock, TeddySwapSinkCoreDbContext _dbContext)
     {
-        var inputs = await _dbContext.TxInputs
+        var inputs = await _dbContext.CollateralTxIns
             .Where(i => i.BlockHash == rollbackBlock.BlockHash)
             .ToListAsync();
 
-        _dbContext.TxInputs.RemoveRange(inputs);
+        _dbContext.CollateralTxIns.RemoveRange(inputs);
         await _dbContext.SaveChangesAsync();
     }
 }

@@ -5,6 +5,7 @@ using Refit;
 using TeddySwap.Common.Models;
 using TeddySwap.Sink.Data;
 using TeddySwap.Sink.Extensions;
+using TeddySwap.Sink.Filters;
 using TeddySwap.Sink.Models;
 using TeddySwap.Sink.Services;
 
@@ -27,10 +28,12 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddPooledDbContextFactory<TeddySwapSinkCoreDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("TeddySwapSink")));
-builder.Services.AddPooledDbContextFactory<TeddySwapOrderSinkDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("TeddySwapSink")));
-builder.Services.AddPooledDbContextFactory<TeddySwapNftSinkDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("TeddySwapSink")));
-builder.Services.AddPooledDbContextFactory<TeddySwapFisoSinkDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("TeddySwapSink")));
+
+builder.Services.AddPooledDbContextFactory<TeddySwapSinkCoreDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("TeddySwapSink")), 10);
+builder.Services.AddPooledDbContextFactory<TeddySwapOrderSinkDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("TeddySwapSink")), 10);
+builder.Services.AddPooledDbContextFactory<TeddySwapNftSinkDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("TeddySwapSink")), 10);
+builder.Services.AddPooledDbContextFactory<TeddySwapFisoSinkDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("TeddySwapSink")), 10);
+builder.Services.AddPooledDbContextFactory<TeddySwapBadgerAddressSinkDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("TeddySwapSink")), 10);
 builder.Services.AddPooledDbContextFactory<CardanoDbSyncContext>(options =>
 {
     if (builder.Configuration["ASPNETCORE_ENVIRONMENT"]?.ToString() != "Production")
@@ -42,6 +45,8 @@ builder.Services.AddPooledDbContextFactory<CardanoDbSyncContext>(options =>
     });
 }, 10);
 builder.Services.Configure<TeddySwapSinkSettings>(options => builder.Configuration.GetSection("TeddySwapSinkSettings").Bind(options));
+builder.Services.Configure<CardanoFilters>(options => builder.Configuration.GetSection("CardanoFilters").Bind(options));
+builder.Services.AddSingleton<CardanoFilterService>();
 builder.Services.AddSingleton<CardanoService>();
 builder.Services.AddSingleton<ByteArrayService>();
 builder.Services.AddSingleton<CborService>();
@@ -59,32 +64,33 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-// Set up oura cursor
-var ouraSettings = builder.Configuration.GetSection("OuraSettings");
-var slot = ouraSettings.GetValue<string>("DefaultSlot");
-var hash = ouraSettings.GetValue<string>("DefaultBlockHash");
-var path = ouraSettings.GetValue<string>("CursorPath");
-var offset = ouraSettings.GetValue<int>("Offset");
-
-using var scopedProvider = app.Services.CreateScope();
-var service = scopedProvider.ServiceProvider;
-var dbContextFactory = service.GetRequiredService<IDbContextFactory<TeddySwapSinkCoreDbContext>>();
-using var dbContext = await dbContextFactory.CreateDbContextAsync();
-
-if (dbContext is not null)
+else
 {
-    Block? block = await dbContext.Blocks.OrderByDescending(b => b.BlockNumber).Take(offset).LastOrDefaultAsync();
 
-    if (block is not null)
+    // Set up oura cursor
+    var ouraSettings = builder.Configuration.GetSection("OuraSettings");
+    var slot = ouraSettings.GetValue<string>("DefaultSlot");
+    var hash = ouraSettings.GetValue<string>("DefaultBlockHash");
+    var path = ouraSettings.GetValue<string>("CursorPath");
+    var offset = ouraSettings.GetValue<int>("Offset");
+
+    using var scopedProvider = app.Services.CreateScope();
+    var service = scopedProvider.ServiceProvider;
+    var dbContext = service.GetRequiredService<TeddySwapSinkCoreDbContext>();
+
+    if (dbContext is not null)
     {
-        slot = block.Slot.ToString();
-        hash = block.BlockHash;
+        Block? block = await dbContext.Blocks.OrderByDescending(b => b.BlockNumber).Take(offset).LastOrDefaultAsync();
+
+        if (block is not null)
+        {
+            slot = block.Slot.ToString();
+            hash = block.BlockHash;
+        }
     }
+
+    await File.WriteAllTextAsync(Path.Combine(path ?? "../../deployments/config", "cursor"), $"{slot},{hash}");
 }
-
-await File.WriteAllTextAsync(Path.Combine(path ?? "../../deployments/config", "cursor"), $"{slot},{hash}");
-
 
 app.UseHttpsRedirection();
 
