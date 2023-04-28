@@ -134,8 +134,8 @@ public class OuraWebhookController : ControllerBase
                     List<OuraTxInput> collateralInputs = blockEvent.Block.Transactions.Where(t => t.CollateralInputs is not null).SelectMany(t => t.CollateralInputs!).ToList();
                     List<OuraCollateralOutput> collateralOutputs = blockEvent.Block.Transactions.Where(t => t.CollateralOutput is not null).Select(t => t.CollateralOutput!).ToList();
 
-                    IEnumerable<IOuraReducer> coreReducers = _reducers.Where(reducer => _settings.Value.Reducers.Any(rS => reducer.GetType().FullName?.Contains(rS) ?? false) && reducer is IOuraCoreReducer);
-                    IEnumerable<IOuraReducer> otherReducers = _reducers.Where(reducer => _settings.Value.Reducers.Any(rS => reducer.GetType().FullName?.Contains(rS) ?? false) && reducer is not IOuraCoreReducer);
+                    IEnumerable<IOuraReducer> coreReducers = _reducers.Where(reducer => _settings.Value.Reducers.Where(r => !string.IsNullOrEmpty(r)).Any(rS => reducer.GetType().FullName?.Contains(rS) ?? false) && reducer is IOuraCoreReducer && reducer is not BlockReducer);
+                    IEnumerable<IOuraReducer> otherReducers = _reducers.Where(reducer => _settings.Value.Reducers.Where(r => !string.IsNullOrEmpty(r)).Any(rS => reducer.GetType().FullName?.Contains(rS) ?? false) && reducer is not IOuraCoreReducer);
 
                     await _ouraService.HandleReducers(coreReducers, blockEvent, transactions, inputs, outputs, assets, collateralInputs, collateralOutputs);
                     await _ouraService.HandleReducers(otherReducers, blockEvent, transactions, inputs, outputs, assets, collateralInputs, collateralOutputs);

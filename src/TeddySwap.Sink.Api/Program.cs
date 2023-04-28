@@ -53,13 +53,17 @@ builder.Services.AddDbContextPool<TeddySwapFisoSinkDbContext>(options =>
 }, 10);
 
 builder.Services.Configure<TeddySwapITNRewardSettings>(options => builder.Configuration.GetSection("TeddySwapITNRewardSettings").Bind(options));
+builder.Services.Configure<TeddySwapValidatorSettings>(options => builder.Configuration.GetSection("TeddySwapValidatorSettings").Bind(options));
 builder.Services.AddControllers();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<LeaderboardService>();
 builder.Services.AddScoped<AssetService>();
 builder.Services.AddScoped<StakeService>();
 builder.Services.AddScoped<FisoRewardService>();
+builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<AddressVerificationService>();
+builder.Services.AddSingleton<DatumService>();
+builder.Services.AddSingleton<CborService>();
 builder.Services.AddApiVersioning(options => options.AssumeDefaultVersionWhenUnspecified = true).AddMvc();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

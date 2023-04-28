@@ -23,10 +23,6 @@ public class TeddySwapOrderSinkDbContext : TeddySwapSinkCoreDbContext
         modelBuilder.Entity<AddressVerification>().HasKey(a => a.TestnetAddress);
 
         // Relations
-        modelBuilder.Entity<Price>()
-            .HasOne(p => p.Order)
-            .WithOne(o => o.Price)
-            .HasForeignKey<Price>(p => new { p.TxHash, p.Index });
 
         modelBuilder.Entity<Order>()
             .HasIndex(o => o.Slot)

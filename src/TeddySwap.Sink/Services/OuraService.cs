@@ -66,7 +66,7 @@ public class OuraService
                 Address = o.Address ?? "",
                 PolicyId = a.Policy ?? "",
                 TokenName = a.Asset ?? "",
-                Amount = a.Amount is not null ? (ulong)a.Amount : 0,
+                Amount = a.Amount ?? 0,
                 Context = o.Context,
                 TxHash = o.TxHash,
                 OutputIndex = o.OutputIndex
@@ -153,6 +153,7 @@ public class OuraService
                  o.TxHash = t.Hash;
                  o.TxIndex = (ulong)ti;
                  o.Variant = OuraVariant.TxOutput;
+                 o.Assets = o.Assets;
                  return o;
              });
              t.Inputs = t.Inputs?.Select(i =>

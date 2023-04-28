@@ -5,13 +5,12 @@ namespace TeddySwap.Common.Models;
 
 public record Order
 {
-    // @TODO: Remove relation
     public string TxHash { get; init; } = string.Empty;
     public ulong Index { get; init; }
+    public string OrderTxHash { get; init; } = string.Empty;
+    public ulong OrderOutputIndex { get; init; }
     public string Blockhash { get; set; } = string.Empty;
     public OrderType OrderType { get; init; }
-    public Block Block { get; set; } = new();
-    public Price? Price { get; init; }
     public byte[]? PoolDatum { get; init; }
     public byte[]? OrderDatum { get; init; }
     public string UserAddress { get; init; } = string.Empty;
@@ -27,5 +26,6 @@ public record Order
     public BigInteger OrderX { get; init; }
     public BigInteger OrderY { get; init; }
     public BigInteger OrderLq { get; init; }
+    public decimal Fee { get; init; }
     public ulong Slot { get; init; }
 }

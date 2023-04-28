@@ -9,5 +9,4 @@ public record TeddySwapITNRewardSettings
     public ulong FisoEndEpoch { get; init; }
     public decimal FisoRewardPerEpoch { get; init; }
     public string TbcPolicyId { get; init; } = string.Empty;
-
 }

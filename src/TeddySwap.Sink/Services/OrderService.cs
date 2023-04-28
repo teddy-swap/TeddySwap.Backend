@@ -1,5 +1,6 @@
 using System.Numerics;
 using System.Text.Json;
+using CardanoSharp.Wallet.Utilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using PeterO.Cbor2;
@@ -160,6 +161,8 @@ public class OrderService
                     {
                         TxHash = transaction.Hash,
                         Index = (ulong)transaction.Index,
+                        OrderTxHash = orderInput.TxHash,
+                        OrderOutputIndex = orderInput.Index,
                         OrderType = orderType,
                         UserAddress = rewardOutput.Address,
                         BatcherAddress = batcherAddress,
@@ -176,6 +179,7 @@ public class OrderService
                         OrderX = orderX,
                         OrderY = orderY,
                         OrderLq = orderLq,
+                        Fee = poolDatum.Fee,
                         Slot = (ulong)transaction.Context.Slot
                     };
                 }
@@ -187,15 +191,15 @@ public class OrderService
 
     public BigInteger FindAsset(OuraTxOutput output, string policyId, string name)
     {
-        if (output.Assets is null) return 0;
         BigInteger amount;
 
-        if (policyId == "lovelace")
+        if (policyId == "lovelace" || policyId == "")
         {
             amount = output.Amount is null ? 0 : (ulong)output.Amount;
         }
         else
         {
+            if (output.Assets is null) return 0;
             OuraAsset? asset = output.Assets.Where(a => a.Policy == policyId && a.Asset == name).FirstOrDefault();
             amount = asset is not null && asset.Amount is not null ? (ulong)asset.Amount : 0;
         }
@@ -205,18 +209,19 @@ public class OrderService
 
     public BigInteger FindAsset(TxOutput output, List<Asset> assets, string policyId, string name)
     {
-        if (assets is null || assets.Count <= 0) return 0;
         BigInteger amount;
 
-        if (policyId == "lovelace")
+        if (policyId == "lovelace" || policyId == "")
         {
             amount = output.Amount;
         }
         else
         {
+            if (assets is null || assets.Count <= 0) return 0;
             Asset? asset = assets.Where(a => a.PolicyId == policyId && a.Name == name).FirstOrDefault();
             amount = asset is null ? 0 : asset.Amount;
         }
+
         return amount;
     }
 }

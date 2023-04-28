@@ -19,7 +19,8 @@ public class TxOutputReducer : OuraReducerBase, IOuraCoreReducer
             txOutput.Address is not null &&
             txOutput.TxHash is not null &&
             txOutput.Context is not null &&
-            txOutput.Context.BlockHash is not null)
+            txOutput.Context.BlockHash is not null &&
+            txOutput.Context.Slot is not null)
         {
             TxOutput newTxOutput = new()
             {
@@ -28,7 +29,8 @@ public class TxOutputReducer : OuraReducerBase, IOuraCoreReducer
                 Index = (ulong)txOutput.OutputIndex,
                 DatumCbor = txOutput.DatumCbor,
                 TxHash = txOutput.TxHash,
-                BlockHash = txOutput.Context.BlockHash
+                BlockHash = txOutput.Context.BlockHash,
+                Slot = (ulong)txOutput.Context.Slot
             };
 
             await _dbContext.TxOutputs.AddAsync(newTxOutput);

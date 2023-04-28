@@ -3,15 +3,14 @@ using Microsoft.Extensions.Options;
 using PeterO.Cbor2;
 using TeddySwap.Common.Enums;
 using TeddySwap.Common.Models;
-using TeddySwap.Sink.Models;
 
-namespace TeddySwap.Sink.Services;
+namespace TeddySwap.Sink.Api.Services;
 
 public class DatumService
 {
     private readonly CborService _cborService;
-    private readonly TeddySwapSinkSettings _settings;
-    public DatumService(CborService cborService, IOptions<TeddySwapSinkSettings> settings)
+    private readonly TeddySwapValidatorSettings _settings;
+    public DatumService(CborService cborService, IOptions<TeddySwapValidatorSettings> settings)
     {
         _cborService = cborService;
         _settings = settings.Value;

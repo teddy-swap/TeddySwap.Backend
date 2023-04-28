@@ -9,4 +9,5 @@ public partial record TxOutput
     public string Address { get; init; } = string.Empty;
     public string? DatumCbor { get; init; }
     public string BlockHash { get; init; } = string.Empty;
+    public ulong Slot { get; init; }
 }

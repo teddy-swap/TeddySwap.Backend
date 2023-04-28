@@ -37,17 +37,10 @@ public class OrderReducer : OuraReducerBase
             if (block is null) throw new NullReferenceException("Block does not exist!");
             if (block.InvalidTransactions is not null && block.InvalidTransactions.ToList().Contains((ulong)transaction.Index)) return;
 
-            Order? existingOrder = await _dbContext.Orders
-                .Where(o => o.TxHash == transaction.Hash && o.Index == (ulong)transaction.Index)
-                .FirstOrDefaultAsync();
-
-            if (existingOrder is not null) return;
-
             Order? order = await _orderService.ProcessOrderAsync(transaction);
 
             if (order is not null)
             {
-                order.Block = block;
                 order.Blockhash = block.BlockHash;
 
                 await _dbContext.Orders.AddAsync(order);
@@ -58,12 +51,16 @@ public class OrderReducer : OuraReducerBase
                     {
                         TxHash = order.TxHash,
                         Index = order.Index,
-                        Order = order,
                         PriceX = BigIntegerDivToDecimal(order.ReservesX, order.ReservesY, 6),
                         PriceY = BigIntegerDivToDecimal(order.ReservesY, order.ReservesX, 6),
+                        AssetX = order.AssetX,
+                        AssetY = order.AssetY,
+                        AssetLq = order.AssetLq,
+                        PoolNft = order.PoolNft,
+                        Slot = order.Slot,
+                        Blockhash = order.Blockhash
                     });
                 }
-
             }
 
             await _dbContext.SaveChangesAsync();
@@ -72,40 +69,51 @@ public class OrderReducer : OuraReducerBase
 
     private static decimal BigIntegerDivToDecimal(BigInteger x, BigInteger y, int precision)
     {
-
-        var divResult = BigInteger.DivRem(x, y);
-
-        StringBuilder result = new();
-        result.Append(divResult.Quotient.ToString());
-
-        if (divResult.Remainder != 0)
+        try
         {
-            result.Append('.');
 
-            for (int i = 0; i < precision; i++)
+            var divResult = BigInteger.DivRem(x, y);
+
+            StringBuilder result = new();
+            result.Append(divResult.Quotient.ToString());
+
+            if (divResult.Remainder != 0)
             {
-                divResult.Remainder *= 10;
-                result.Append(BigInteger.DivRem(divResult.Remainder, y).Quotient.ToString());
+                result.Append('.');
 
-                if (BigInteger.DivRem(divResult.Remainder, y).Remainder == 0)
+                for (int i = 0; i < precision; i++)
                 {
-                    break;
+                    divResult.Remainder *= 10;
+                    result.Append(BigInteger.DivRem(divResult.Remainder, y).Quotient.ToString());
+
+                    if (BigInteger.DivRem(divResult.Remainder, y).Remainder == 0)
+                    {
+                        break;
+                    }
                 }
             }
-        }
 
-        return decimal.Parse(result.ToString());
+            return decimal.Parse(result.ToString());
+        }
+        catch
+        {
+            return 0;
+        }
     }
     public async Task RollbackAsync(Block rollbackBlock, TeddySwapOrderSinkDbContext _dbContext)
     {
         if (rollbackBlock is not null)
         {
             List<Order>? orders = await _dbContext.Orders
-                .Include(o => o.Block)
-                .Where(o => o.Block == rollbackBlock)
+                .Where(o => o.Blockhash == rollbackBlock.BlockHash)
+                .ToListAsync();
+
+            List<Price>? prices = await _dbContext.Prices
+                .Where(p => p.Blockhash == rollbackBlock.BlockHash)
                 .ToListAsync();
 
             _dbContext.Orders.RemoveRange(orders);
+            _dbContext.Prices.RemoveRange(prices);
             await _dbContext.SaveChangesAsync();
         }
     }
