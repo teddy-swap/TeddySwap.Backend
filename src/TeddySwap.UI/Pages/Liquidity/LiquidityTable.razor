@@ -2,13 +2,13 @@
     Items="TokenPairs"
     Hover="true"
     Breakpoint="Breakpoint.Sm"
-    Class="!p-[24px] flex flex-col gap-7 liquidity-table !rounded-none"
+    Class="!p-[24px] flex flex-col gap-7 liquidity-table !rounded-none !rounded-b"
     HeaderClass="backdrop-blur-[100px]"
     RowClass="relative"
 >
 	<ToolBarContent>
         <MudTextField
-            @bind-Value="_search"
+            @bind-Value="_searchValue"
             Variant="Variant.Outlined"
             Placeholder="Type token name or pool ID"
             Adornment="Adornment.Start"
@@ -30,19 +30,8 @@
 		<MudTd DataLabel="Pair">
             <div class="flex items-center">
                 <div class="flex relative">
-                    <MudImage
-                        Src=@context.TokenPair[0].Logo
-                        Height="24"
-                        Width="24"
-                        Alt=""
-                    />
-                    <MudImage
-                        Src=@context.TokenPair[1].Logo
-                        Height="24"
-                        Width="24"
-                        Alt=""
-                        Class="absolute left-[18px]"
-                    />
+                    <MudImage Src=@context.TokenPair[0].Logo Height="24" Width="24" Alt="" />
+                    <MudImage Src=@context.TokenPair[1].Logo Height="24" Width="24" Alt="" Class="absolute left-[18px]" />
                 </div>
                 <MudText Typo="Typo.h6" Class="font-semibold text-[16px] ml-7">
                     @context.TokenPair[0].Name/@context.TokenPair[1].Name
@@ -58,7 +47,7 @@
         <MudIconButton
             aria-label="Expand row"
             Icon="@Icons.Material.Filled.KeyboardArrowDown"
-            Class="absolute hidden lg:block right-[6px] top-[15px] !p-[2px]"
+            Class="@((context.ShowDetails ? "rotate-180" : "rotate-0") + " transition-transform duration-200 ease-in-out absolute hidden lg:block right-[6px] top-[15px] !p-[2px]")"
             OnClick="@(() => ExpandRow(context.Number))"
             Color="Color.Primary"
         />
@@ -66,7 +55,7 @@
             <MudIconButton
                 aria-label="Expand row"
                 Icon="@Icons.Material.Filled.KeyboardArrowDown"
-                Class="absolute !p-[2px]"
+                Class="@((context.ShowDetails ? "rotate-180" : "rotate-0") + " transition-transform duration-200 ease-in-out absolute !p-[2px]")"
                 OnClick="@(() => ExpandRow(context.Number))"
                 Color="Color.Primary"
             />

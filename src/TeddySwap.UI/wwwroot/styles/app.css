@@ -17,6 +17,13 @@ body:has(.mud-drawer--open) {
     font-weight: 600;
     padding-top: 15px;
     padding-bottom: 15px;
+    border-top-right-radius: 4px;
+    border-top-left-radius: 4px;
+}
+
+.liquidity .mud-tabs-toolbar {
+    border-top-right-radius: 4px;
+    border-top-left-radius: 4px;
 }
 
 .swap-chart .mud-tabs-scroll-button {

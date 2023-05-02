@@ -8,7 +8,7 @@ public partial class LiquidityTable
     [Parameter]
     public IEnumerable<TokenPairDetails>? TokenPairs { get; set; }
 
-    private string _search { get; set; } = string.Empty;
+    private string _searchValue { get; set; } = string.Empty;
 
     private void ExpandRow(int num)
 	{
@@ -16,4 +16,8 @@ public partial class LiquidityTable
         TokenPairDetails selectedPair = TokenPairs.First(t => t.Number == num);
         selectedPair.ShowDetails = !selectedPair.ShowDetails;
 	}
+    // private IEnumerable<TokenPairDetails> _filteredTokens =>
+    //     string.IsNullOrEmpty(_searchValue)
+    //         ? TokenPairs
+    //         : TokenPairs.Where(t => t.Name.ToLower().Contains(_searchValue.ToLower())).ToList();
 }

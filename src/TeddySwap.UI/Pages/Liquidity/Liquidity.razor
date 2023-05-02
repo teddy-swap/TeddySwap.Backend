@@ -1,11 +1,12 @@
 @page "/liquidity"
 
 
-<MudTabs Elevation="6" ApplyEffectsToContainer="true" Class="liquidity">
+
+<MudTabs Elevation="6" ApplyEffectsToContainer="true" Class="liquidity rounded">
     <MudTabPanel Text="All Liquidity">
         <LiquidityTable TokenPairs="_allTokenPairs" />
     </MudTabPanel>
     <MudTabPanel Text="Your Liquidity">
-       <LiquidityTable TokenPairs="_userTokenPairs" />
+        <LiquidityTable TokenPairs="_userTokenPairs" />
     </MudTabPanel>
 </MudTabs>
