@@ -1,110 +1,11 @@
 @page "/liquidity"
-@using TeddySwap.UI.Models
 
-<MudTable
-    Items="tokenPairs"
-    Hover="true"
-    Breakpoint="Breakpoint.Sm"
-    Class="!p-[24px] flex flex-col gap-7 liquidity-table"
-    HeaderClass="backdrop-blur-[100px]"
-    RowClass="relative"
->
-	<ToolBarContent>
-        <MudTextField
-            @bind-Value="search"
-            Variant="Variant.Outlined"
-            Placeholder="Type token name or pool ID"
-            Adornment="Adornment.Start"
-            AdornmentIcon="@Icons.Material.Filled.Search"
-            IconSize="Size.Medium"
-            Class="!max-w-[413px]"
-        >
-        </MudTextField>
-    </ToolBarContent>
-	<HeaderContent>
-		<MudTh>Pair</MudTh>
-		<MudTh>TVL</MudTh>
-		<MudTh>Volume 24H</MudTh>
-		<MudTh>Volume 7D</MudTh>
-        <MudTh>Fee</MudTh>
-        <MudTh>APR</MudTh>
-	</HeaderContent>
-	<RowTemplate>
-		<MudTd DataLabel="Pair">
-            <div class="flex items-center">
-                <div class="flex relative">
-                    <MudImage
-                        Src=@context.TokenPair[0].Logo
-                        Height="24"
-                        Width="24"
-                        Alt=""
-                    />
-                    <MudImage
-                        Src=@context.TokenPair[1].Logo
-                        Height="24"
-                        Width="24"
-                        Alt=""
-                        Class="absolute left-[18px]"
-                    />
-                </div>
-                <MudText Typo="Typo.h6" Class="font-semibold text-[16px] ml-7">
-                    @context.TokenPair[0].Name/@context.TokenPair[1].Name
-                </MudText>
-                <MudIcon Icon="@Icons.Material.Filled.Verified" Size="Size.Small" Class="ml-2" />
-            </div>
-        </MudTd>
-		<MudTd DataLabel="TVL">@context.TVL ADA</MudTd>
-		<MudTd DataLabel="Volume 24H">@context.Volume24H ADA</MudTd>
-		<MudTd DataLabel="Volume 7D">@context.Volume7D.ToString("N0") TEDY</MudTd>
-		<MudTd DataLabel="Fee">@context.Fee%</MudTd>
-		<MudTd DataLabel="APR">@context.APR%</MudTd>
-        <MudIconButton
-            aria-label="Expand row"
-            Icon="@Icons.Material.Filled.KeyboardArrowDown"
-            Class="absolute right-[6px] top-[15px] !p-[2px]"
-            OnClick="@(() => ExpandRow(context.Number))"
-            Color="Color.Primary"
-        />
-	</RowTemplate>
-	<ChildRowContent>
-       @if (context.ShowDetails)
-       {
-        <MudTr>
-            <td colspan="6">
-                <MudCard Elevation="0" Class="@((context.ShowDetails ? "h-[118px]" : "!h-0") + " transition-all duration-200 ease-in-out")">
-                    <MudCardContent Class="flex items-center">
-                        <MudGrid Spacing="5">
-                            <MudItem>
-                                <MudText Class="text-[var(--mud-palette-text-secondary)] text-[12px]">Price</MudText>
-                                <MudText Class="text-[14px] font-semibold">1 @context.TokenPair[0].Name = 0.19903 @context.TokenPair[1].Name</MudText>
-                                <MudText Class="text-[14px] font-semibold">1 @context.TokenPair[1].Name = 5.024 @context.TokenPair[0].Name</MudText>
-                            </MudItem>
-                            <MudItem>
-                                <MudText Class="text-[var(--mud-palette-text-secondary)] text-[12px]">Total Liquidity</MudText>
-                                <MudText Class="text-[14px] font-semibold">@context.TokenPair[0].Name: 134,384,920</MudText>
-                                <MudText Class="text-[14px] font-semibold">@context.TokenPair[1].Name: 26,747,918</MudText>
-                            </MudItem>
-                            <MudItem>
-                                <MudText Class="text-[var(--mud-palette-text-secondary)] text-[12px]">Your Liquidity</MudText>
-                                <MudText Class="text-[14px] font-semibold">@context.TokenPair[0].Name: 0</MudText>
-                                <MudText Class="text-[14px] font-semibold">@context.TokenPair[1].Name: 0</MudText>
-                            </MudItem>
-                            <MudItem>
-                                <MudText Class="text-[var(--mud-palette-text-secondary)] text-[12px]">Volatility Index (1M)</MudText>
-                                <MudText Class="text-[14px] font-semibold">8.3</MudText>
-                                <MudText Class="text-[var(--mud-palette-text-secondary)] text-[12px] mt-2">Volume: TVL (1M)</MudText>
-                                <MudText Class="text-[14px] font-semibold">0.253</MudText>
-                            </MudItem>
-                        </MudGrid>
-                        <div class="flex gap-3">
-                            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="grow !w-[204px]">Swap</MudButton>
-                            <MudButton Variant="Variant.Outlined" Color="Color.Primary" Class="grow !w-[204px]">Add Liquidity</MudButton>
-                        </div>
-                    </MudCardContent>
-                </MudCard>
 
-            </td>
-        </MudTr>
-       }
-	</ChildRowContent>
-</MudTable>
+<MudTabs Elevation="6" ApplyEffectsToContainer="true" Class="liquidity">
+    <MudTabPanel Text="All Liquidity">
+        <LiquidityTable TokenPairs="_allTokenPairs" />
+    </MudTabPanel>
+    <MudTabPanel Text="Your Liquidity">
+       <LiquidityTable TokenPairs="_userTokenPairs" />
+    </MudTabPanel>
+</MudTabs>

@@ -1,0 +1,118 @@
+<MudTable
+    Items="TokenPairs"
+    Hover="true"
+    Breakpoint="Breakpoint.Sm"
+    Class="!p-[24px] flex flex-col gap-7 liquidity-table !rounded-none"
+    HeaderClass="backdrop-blur-[100px]"
+    RowClass="relative"
+>
+	<ToolBarContent>
+        <MudTextField
+            @bind-Value="_search"
+            Variant="Variant.Outlined"
+            Placeholder="Type token name or pool ID"
+            Adornment="Adornment.Start"
+            AdornmentIcon="@Icons.Material.Filled.Search"
+            IconSize="Size.Medium"
+            Class="!max-w-[413px]"
+        >
+        </MudTextField>
+    </ToolBarContent>
+	<HeaderContent>
+		<MudTh>Pair</MudTh>
+		<MudTh>TVL</MudTh>
+		<MudTh>Volume 24H</MudTh>
+		<MudTh>Volume 7D</MudTh>
+        <MudTh>Fee</MudTh>
+        <MudTh>APR</MudTh>
+	</HeaderContent>
+	<RowTemplate>
+		<MudTd DataLabel="Pair">
+            <div class="flex items-center">
+                <div class="flex relative">
+                    <MudImage
+                        Src=@context.TokenPair[0].Logo
+                        Height="24"
+                        Width="24"
+                        Alt=""
+                    />
+                    <MudImage
+                        Src=@context.TokenPair[1].Logo
+                        Height="24"
+                        Width="24"
+                        Alt=""
+                        Class="absolute left-[18px]"
+                    />
+                </div>
+                <MudText Typo="Typo.h6" Class="font-semibold text-[16px] ml-7">
+                    @context.TokenPair[0].Name/@context.TokenPair[1].Name
+                </MudText>
+                <MudIcon Icon="@Icons.Material.Filled.Verified" Size="Size.Small" Class="ml-2" />
+            </div>
+        </MudTd>
+		<MudTd DataLabel="TVL">@context.TVL ADA</MudTd>
+		<MudTd DataLabel="Volume 24H">@context.Volume24H ADA</MudTd>
+		<MudTd DataLabel="Volume 7D">@context.Volume7D.ToString("N0") TEDY</MudTd>
+		<MudTd DataLabel="Fee">@context.Fee%</MudTd>
+		<MudTd DataLabel="APR">@context.APR%</MudTd>
+        <MudIconButton
+            aria-label="Expand row"
+            Icon="@Icons.Material.Filled.KeyboardArrowDown"
+            Class="absolute hidden lg:block right-[6px] top-[15px] !p-[2px]"
+            OnClick="@(() => ExpandRow(context.Number))"
+            Color="Color.Primary"
+        />
+        <MudTd Class="justify-center lg:hidden">
+            <MudIconButton
+                aria-label="Expand row"
+                Icon="@Icons.Material.Filled.KeyboardArrowDown"
+                Class="absolute !p-[2px]"
+                OnClick="@(() => ExpandRow(context.Number))"
+                Color="Color.Primary"
+            />
+        </MudTd>
+	</RowTemplate>
+	<ChildRowContent>
+        <tr>
+            <td colspan="6">
+                <div class="@((context.ShowDetails ? "h-[323px] lg:h-[96px] p-[16px]" : "h-0 p-0") + " transition-height overflow-hidden ease-in-out duration-200 bg-[var(--mud-palette-surface)] rounded flex flex-col lg:flex-row lg:items-center lg:space-between lg:gap-8")">
+                    <div class="flex flex-col lg:flex-row gap-3 lg:gap-7 w-full grow-[2]">
+                        <div class="flex items-center justify-between lg:justify-start lg:flex-col lg:items-start lg:gap-1">
+                            <MudText Class="text-[var(--mud-palette-text-secondary)] text-[12px]">Price</MudText>
+                            <div class="text-right lg:text-left">
+                                <MudText Class="text-[12px] lg:text-[14px] text-[var(--mud-palette-text-secondary)] font-semibold">1 @context.TokenPair[0].Name = 0.19903 @context.TokenPair[1].Name</MudText>
+                                <MudText Class="text-[12px] lg:text-[14px] text-[var(--mud-palette-text-secondary)] font-semibold">1 @context.TokenPair[1].Name = 5.024 @context.TokenPair[0].Name</MudText>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between lg:justify-start lg:flex-col lg:items-start lg:gap-1">
+                            <MudText Class="text-[var(--mud-palette-text-secondary)] text-[12px]">Total Liquidity</MudText>
+                            <div class="text-right lg:text-left">
+                                <MudText Class="text-[12px] lg:text-[14px] text-[var(--mud-palette-text-secondary)] font-semibold">@context.TokenPair[0].Name: 134,384,920</MudText>
+                                <MudText Class="text-[12px] lg:text-[14px] text-[var(--mud-palette-text-secondary)] font-semibold">@context.TokenPair[1].Name: 26,747,918</MudText>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between lg:justify-start lg:flex-col lg:items-start lg:gap-1">
+                            <MudText Class="text-[var(--mud-palette-text-secondary)] text-[12px]">Your Liquidity</MudText>
+                            <div class="text-right lg:text-left">
+                                <MudText Class="text-[12px] lg:text-[14px] text-[var(--mud-palette-text-secondary)] font-semibold">@context.TokenPair[0].Name: 0</MudText>
+                                <MudText Class="text-[12px] lg:text-[14px] text-[var(--mud-palette-text-secondary)] font-semibold">@context.TokenPair[1].Name: 0</MudText>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between lg:justify-start lg:flex-col lg:items-start lg:gap-1">
+                            <MudText Class="text-[var(--mud-palette-text-secondary)] text-[12px]">Volatility Index (1M)</MudText>
+                            <MudText Class="text-[12px] lg:text-[14px] text-[var(--mud-palette-text-secondary)] font-semibold">8.3</MudText>
+                        </div>
+                        <div class="flex items-center justify-between lg:justify-start lg:flex-col lg:items-start lg:gap-1">
+                            <MudText Class="text-[var(--mud-palette-text-secondary)] text-[12px]">Volume: TVL (1M)</MudText>
+                            <MudText Class="text-[12px] lg:text-[14px] text-[var(--mud-palette-text-secondary)] font-semibold">0.253</MudText>
+                        </div>
+                    </div>
+                    <div class="flex flex-col lg:flex-row gap-3 items-center lg:items-start mt-6 lg:!mt-0 grow">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="w-full lg:!w-[204px] !py-px">Swap</MudButton>
+                        <MudButton Variant="Variant.Outlined" Color="Color.Primary" Class="w-full lg:!w-[204px] !py-px">Add Liquidity</MudButton>
+                    </div>
+                </div>
+            </td>
+        </tr>
+	</ChildRowContent>
+</MudTable>

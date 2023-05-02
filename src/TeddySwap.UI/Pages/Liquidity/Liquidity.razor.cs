@@ -5,12 +5,13 @@ namespace TeddySwap.UI.Pages.Liquidity;
 
 public partial class Liquidity
 {
-     public string search { get; set; } = string.Empty;
+    private List<TokenPairDetails> _allTokenPairs { get; set; } = new();
+
+    private List<TokenPairDetails> _userTokenPairs { get; set; } = new();
 
 	protected override void OnInitialized()
 	{
-
-        tokenPairs = new()
+        _allTokenPairs = new()
         {
             new()
             {
@@ -96,17 +97,66 @@ public partial class Liquidity
                 APR = 6.5,
                 Number = 6
             }
-
         };
-	}
 
-	public List<TokenPairDetails> tokenPairs { get; set; } = new();
-
-    public List<string> test { get; set; } = new();
-
-	private void ExpandRow(int num)
-	{
-        TokenPairDetails selectedPair = tokenPairs.First(t => t.Number == num);
-        selectedPair.ShowDetails = !selectedPair.ShowDetails;
+         _userTokenPairs = new()
+        {
+            new()
+            {
+                TokenPair = new()
+                {
+                    new Token() { Name = "SUNDAEt", Logo = "../images/tokens/sundaet.png" },
+                    new Token() { Name = "TEDYt", Logo = "../images/tokens/tedyt.png" }
+                },
+                TVL = 26.29,
+                Volume24H = 450.88,
+                Volume7D = 8_230_456,
+                Fee = 0.3,
+                APR = 6.5,
+                Number = 3
+            },
+            new()
+            {
+                TokenPair = new()
+                {
+                    new Token() { Name = "TEDYt", Logo = "../images/tokens/tedyt.png" },
+                    new Token() { Name = "ADA", Logo = "../images/tokens/token-ada.svg" }
+                },
+                TVL = 26.29,
+                Volume24H = 450.88,
+                Volume7D = 8_230_456,
+                Fee = 0.3,
+                APR = 6.5,
+                Number = 1
+            },
+            new()
+            {
+                TokenPair = new()
+                {
+                    new Token() { Name = "ADA", Logo = "../images/tokens/token-ada.svg" },
+                    new Token() { Name = "USDt", Logo = "../images/tokens/usdt.png" }
+                },
+                TVL = 26.29,
+                Volume24H = 450.88,
+                Volume7D = 8_230_456,
+                Fee = 0.3,
+                APR = 6.5,
+                Number = 4
+            },
+            new()
+            {
+                TokenPair = new()
+                {
+                    new Token() { Name = "USDt", Logo = "../images/tokens/usdt.png" },
+                    new Token() { Name = "TEDYt", Logo = "../images/tokens/tedyt.png" }
+                },
+                TVL = 26.29,
+                Volume24H = 450.88,
+                Volume7D = 8_230_456,
+                Fee = 0.3,
+                APR = 6.5,
+                Number = 6
+            }
+        };
 	}
 }
