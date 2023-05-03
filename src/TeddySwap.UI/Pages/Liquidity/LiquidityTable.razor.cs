@@ -16,8 +16,12 @@ public partial class LiquidityTable
         TokenPairDetails selectedPair = TokenPairs.First(t => t.Number == num);
         selectedPair.ShowDetails = !selectedPair.ShowDetails;
 	}
-    // private IEnumerable<TokenPairDetails> _filteredTokens =>
-    //     string.IsNullOrEmpty(_searchValue)
-    //         ? TokenPairs
-    //         : TokenPairs.Where(t => t.Name.ToLower().Contains(_searchValue.ToLower())).ToList();
+    
+    private IEnumerable<TokenPairDetails>? _filteredTokens =>
+        string.IsNullOrEmpty(_searchValue)
+            ? TokenPairs
+            : TokenPairs?.Where(
+                t => t.TokenPair.Token1.Name.ToLower().Contains(_searchValue.ToLower()) || 
+                     t.TokenPair.Token2.Name.ToLower().Contains(_searchValue.ToLower())
+            );
 }
