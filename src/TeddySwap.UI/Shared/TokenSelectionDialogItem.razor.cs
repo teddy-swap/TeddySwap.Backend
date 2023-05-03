@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Components;
 using TeddySwap.UI.Models;
 using MudBlazor;
 
-namespace TeddySwap.UI.Pages.Swap;
+namespace TeddySwap.UI.Shared;
 
 public partial class TokenSelectionDialogItem
 {

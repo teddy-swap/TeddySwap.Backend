@@ -26,6 +26,10 @@ body:has(.mud-drawer--open) {
     border-top-left-radius: 4px;
 }
 
+.liquidity-btn-group .mud-button-icon-end {
+    margin-left: 0 !important;
+}
+
 .swap-chart .mud-tabs-scroll-button {
     display: none;
 }

@@ -680,6 +680,10 @@ video {
   top: 93px;
 }
 
+.top-\[17px\] {
+  top: 17px;
+}
+
 .z-\[1000\] {
   z-index: 1000;
 }
@@ -813,6 +817,10 @@ video {
 
 .mt-4 {
   margin-top: 1rem;
+}
+
+.mt-5 {
+  margin-top: 1.25rem;
 }
 
 .mt-6 {
@@ -1148,6 +1156,10 @@ video {
   align-content: center;
 }
 
+.items-start {
+  align-items: flex-start;
+}
+
 .items-center {
   align-items: center;
 }
@@ -1472,6 +1484,18 @@ video {
   padding-top: 4px;
 }
 
+.\!pb-4 {
+  padding-bottom: 1rem !important;
+}
+
+.\!pb-3 {
+  padding-bottom: 0.75rem !important;
+}
+
+.\!pb-2 {
+  padding-bottom: 0.5rem !important;
+}
+
 .text-left {
   text-align: left;
 }
@@ -1664,6 +1688,10 @@ body:has(.mud-drawer--open) {
 .liquidity .mud-tabs-toolbar {
   border-top-right-radius: 4px;
   border-top-left-radius: 4px;
+}
+
+.liquidity-btn-group .mud-button-icon-end {
+  margin-left: 0 !important;
 }
 
 .swap-chart .mud-tabs-scroll-button {

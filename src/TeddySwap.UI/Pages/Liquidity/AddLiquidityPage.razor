@@ -1,0 +1,113 @@
+@page "/liquidity/add"
+
+<div class="max-w-[448px] m-auto">
+    <div class="flex gap-1 items-center">
+        <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" aria-label="back to liquidity page"></MudIconButton>
+        <MudText Typo="Typo.h1" Class="text-[20px] font-bold">Add Liquidity</MudText>
+    </div>
+    <MudCard Elevation="6" Class="!pb-2">
+        <MudCardHeader Class="flex flex-col items-start gap-2">
+            <MudText Typo="Typo.h2" Class="text-[14px] font-semibold">SelectPair</MudText>
+            <div class="flex justify-between w-full">
+                <TokenChip Tokens="Tokens" Id="1" CurrentlySelectedToken="AppStateService.FromCurrentlySelectedToken" />
+                <TokenChip Tokens="Tokens" Id="1" CurrentlySelectedToken="AppStateService.ToCurrentlySelectedToken" />
+            </div>
+        </MudCardHeader>
+
+        <MudCardContent>
+            <div>
+                <MudText Typo="Typo.h3" Class="text-[14px] font-semibold">Pool</MudText>
+                <MudSelect T="double" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+                    <MudSelectItem T="double" Value="4.50" />
+                    <MudSelectItem T="double" Value="4.99" />
+                    <MudSelectItem T="double" Value="3.60" />
+                </MudSelect>
+            </div>
+
+            <div class="flex w-full justify-between items-center mt-5">
+                <MudText Typo="Typo.h3" Class="text-[14px] font-semibold">Liquidity</MudText>
+                <div class="liquidity-btn-group">
+                    <MudButton
+                        Variant="Variant.Outlined"
+                        EndIcon="@Icons.Material.Filled.Percent"
+                        IconSize="Size.Small"
+                        Class="!p-0"
+                    >
+                        25
+                    </MudButton>
+                    <MudButton
+                        Variant="Variant.Outlined"
+                        EndIcon="@Icons.Material.Filled.Percent"
+                        IconSize="Size.Small"
+                        Class="!p-0"
+                    >
+                        50
+                    </MudButton>
+                    <MudButton
+                        Variant="Variant.Outlined"
+                        EndIcon="@Icons.Material.Filled.Percent"
+                        IconSize="Size.Small"
+                        Class="!p-0"
+                    >
+                        75
+                    </MudButton>
+                    <MudButton
+                        Variant="Variant.Outlined"
+                        EndIcon="@Icons.Material.Filled.Percent"
+                        IconSize="Size.Small"
+                        Class="!p-0"
+                    >
+                        100
+                    </MudButton>
+                </div>
+            </div>
+
+            <div class="mt-6 flex flex-col gap-4">
+                <div class="relative">
+                    <MudNumericField
+                        HideSpinButtons
+                        Immediate
+                        @bind-Value="AppStateService.FromValue"
+                        Placeholder="0.0"
+                        Label="Token X"
+                        Variant="Variant.Outlined"
+                        Min="0.0"
+                        Class="swap-input"
+                        Format="N2"
+                        T="double"
+                    />
+                    <div class="absolute right-[8px] top-[17px]">
+                        <TokenChip Tokens="Tokens" Id="1" CurrentlySelectedToken="AppStateService.FromCurrentlySelectedToken" />
+                    </div>
+                    <div class="flex justify-between text-[12px] absolute w-full bottom-[13px] px-[14px]">
+                        <span>~5,155 ADA</span>
+                        <span>Balance: 17,228</span>
+                    </div>
+                </div>
+
+                <div class="relative">
+                    <MudNumericField
+                        HideSpinButtons
+                        Immediate
+                        @bind-Value="AppStateService.FromValue"
+                        Placeholder="0.0"
+                        Label="Token Y"
+                        Variant="Variant.Outlined"
+                        Min="0.0"
+                        Class="swap-input"
+                        Format="N2"
+                        T="double"
+                    />
+                    <div class="absolute right-[8px] top-[17px]">
+                        <TokenChip Tokens="Tokens" Id="1" CurrentlySelectedToken="AppStateService.ToCurrentlySelectedToken" />
+                    </div>
+                    <div class="flex justify-between text-[12px] absolute w-full bottom-[13px] px-[14px]">
+                        <span>~5,155 ADA</span>
+                        <span>Balance: 17,228</span>
+                    </div>
+                </div>
+            </div>
+            <MudButton FullWidth Variant="Variant.Filled" Color="Color.Primary" Class="normal-case mt-5">Add Liquidity</MudButton>
+        </MudCardContent>
+    </MudCard>
+</div>

@@ -3,7 +3,7 @@ using MudBlazor;
 using TeddySwap.UI.Models;
 using TeddySwap.UI.Services;
 
-namespace TeddySwap.UI.Pages.Swap;
+namespace TeddySwap.UI.Shared;
 
 public partial class TokenChip
 {
@@ -13,16 +13,15 @@ public partial class TokenChip
     [Inject]
     protected new AppStateService? AppStateService { get; set; }
 
-    [Parameter]
+    [Parameter, EditorRequired]
     public IEnumerable<Token> Tokens { get; set; } = new List<Token>();
 
-    [Parameter]
+    [Parameter, EditorRequired]
     public Token CurrentlySelectedToken { get; set; } = new();
 
-    [Parameter]
     public EventCallback<Token> OnSelectedTokenClicked { get; set; }
 
-    [Parameter]
+    [Parameter, EditorRequired]
     public string Id { get; set; } = string.Empty;
 
     [Parameter]
