@@ -5,7 +5,7 @@ namespace TeddySwap.UI.Services;
 public class RewardService
 {
     private const double ROUND_ONE_MULTIPLIER = 2.75;
-    private const decimal ROUND_ONE_MILESTONE_BONUS_MULTIPLIER = 350 / 150M;
+    private const decimal ROUND_ONE_MILESTONE_BONUS_MULTIPLIER = 350M / 150M;
     private const int EFFECTIVE_NFTS = 4_246;
     private const int MAX_MILESTONE_BONUS = 10_733;
     private const int AVAILABLE_REWARDS = 33_453_000;
