@@ -27,7 +27,18 @@
             </MudListItem>
             <MudListItem Class="!p-0">
                 <div class="flex justify-between items-center text-[12px] text-[var(--mud-palette-text-primary)]">
-                    <div>Early Supporter Reward:</div>
+                    <div class="flex gap-1 items-center">
+                        <div>ESR</div>
+                        <MudTooltip Placement="Placement.Right">
+                            <ChildContent>
+                                <MudIcon Icon="@IconsService.OutlinedQuestionMark" Class="w-[13px] cursor-pointer"/>
+                            </ChildContent>
+                            <TooltipContent>
+                                <p>Early Supporter Reward</p>
+                            </TooltipContent>
+                        </MudTooltip>
+                        <div>:</div>
+                    </div>
                     <div>@RewardBreakdown.EarlySupporterBonus.ToString("#,##0.00")  $TEDY</div>
                 </div>
             </MudListItem>
