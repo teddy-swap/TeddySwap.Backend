@@ -25,33 +25,43 @@ public partial class AddLiquidityPage
         string tokensJson = File.ReadAllText("./wwwroot/tokens.json");
         ArgumentException.ThrowIfNullOrEmpty(tokensJson);
         Tokens = JsonSerializer.Deserialize<IEnumerable<Token>>(tokensJson);
+        ArgumentNullException.ThrowIfNull(AppStateService);
 
         _pools = new List<Pool>()
         {
             new()
             {
-                Pair = new TokenPair() { Tokens = (
-                    new Token() { Name = "TEDYt", Logo = "../images/tokens/tedyt.png" },
-                    new Token() { Name = "DJED", Logo = "../images/tokens/djed.png" }
-                )},
+                Pair = new TokenPair() 
+                { 
+                    Tokens = (
+                        new Token() { Name = "TEDYt", Logo = "../images/tokens/tedyt.png" },
+                        new Token() { Name = "DJED", Logo = "../images/tokens/djed.png" }
+                    )
+                },
                 Fee = 0.08M,
                 Tvl = 0.2M
             },
             new()
             {
-                Pair = new TokenPair() { Tokens = (
-                    new Token() { Name = "TEDYt", Logo = "../images/tokens/tedyt.png" },
-                    new Token() { Name = "DJED", Logo = "../images/tokens/djed.png" }
-                )},
+                Pair = new TokenPair()
+                { 
+                    Tokens = (
+                        new Token() { Name = "TEDYt", Logo = "../images/tokens/tedyt.png" },
+                        new Token() { Name = "DJED", Logo = "../images/tokens/djed.png" }
+                    )
+                },
                 Fee = 0.06M,
                 Tvl = 0.4M
             },
             new()
             {
-                Pair = new TokenPair() { Tokens = (
-                    new Token() { Name = "TEDYt", Logo = "../images/tokens/tedyt.png" },
-                    new Token() { Name = "DJED", Logo = "../images/tokens/djed.png" }
-                )},
+                Pair = new TokenPair()
+                { 
+                    Tokens = (
+                        new Token() { Name = "TEDYt", Logo = "../images/tokens/tedyt.png" },
+                        new Token() { Name = "DJED", Logo = "../images/tokens/djed.png" }
+                    )
+                },
                 Fee = 0.1M,
                 Tvl = 0.03M
             }
@@ -59,13 +69,11 @@ public partial class AddLiquidityPage
 
         if (_pools.ElementAt(0) is not null) _currentlySelectedPool = _pools.ElementAt(0);
 
-        if (AppStateService is not null)
-        {
-            AppStateService.PropertyChanged += OnAppStatePropertyChanged;
-            AppStateService.FromCurrentlySelectedToken = Tokens?.ElementAt(0);
-            AppStateService.ToCurrentlySelectedToken = Tokens?.ElementAt(2);
-            AppStateService.LiquidityValue = 25;
-        }
+        AppStateService.PropertyChanged += OnAppStatePropertyChanged;
+        AppStateService.FromCurrentlySelectedToken = Tokens?.ElementAt(0);
+        AppStateService.ToCurrentlySelectedToken = Tokens?.ElementAt(2);
+        AppStateService.LiquidityValue = 25;
+        AppStateService.AddLiquidityCurrentlySelectedTokenOne = new Token() { Name = "ADA", Logo = "../images/tokens/token-ada.svg" }; 
     }
 
     private async void OnAppStatePropertyChanged(object? sender, PropertyChangedEventArgs e)

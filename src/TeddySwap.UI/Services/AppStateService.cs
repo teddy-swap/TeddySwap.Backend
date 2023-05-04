@@ -90,6 +90,30 @@ public class AppStateService : INotifyPropertyChanged
         }
     }
 
+    private Token? _addLiquidityCurrentlySelectedTokenOne;
+
+    public Token? AddLiquidityCurrentlySelectedTokenOne
+    {
+        get => _addLiquidityCurrentlySelectedTokenOne;
+        set
+        {
+            _addLiquidityCurrentlySelectedTokenOne = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private Token? _addLiquidityCurrentlySelectedTokenTwo;
+
+    public Token? AddLiquidityCurrentlySelectedTokenTwo
+    {
+        get => _addLiquidityCurrentlySelectedTokenTwo;
+        set
+        {
+            _addLiquidityCurrentlySelectedTokenTwo = value;
+            OnPropertyChanged();
+        }
+    }
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     protected void OnPropertyChanged([CallerMemberName] string? name = null)

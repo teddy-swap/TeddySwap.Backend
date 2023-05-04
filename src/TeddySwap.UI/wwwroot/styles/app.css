@@ -10,6 +10,10 @@ body:has(.mud-drawer--open) {
     overflow-y: hidden;
 }
 
+.liquidity-table .mud-toolbar {
+    height: fit-content !important;
+}
+
 .swap-chart .mud-tab,
 .liquidity .mud-tab {
     font-size: 16px;

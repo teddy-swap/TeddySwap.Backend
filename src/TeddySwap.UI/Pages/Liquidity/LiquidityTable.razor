@@ -7,7 +7,29 @@
     RowClass="relative"
 >
 	<ToolBarContent>
-        <MudTextField
+        <div class="flex flex-col md:grid grid-cols-2 w-full gap-3">
+            <MudButton 
+                FullWidth
+                Variant="Variant.Filled"
+                Color="Color.Primary"
+                Class="normal-case text-[16px] max-w-[413px] md:order-1 justify-self-end"
+                Href="/liquidity/add"
+            >
+                Add Liquidity
+            </MudButton>
+            <MudTextField
+                Immediate
+                @bind-Value="_searchValue"
+                Variant="Variant.Outlined"
+                Placeholder="Type token name or pool ID"
+                Adornment="Adornment.Start"
+                AdornmentIcon="@Icons.Material.Filled.Search"
+                IconSize="Size.Medium"
+                Class="!max-w-[413px] !mt-0"
+            >
+            </MudTextField>
+        </div>
+        @* <MudTextField
             Immediate
             @bind-Value="_searchValue"
             Variant="Variant.Outlined"
@@ -17,7 +39,7 @@
             IconSize="Size.Medium"
             Class="!max-w-[413px]"
         >
-        </MudTextField>
+        </MudTextField> *@
     </ToolBarContent>
 	<HeaderContent>
 		<MudTh>Pair</MudTh>
