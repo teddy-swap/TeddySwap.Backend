@@ -14,7 +14,7 @@ predicate = "any_of"
 
 [[filters.check.argument]]
 predicate = "variant_in"
-argument = ["Block", "StakeDelegation"]
+argument = ["Block", "StakeDelegation", "RollBack"]
 
 [sink]
 type = "Webhook"
