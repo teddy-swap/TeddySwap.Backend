@@ -21,7 +21,7 @@ public partial class LiquidityTable
         string.IsNullOrEmpty(_searchValue)
             ? TokenPairs
             : TokenPairs?.Where(
-                t => t.TokenPair.Token1.Name.ToLower().Contains(_searchValue.ToLower()) || 
-                     t.TokenPair.Token2.Name.ToLower().Contains(_searchValue.ToLower())
+                t => t.TokenPair.Tokens.Token1.Name.ToLower().Contains(_searchValue.ToLower()) || 
+                     t.TokenPair.Tokens.Token2.Name.ToLower().Contains(_searchValue.ToLower())
             );
 }

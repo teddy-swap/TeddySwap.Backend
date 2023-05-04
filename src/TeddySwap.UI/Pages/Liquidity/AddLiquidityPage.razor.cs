@@ -14,6 +14,10 @@ public partial class AddLiquidityPage
 
     private IEnumerable<Token>? Tokens { get; set; }
 
+    private List<Pool> _pools { get; set; } = new();
+
+    private Pool? _currentlySelectedPool { get; set; }
+
     private MudChip? _selectedChip { get; set; }
 
     protected override void OnInitialized()
@@ -22,15 +26,61 @@ public partial class AddLiquidityPage
         ArgumentException.ThrowIfNullOrEmpty(tokensJson);
         Tokens = JsonSerializer.Deserialize<IEnumerable<Token>>(tokensJson);
 
+        _pools = new List<Pool>()
+        {
+            new()
+            {
+                Pair = new TokenPair() { Tokens = (
+                    new Token() { Name = "TEDYt", Logo = "../images/tokens/tedyt.png" },
+                    new Token() { Name = "DJED", Logo = "../images/tokens/djed.png" }
+                )},
+                Fee = 0.08M,
+                Tvl = 0.2M
+            },
+            new()
+            {
+                Pair = new TokenPair() { Tokens = (
+                    new Token() { Name = "TEDYt", Logo = "../images/tokens/tedyt.png" },
+                    new Token() { Name = "DJED", Logo = "../images/tokens/djed.png" }
+                )},
+                Fee = 0.06M,
+                Tvl = 0.4M
+            },
+            new()
+            {
+                Pair = new TokenPair() { Tokens = (
+                    new Token() { Name = "TEDYt", Logo = "../images/tokens/tedyt.png" },
+                    new Token() { Name = "DJED", Logo = "../images/tokens/djed.png" }
+                )},
+                Fee = 0.1M,
+                Tvl = 0.03M
+            }
+        };
+
+        if (_pools.ElementAt(0) is not null) _currentlySelectedPool = _pools.ElementAt(0);
+
         if (AppStateService is not null)
         {
             AppStateService.PropertyChanged += OnAppStatePropertyChanged;
             AppStateService.FromCurrentlySelectedToken = Tokens?.ElementAt(0);
             AppStateService.ToCurrentlySelectedToken = Tokens?.ElementAt(2);
+            AppStateService.LiquidityValue = 25;
         }
     }
 
     private async void OnAppStatePropertyChanged(object? sender, PropertyChangedEventArgs e)
         => await InvokeAsync(StateHasChanged);
+
+    private void OnLiquidityBtnClicked(int value)
+    {
+        ArgumentNullException.ThrowIfNull(AppStateService);
+        AppStateService.LiquidityValue = value switch
+        {
+            25 => 25,
+            50 => 50,
+            75 => 75,
+            _ => 100
+        };
+    }
 
 }

@@ -1,12 +1,13 @@
 @page "/liquidity/add"
+@using TeddySwap.UI.Models
 
 <div class="max-w-[448px] m-auto">
     <div class="flex gap-1 items-center">
         <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" aria-label="back to liquidity page"></MudIconButton>
-        <MudText Typo="Typo.h1" Class="text-[20px] font-bold">Add Liquidity</MudText>
+        <MudText Typo="Typo.h1" Class="text-[20px] font-bold !outline-none">Add Liquidity</MudText>
     </div>
-    <MudCard Elevation="6" Class="!pb-2">
-        <MudCardHeader Class="flex flex-col items-start gap-2">
+    <MudCard Elevation="6" Class="!pb-2 mt-2">
+        <MudCardHeader Class="flex flex-col items-start gap-2 !pb-0">
             <MudText Typo="Typo.h2" Class="text-[14px] font-semibold">SelectPair</MudText>
             <div class="flex justify-between w-full">
                 <TokenChip Tokens="Tokens" Id="1" CurrentlySelectedToken="AppStateService.FromCurrentlySelectedToken" />
@@ -17,59 +18,81 @@
         <MudCardContent>
             <div>
                 <MudText Typo="Typo.h3" Class="text-[14px] font-semibold">Pool</MudText>
-                <MudSelect T="double" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
-                    <MudSelectItem T="double" Value="4.50" />
-                    <MudSelectItem T="double" Value="4.99" />
-                    <MudSelectItem T="double" Value="3.60" />
+                <MudSelect @bind-Value="_currentlySelectedPool" T="Pool" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter" Class="add-liquidity-pool-selection">
+                    @foreach (Pool pool in _pools)
+                    {
+                        <MudSelectItem T="Pool" Class="!py-0" Value="pool">
+                            <div class="flex items-center">
+                                <div class="relative flex items-center">
+                                    <MudImage Src=@pool.Pair.Tokens.Token1.Logo Height="24" Width="24" Alt="" />
+                                    <MudImage Src=@pool.Pair.Tokens.Token2.Logo Height="24" Width="24" Alt="" Class="absolute left-[18px]" />
+                                    <MudText Class="ml-[22px] font-semibold">@pool.Pair.Tokens.Token1.Name/@pool.Pair.Tokens.Token2.Name</MudText>
+                                </div>
+                                <div class="ml-2 flex items-center gap-2">
+                                    <div class="text-[12px] flex items-center gap-1">
+                                        <div class="text-[var(--mud-palette-text-secondary)]">Fee:</div>
+                                        <div class="font-semibold">@pool.Fee%</div>
+                                    </div>
+                                    <div class="text-[12px] flex items-center gap-1">
+                                        <div class="text-[var(--mud-palette-text-secondary)]">TVL:</div>
+                                        <div class="font-semibold">@pool.Tvl%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </MudSelectItem>
+                    }
                 </MudSelect>
             </div>
 
             <div class="flex w-full justify-between items-center mt-5">
                 <MudText Typo="Typo.h3" Class="text-[14px] font-semibold">Liquidity</MudText>
-                <div class="liquidity-btn-group">
+                <div class="liquidity-btn-group flex gap-1">
                     <MudButton
-                        Variant="Variant.Outlined"
-                        EndIcon="@Icons.Material.Filled.Percent"
-                        IconSize="Size.Small"
-                        Class="!p-0"
-                    >
-                        25
+                        DisableElevation
+                        OnClick="@(() => OnLiquidityBtnClicked(25))"
+                        Size="Size.Small"
+                        Class="@(AppStateService.LiquidityValue == 25 ? "py-[6px] px-[16px] h-[36.5px] rounded-[50px] bg-[var(--mud-palette-primary)] hover:bg-[var(--mud-palette-primary-darken)]" : "py-[6px] px-[16px] h-[36.5px] rounded-[50px] hover:bg-[rgba(3, 105, 161, 0.08)]")"
+                        Color="Color.Transparent"
+                        Variant="Variant.Filled">
+                            25%
+                    </MudButton>
+                    <MudButton 
+                        DisableElevation
+                        OnClick="@(() => OnLiquidityBtnClicked(50))"
+                        Size="Size.Small"
+                        Class="@(AppStateService.LiquidityValue == 50 ? "py-[6px] px-[16px] h-[36.5px] rounded-[50px] bg-[var(--mud-palette-primary)] hover:bg-[var(--mud-palette-primary-darken)]" : "py-[6px] px-[16px] h-[36.5px] rounded-[50px] hover:bg-[rgba(3, 105, 161, 0.08)]")"
+                        Color="Color.Transparent"
+                        Variant="Variant.Filled">
+                            50%
                     </MudButton>
                     <MudButton
-                        Variant="Variant.Outlined"
-                        EndIcon="@Icons.Material.Filled.Percent"
-                        IconSize="Size.Small"
-                        Class="!p-0"
-                    >
-                        50
+                        DisableElevation
+                        OnClick="@(() => OnLiquidityBtnClicked(75))"
+                        Size="Size.Small"
+                        Class="@(AppStateService.LiquidityValue == 75 ? "py-[6px] px-[16px] h-[36.5px] rounded-[50px] bg-[var(--mud-palette-primary)] hover:bg-[var(--mud-palette-primary-darken)]" : "py-[6px] px-[16px] h-[36.5px] rounded-[50px] hover:bg-[rgba(3, 105, 161, 0.08)]")"
+                        Color="Color.Transparent"
+                        Variant="Variant.Filled">
+                            75%
                     </MudButton>
                     <MudButton
-                        Variant="Variant.Outlined"
-                        EndIcon="@Icons.Material.Filled.Percent"
-                        IconSize="Size.Small"
-                        Class="!p-0"
-                    >
-                        75
-                    </MudButton>
-                    <MudButton
-                        Variant="Variant.Outlined"
-                        EndIcon="@Icons.Material.Filled.Percent"
-                        IconSize="Size.Small"
-                        Class="!p-0"
-                    >
-                        100
+                        DisableElevation
+                        OnClick="@(() => OnLiquidityBtnClicked(100))"
+                        Size="Size.Small"
+                        Class="@(AppStateService.LiquidityValue == 100 ? "py-[6px] px-[16px] h-[36.5px] rounded-[50px] bg-[var(--mud-palette-primary)] hover:bg-[var(--mud-palette-primary-darken)]" : "py-[6px] px-[16px] h-[36.5px] rounded-[50px] hover:bg-[rgba(3, 105, 161, 0.08)]")"
+                        Color="Color.Transparent"
+                        Variant="Variant.Filled">
+                            100%
                     </MudButton>
                 </div>
             </div>
 
-            <div class="mt-6 flex flex-col gap-4">
+            <div class="mt-5 flex flex-col gap-3">
                 <div class="relative">
                     <MudNumericField
                         HideSpinButtons
                         Immediate
                         @bind-Value="AppStateService.FromValue"
                         Placeholder="0.0"
-                        Label="Token X"
                         Variant="Variant.Outlined"
                         Min="0.0"
                         Class="swap-input"
@@ -91,7 +114,6 @@
                         Immediate
                         @bind-Value="AppStateService.FromValue"
                         Placeholder="0.0"
-                        Label="Token Y"
                         Variant="Variant.Outlined"
                         Min="0.0"
                         Class="swap-input"
@@ -107,7 +129,23 @@
                     </div>
                 </div>
             </div>
-            <MudButton FullWidth Variant="Variant.Filled" Color="Color.Primary" Class="normal-case mt-5">Add Liquidity</MudButton>
+            
+            <div class="flex justify-between mt-5 gap-3">
+                <MudCard Elevation="2" Class="grow !bg-[var(--mud-palette-drawer-background)]">
+                    <MudCardContent Class="text-center">
+                        <MudText Class="text-[16px] font-semibold">1.45058</MudText>
+                        <MudText Class="text-[12px] !text-[var(--mud-palette-text-secondary)]">TEDYt per DJEDt</MudText>
+                    </MudCardContent>
+                </MudCard>
+                <MudCard Elevation="2" Class="grow !bg-[var(--mud-palette-drawer-background)]">
+                    <MudCardContent Class="text-center">
+                        <MudText Class="text-[16px] font-semibold">0.701726</MudText>
+                        <MudText Class="text-[12px] !text-[var(--mud-palette-text-secondary)]">DJEDt per TEDYt</MudText>
+                    </MudCardContent>
+                </MudCard>
+            </div>
+
+            <MudButton FullWidth Variant="Variant.Filled" Color="Color.Primary" Class="normal-case mt-5 !text-[20px]">Add Liquidity</MudButton>
         </MudCardContent>
     </MudCard>
 </div>

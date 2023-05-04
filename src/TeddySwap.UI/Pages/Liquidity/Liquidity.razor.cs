@@ -15,10 +15,10 @@ public partial class Liquidity
         {
             new()
             {
-                TokenPair = (
+                TokenPair = new() { Tokens = (
                     new Token() { Name = "TEDYt", Logo = "../images/tokens/tedyt.png" },
                     new Token() { Name = "ADA", Logo = "../images/tokens/token-ada.svg" }
-                ),
+                ) },
                 TVL = 26.29,
                 Volume24H = 450.88,
                 Volume7D = 8_230_456,
@@ -28,10 +28,10 @@ public partial class Liquidity
             },
             new()
             {
-                TokenPair = (
+                TokenPair = new() { Tokens = (
                     new Token() { Name = "USDt", Logo = "../images/tokens/usdt.png" },
                     new Token() { Name = "DJED", Logo = "../images/tokens/djed.png" }
-                ),
+                ) },
                 TVL = 26.29,
                 Volume24H = 450.88,
                 Volume7D = 8_230_456,
@@ -41,10 +41,10 @@ public partial class Liquidity
             },
             new()
             {
-                TokenPair = (
+                TokenPair = new() { Tokens = (
                     new Token() { Name = "SUNDAEt", Logo = "../images/tokens/sundaet.png" },
                     new Token() { Name = "TEDYt", Logo = "../images/tokens/tedyt.png" }
-                ),
+                ) },
                 TVL = 26.29,
                 Volume24H = 450.88,
                 Volume7D = 8_230_456,
@@ -54,10 +54,10 @@ public partial class Liquidity
             },
             new()
             {
-                TokenPair = (
+                TokenPair = new() { Tokens = (
                     new Token() { Name = "ADA", Logo = "../images/tokens/token-ada.svg" },
                     new Token() { Name = "USDt", Logo = "../images/tokens/usdt.png" }
-                ),
+                ) },
                 TVL = 26.29,
                 Volume24H = 450.88,
                 Volume7D = 8_230_456,
@@ -67,10 +67,10 @@ public partial class Liquidity
             },
             new()
             {
-                TokenPair = (
+                TokenPair = new() { Tokens = (
                     new Token() { Name = "DRIPt", Logo = "../images/tokens/dript.png" },
                     new Token() { Name = "WRTt", Logo = "../images/tokens/wrtt.png" }
-                ),
+                ) },
                 TVL = 26.29,
                 Volume24H = 450.88,
                 Volume7D = 8_230_456,
@@ -80,10 +80,10 @@ public partial class Liquidity
             },
             new()
             {
-                TokenPair = (
+                TokenPair = new() { Tokens = (
                     new Token() { Name = "USDt", Logo = "../images/tokens/usdt.png" },
                     new Token() { Name = "TEDYt", Logo = "../images/tokens/tedyt.png" }
-                ),
+                ) },
                 TVL = 26.29,
                 Volume24H = 450.88,
                 Volume7D = 8_230_456,
@@ -97,10 +97,10 @@ public partial class Liquidity
         {
             new()
             {
-                TokenPair = (
+                TokenPair = new() { Tokens = (
                     new Token() { Name = "SUNDAEt", Logo = "../images/tokens/sundaet.png" },
                     new Token() { Name = "TEDYt", Logo = "../images/tokens/tedyt.png" }
-                ),
+                ) },
                 TVL = 26.29,
                 Volume24H = 450.88,
                 Volume7D = 8_230_456,
@@ -110,10 +110,10 @@ public partial class Liquidity
             },
             new()
             {
-                TokenPair = (
+                TokenPair = new() { Tokens = (
                     new Token() { Name = "TEDYt", Logo = "../images/tokens/tedyt.png" },
                     new Token() { Name = "ADA", Logo = "../images/tokens/token-ada.svg" }
-                ),
+                ) },
                 TVL = 26.29,
                 Volume24H = 450.88,
                 Volume7D = 8_230_456,
@@ -123,10 +123,10 @@ public partial class Liquidity
             },
             new()
             {
-                TokenPair = (
+                TokenPair = new() { Tokens = (
                     new Token() { Name = "ADA", Logo = "../images/tokens/token-ada.svg" },
                     new Token() { Name = "USDt", Logo = "../images/tokens/usdt.png" }
-                ),
+                ) },
                 TVL = 26.29,
                 Volume24H = 450.88,
                 Volume7D = 8_230_456,
@@ -136,10 +136,10 @@ public partial class Liquidity
             },
             new()
             {
-                TokenPair = (
+                TokenPair = new() { Tokens = (
                     new Token() { Name = "USDt", Logo = "../images/tokens/usdt.png" },
                     new Token() { Name = "TEDYt", Logo = "../images/tokens/tedyt.png" }
-                ),
+                ) },
                 TVL = 26.29,
                 Volume24H = 450.88,
                 Volume7D = 8_230_456,

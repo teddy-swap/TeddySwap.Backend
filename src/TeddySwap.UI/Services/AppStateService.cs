@@ -4,15 +4,6 @@ using TeddySwap.UI.Models;
 
 namespace TeddySwap.UI.Services;
 
-public enum TimeRange
-{
-    OneDay,
-    OneWeek,
-    OneMonth,
-    SixMonths,
-    OneYear
-}
-
 public class AppStateService : INotifyPropertyChanged
 {
     private double _slippageToleranceValue;
@@ -27,14 +18,14 @@ public class AppStateService : INotifyPropertyChanged
         }
     }
 
-    private TimeRange _selectedTimeRange;
-    
-    public TimeRange SelectedTimeRange
+    private int _liquidityValue;
+
+    public int LiquidityValue
     {
-        get => _selectedTimeRange;
+        get => _liquidityValue;
         set
         {
-            _selectedTimeRange = value;
+            _liquidityValue = value;
             OnPropertyChanged();
         }
     }

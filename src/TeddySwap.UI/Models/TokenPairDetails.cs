@@ -2,7 +2,7 @@ namespace TeddySwap.UI.Models;
 
 public class TokenPairDetails
 {
-    public (Token Token1, Token Token2) TokenPair { get; set; } = new();
+    public TokenPair TokenPair { get; set; } = new();
 
     public double TVL { get; set; }
 

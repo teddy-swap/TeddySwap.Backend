@@ -30,6 +30,20 @@ body:has(.mud-drawer--open) {
     margin-left: 0 !important;
 }
 
+.add-liquidity-pool-selection .mud-input-slot {
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+    display: flex !important;
+    align-items: center !important;
+    /* padding-left: 100px !important; */
+}
+
+/* .add-liquidity-pool-selection .mud-input-slot {
+    padding-top: 7px !important;
+    padding-bottom: 7px !important;
+    padding-left: 100px !important;
+} */
+
 .swap-chart .mud-tabs-scroll-button {
     display: none;
 }
