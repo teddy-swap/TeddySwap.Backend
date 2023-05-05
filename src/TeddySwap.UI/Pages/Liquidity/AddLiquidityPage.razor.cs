@@ -18,7 +18,7 @@ public partial class AddLiquidityPage
 
     private Pool? _currentlySelectedPool { get; set; }
 
-    private bool _isOverlayVisible { get; set; } = true;
+    public bool _isTokenTwoSelected { get; set; } = false;
 
     protected override void OnInitialized()
     { 
@@ -93,6 +93,6 @@ public partial class AddLiquidityPage
     {
         ArgumentNullException.ThrowIfNull(AppStateService);
         AppStateService.AddLiquidityCurrentlySelectedTokenTwo = token;
-        _isOverlayVisible = false;
+        _isTokenTwoSelected = true;
     }
 }

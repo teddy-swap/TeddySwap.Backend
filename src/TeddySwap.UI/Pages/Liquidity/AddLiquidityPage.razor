@@ -23,7 +23,7 @@
             </div>
         </MudCardHeader>
         <MudCardContent Class="relative">
-            <MudOverlay Visible="_isOverlayVisible" Absolute="true" DarkBackground="true" />
+            <MudOverlay Visible="!_isTokenTwoSelected" Absolute="true" DarkBackground="true" />
             <div>
                 <MudText Typo="Typo.h3" Class="text-[14px] font-semibold">Pool</MudText>
                 <MudSelect @bind-Value="_currentlySelectedPool" T="Pool" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter" Class="add-liquidity-pool-selection">
@@ -32,9 +32,9 @@
                         <MudSelectItem T="Pool" Class="!py-0" Value="pool">
                             <div class="flex items-center">
                                 <div class="relative flex items-center">
-                                    <MudImage Src=@pool.Pair.Tokens.Token1.Logo Height="24" Width="24" Alt="" />
-                                    <MudImage Src=@pool.Pair.Tokens.Token2.Logo Height="24" Width="24" Alt="" Class="absolute left-[18px]" />
-                                    <MudText Class="ml-[22px] font-semibold">@pool.Pair.Tokens.Token1.Name/@pool.Pair.Tokens.Token2.Name</MudText>
+                                    <MudImage Src=@pool.Pair.Tokens.Token1.Logo Height="24" Width="24" Alt="@((@pool.Pair.Tokens.Token1.Name) + " logo")" />
+                                    <MudImage Src=@pool.Pair.Tokens.Token2.Logo Height="24" Width="24" Alt="@((@pool.Pair.Tokens.Token2.Name) + " logo")" Class="absolute left-[18px]" />
+                                    <MudText Class="ml-[22px] font-semibold text-[12px] md:text-[16px]">@pool.Pair.Tokens.Token1.Name/@pool.Pair.Tokens.Token2.Name</MudText>
                                 </div>
                                 <div class="ml-2 flex items-center gap-2">
                                     <div class="text-[12px] flex items-center gap-1">
@@ -51,9 +51,9 @@
                     }
                 </MudSelect>
             </div>
-            <div class="flex w-full justify-between items-center mt-5">
+            <div class="flex flex-col md:flex-row w-full items-start md:items-center md:justify-between gap-2 mt-5">
                 <MudText Typo="Typo.h3" Class="text-[14px] font-semibold">Liquidity</MudText>
-                <div class="liquidity-btn-group flex gap-1">
+                <div class="liquidity-btn-group w-full md:w-fit flex justify-between gap-1">
                     <MudButton
                         DisableElevation
                         OnClick="@(() => OnLiquidityBtnClicked(25))"
@@ -92,7 +92,6 @@
                     </MudButton>
                 </div>
             </div>
-
             <div class="mt-5 flex flex-col gap-3">
                 <div class="relative">
                     <MudNumericField
@@ -118,7 +117,6 @@
                         <span>Balance: 17,228</span>
                     </div>
                 </div>
-
                 <div class="relative">
                     <MudNumericField
                         HideSpinButtons
@@ -144,18 +142,21 @@
                     </div>
                 </div>
             </div>
-            
-            <div class="flex justify-between mt-5 gap-3">
+            <div class="@(_isTokenTwoSelected ? "h-[74px] mt-5" : "h-0 mt-0") transition-height duration-200 ease-in-out flex justify-between gap-3">
                 <MudCard Elevation="2" Class="grow !bg-[var(--mud-palette-drawer-background)]">
                     <MudCardContent Class="text-center">
                         <MudText Class="text-[16px] font-semibold">1.45058</MudText>
-                        <MudText Class="text-[12px] !text-[var(--mud-palette-text-secondary)]">TEDYt per DJEDt</MudText>
+                        <MudText Class="text-[12px] !text-[var(--mud-palette-text-secondary)]">
+                            @AppStateService?.AddLiquidityCurrentlySelectedTokenOne?.Name per @AppStateService?.AddLiquidityCurrentlySelectedTokenTwo?.Name
+                        </MudText>
                     </MudCardContent>
                 </MudCard>
                 <MudCard Elevation="2" Class="grow !bg-[var(--mud-palette-drawer-background)]">
                     <MudCardContent Class="text-center">
                         <MudText Class="text-[16px] font-semibold">0.701726</MudText>
-                        <MudText Class="text-[12px] !text-[var(--mud-palette-text-secondary)]">DJEDt per TEDYt</MudText>
+                        <MudText Class="text-[12px] !text-[var(--mud-palette-text-secondary)]">
+                            @AppStateService?.AddLiquidityCurrentlySelectedTokenTwo?.Name per @AppStateService?.AddLiquidityCurrentlySelectedTokenOne?.Name
+                        </MudText>
                     </MudCardContent>
                 </MudCard>
             </div>

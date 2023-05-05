@@ -960,6 +960,14 @@ video {
   height: 100vh;
 }
 
+.h-\[74px\] {
+  height: 74px;
+}
+
+.h-\[7px\] {
+  height: 7px;
+}
+
 .max-h-\[45px\] {
   max-height: 45px;
 }
@@ -1944,6 +1952,11 @@ body:has(.mud-drawer--open) {
 
   .md\:w-\[40px\] {
     width: 40px;
+  }
+
+  .md\:w-fit {
+    width: -moz-fit-content;
+    width: fit-content;
   }
 
   .md\:grid-cols-3 {
