@@ -64,7 +64,6 @@ public class SinkService
             Payload = payload,
             SignedMessage = signedMessage
         });
-        Console.WriteLine(await resp.Content.ReadAsStringAsync());
     }
 
     public async Task<int> GetNftCountByStakeAddressPolicyAsync(string address, string policyId)

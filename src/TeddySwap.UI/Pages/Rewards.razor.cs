@@ -33,7 +33,10 @@ public partial class Rewards : IAsyncDisposable
     protected ISnackbar? Snackbar { get; set; }
 
     [Inject]
-    private RewardService? RewardService { get; set; }
+    protected RewardService? RewardService { get; set; }
+
+    [Inject]
+    protected ILogger<Rewards>? Logger { get; set; }
 
     protected LeaderBoardResponse LeaderBoardResponse { get; set; } = new LeaderBoardResponse();
 
@@ -102,6 +105,7 @@ public partial class Rewards : IAsyncDisposable
     protected override async void OnHeartBeatEvent(object? sender, EventArgs e)
     {
         await RefreshDataAsync();
+        base.OnHeartBeatEvent(sender, e);
     }
 
     private async void OnConnectionStateChanged(object? sender, EventArgs e)
@@ -154,7 +158,7 @@ public partial class Rewards : IAsyncDisposable
             }
             catch (Exception ex)
             {
-                // @TODO: Push error to analytics
+                Logger?.LogError(ex, "Error Retrieving Wallet Addresses!");
             }
 
             try
@@ -182,7 +186,7 @@ public partial class Rewards : IAsyncDisposable
                 TotalRoundOneItnNftBonus = 0;
                 TotalRoundTwoItnNftBonus = 0;
                 TotalItnNftBonus = 0;
-                // @TODO: Push error to analytics
+                Logger?.LogError(ex, "Error Calculating Nft Rewards!");
             }
 
             try
@@ -200,7 +204,7 @@ public partial class Rewards : IAsyncDisposable
             {
                 BaseFisoRewards = 0;
                 TotalFisoRewards = 0;
-                // @TODO: Push error to analytics
+                Logger?.LogError(ex, "Error Calculating FISO Rewards!");
             }
 
             try
@@ -226,7 +230,7 @@ public partial class Rewards : IAsyncDisposable
             }
             catch (Exception ex)
             {
-                // @TODO: Push error to analytics
+                Logger?.LogError(ex, "Error Retrieveing NFT Assets!");
             }
         }
 
@@ -241,14 +245,13 @@ public partial class Rewards : IAsyncDisposable
         {
             ArgumentNullException.ThrowIfNull(CardanoWalletService);
             ArgumentNullException.ThrowIfNull(QueryService);
-
             IsClaimDialogShown = true;
             await InvokeAsync(StateHasChanged);
 
         }
-        catch
+        catch (Exception ex)
         {
-            // @TODO: Push error to analytics
+            Logger?.LogError(ex, "Error Showing Claim Dialog!");
         }
     }
 
@@ -285,9 +288,9 @@ public partial class Rewards : IAsyncDisposable
             MainnetAddress = newMainnetAddress;
             Snackbar.Add("You have succesfully linked your mainnet address! 🎊", Severity.Success);
         }
-        catch
+        catch (Exception ex)
         {
-            // @TODO: Push error to analytics
+            Logger?.LogError(ex, "Error Linking Mainnet Address!");
         }
     }
 

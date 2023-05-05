@@ -1,6 +1,4 @@
 using Blazored.LocalStorage;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using MudBlazor.Services;
 using TeddySwap.Common.Services;
 using TeddySwap.UI.Services;
@@ -8,7 +6,11 @@ using TeddySwap.UI.Workers;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddApplicationInsightsTelemetry();
+builder.Services.AddApplicationInsightsTelemetry((o) =>
+{
+    o.ConnectionString = builder.Configuration.GetConnectionString("APPLICATIONINSIGHTS");
+});
+
 builder.Services.AddBlazoredLocalStorage();
 // Add services to the container.
 builder.Services.AddMudServices(config =>
