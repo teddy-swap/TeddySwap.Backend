@@ -58,7 +58,7 @@
                         DisableElevation
                         OnClick="@(() => OnLiquidityBtnClicked(25))"
                         Size="Size.Small"
-                        Class="@(AppStateService.LiquidityValue == 25 ? "py-[6px] px-[16px] h-[36.5px] rounded-[50px] bg-[var(--mud-palette-primary)] hover:bg-[var(--mud-palette-primary-darken)]" : "py-[6px] px-[16px] h-[36.5px] rounded-[50px] hover:bg-[rgba(3, 105, 161, 0.08)]")"
+                        Class="@(AppStateService.LiquidityPercentageValue == 25 ? "py-[6px] px-[16px] h-[36.5px] rounded-[50px] bg-[var(--mud-palette-primary)] hover:bg-[var(--mud-palette-primary-darken)]" : "py-[6px] px-[16px] h-[36.5px] rounded-[50px] hover:bg-[rgba(3, 105, 161, 0.08)]")"
                         Color="Color.Transparent"
                         Variant="Variant.Filled">
                             25%
@@ -67,7 +67,7 @@
                         DisableElevation
                         OnClick="@(() => OnLiquidityBtnClicked(50))"
                         Size="Size.Small"
-                        Class="@(AppStateService.LiquidityValue == 50 ? "py-[6px] px-[16px] h-[36.5px] rounded-[50px] bg-[var(--mud-palette-primary)] hover:bg-[var(--mud-palette-primary-darken)]" : "py-[6px] px-[16px] h-[36.5px] rounded-[50px] hover:bg-[rgba(3, 105, 161, 0.08)]")"
+                        Class="@(AppStateService.LiquidityPercentageValue == 50 ? "py-[6px] px-[16px] h-[36.5px] rounded-[50px] bg-[var(--mud-palette-primary)] hover:bg-[var(--mud-palette-primary-darken)]" : "py-[6px] px-[16px] h-[36.5px] rounded-[50px] hover:bg-[rgba(3, 105, 161, 0.08)]")"
                         Color="Color.Transparent"
                         Variant="Variant.Filled">
                             50%
@@ -76,7 +76,7 @@
                         DisableElevation
                         OnClick="@(() => OnLiquidityBtnClicked(75))"
                         Size="Size.Small"
-                        Class="@(AppStateService.LiquidityValue == 75 ? "py-[6px] px-[16px] h-[36.5px] rounded-[50px] bg-[var(--mud-palette-primary)] hover:bg-[var(--mud-palette-primary-darken)]" : "py-[6px] px-[16px] h-[36.5px] rounded-[50px] hover:bg-[rgba(3, 105, 161, 0.08)]")"
+                        Class="@(AppStateService.LiquidityPercentageValue == 75 ? "py-[6px] px-[16px] h-[36.5px] rounded-[50px] bg-[var(--mud-palette-primary)] hover:bg-[var(--mud-palette-primary-darken)]" : "py-[6px] px-[16px] h-[36.5px] rounded-[50px] hover:bg-[rgba(3, 105, 161, 0.08)]")"
                         Color="Color.Transparent"
                         Variant="Variant.Filled">
                             75%
@@ -85,7 +85,7 @@
                         DisableElevation
                         OnClick="@(() => OnLiquidityBtnClicked(100))"
                         Size="Size.Small"
-                        Class="@(AppStateService.LiquidityValue == 100 ? "py-[6px] px-[16px] h-[36.5px] rounded-[50px] bg-[var(--mud-palette-primary)] hover:bg-[var(--mud-palette-primary-darken)]" : "py-[6px] px-[16px] h-[36.5px] rounded-[50px] hover:bg-[rgba(3, 105, 161, 0.08)]")"
+                        Class="@(AppStateService.LiquidityPercentageValue == 100 ? "py-[6px] px-[16px] h-[36.5px] rounded-[50px] bg-[var(--mud-palette-primary)] hover:bg-[var(--mud-palette-primary-darken)]" : "py-[6px] px-[16px] h-[36.5px] rounded-[50px] hover:bg-[rgba(3, 105, 161, 0.08)]")"
                         Color="Color.Transparent"
                         Variant="Variant.Filled">
                             100%
@@ -97,7 +97,7 @@
                     <MudNumericField
                         HideSpinButtons
                         Immediate
-                        @bind-Value="AppStateService.FromValue"
+                        @bind-Value="AppStateService.AddLiquidityTokenOneAmount"
                         Placeholder="0.0"
                         Variant="Variant.Outlined"
                         Min="0.0"
@@ -121,7 +121,7 @@
                     <MudNumericField
                         HideSpinButtons
                         Immediate
-                        @bind-Value="AppStateService.FromValue"
+                        @bind-Value="AppStateService.AddLiquidityTokenTwoAmount"
                         Placeholder="0.0"
                         Variant="Variant.Outlined"
                         Min="0.0"
@@ -138,7 +138,7 @@
                     </div>
                     <div class="flex justify-between text-[12px] absolute w-full bottom-[13px] px-[14px]">
                         <span>~5,155 ADA</span>
-                        <span>Balance: 17,228</span>
+                        <span>Balance: 5,298</span>
                     </div>
                 </div>
             </div>

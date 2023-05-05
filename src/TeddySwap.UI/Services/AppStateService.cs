@@ -18,14 +18,14 @@ public class AppStateService : INotifyPropertyChanged
         }
     }
 
-    private int _liquidityValue;
+    private int _liquidityPercentageValue;
 
-    public int LiquidityValue
+    public int LiquidityPercentageValue
     {
-        get => _liquidityValue;
+        get => _liquidityPercentageValue;
         set
         {
-            _liquidityValue = value;
+            _liquidityPercentageValue = value;
             OnPropertyChanged();
         }
     }
@@ -62,6 +62,30 @@ public class AppStateService : INotifyPropertyChanged
         set
         {
             _toValue = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private double _addLiquidityTokenOneAmount;
+
+    public double AddLiquidityTokenOneAmount
+    {
+        get => _addLiquidityTokenOneAmount;
+        set
+        {
+            _addLiquidityTokenOneAmount = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private double _addLiquidityTokenTwoAmount;
+
+    public double AddLiquidityTokenTwoAmount
+    {
+        get => _addLiquidityTokenTwoAmount;
+        set
+        {
+            _addLiquidityTokenTwoAmount = value;
             OnPropertyChanged();
         }
     }

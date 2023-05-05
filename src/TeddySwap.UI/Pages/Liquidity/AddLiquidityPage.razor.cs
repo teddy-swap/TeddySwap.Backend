@@ -34,7 +34,7 @@ public partial class AddLiquidityPage
                 Pair = new TokenPair() 
                 { 
                     Tokens = (
-                        new Token() { Name = "TEDYt", Logo = "../images/tokens/tedyt.png" },
+                        new Token() { Name = "ADA", Logo = "../images/tokens/token-ada.svg" },
                         new Token() { Name = "DJED", Logo = "../images/tokens/djed.png" }
                     )
                 },
@@ -46,7 +46,7 @@ public partial class AddLiquidityPage
                 Pair = new TokenPair()
                 { 
                     Tokens = (
-                        new Token() { Name = "TEDYt", Logo = "../images/tokens/tedyt.png" },
+                        new Token() { Name = "ADA", Logo = "../images/tokens/token-ada.svg" },
                         new Token() { Name = "DJED", Logo = "../images/tokens/djed.png" }
                     )
                 },
@@ -58,7 +58,7 @@ public partial class AddLiquidityPage
                 Pair = new TokenPair()
                 { 
                     Tokens = (
-                        new Token() { Name = "TEDYt", Logo = "../images/tokens/tedyt.png" },
+                        new Token() { Name = "ADA", Logo = "../images/tokens/token-ada.svg" },
                         new Token() { Name = "DJED", Logo = "../images/tokens/djed.png" }
                     )
                 },
@@ -70,7 +70,7 @@ public partial class AddLiquidityPage
         AppStateService.PropertyChanged += OnAppStatePropertyChanged;
         AppStateService.FromCurrentlySelectedToken = Tokens?.ElementAt(0);
         AppStateService.ToCurrentlySelectedToken = Tokens?.ElementAt(2);
-        AppStateService.LiquidityValue = 25;
+        AppStateService.LiquidityPercentageValue = 25;
         AppStateService.AddLiquidityCurrentlySelectedTokenOne = new Token() { Name = "ADA", Logo = "../images/tokens/token-ada.svg" };
     }
 
@@ -80,7 +80,7 @@ public partial class AddLiquidityPage
     private void OnLiquidityBtnClicked(int value)
     {
         ArgumentNullException.ThrowIfNull(AppStateService);
-        AppStateService.LiquidityValue = value switch
+        AppStateService.LiquidityPercentageValue = value switch
         {
             25 => 25,
             50 => 50,
@@ -94,5 +94,6 @@ public partial class AddLiquidityPage
         ArgumentNullException.ThrowIfNull(AppStateService);
         AppStateService.AddLiquidityCurrentlySelectedTokenTwo = token;
         _isTokenTwoSelected = true;
+        _currentlySelectedPool = _pools.ElementAt(0);
     }
 }
