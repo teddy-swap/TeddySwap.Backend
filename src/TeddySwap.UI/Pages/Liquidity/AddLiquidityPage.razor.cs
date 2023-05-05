@@ -18,7 +18,7 @@ public partial class AddLiquidityPage
 
     private Pool? _currentlySelectedPool { get; set; }
 
-    private MudChip? _selectedChip { get; set; }
+    private bool _isOverlayVisible { get; set; } = true;
 
     protected override void OnInitialized()
     { 
@@ -67,13 +67,11 @@ public partial class AddLiquidityPage
             }
         };
 
-        if (_pools.ElementAt(0) is not null) _currentlySelectedPool = _pools.ElementAt(0);
-
         AppStateService.PropertyChanged += OnAppStatePropertyChanged;
         AppStateService.FromCurrentlySelectedToken = Tokens?.ElementAt(0);
         AppStateService.ToCurrentlySelectedToken = Tokens?.ElementAt(2);
         AppStateService.LiquidityValue = 25;
-        AppStateService.AddLiquidityCurrentlySelectedTokenOne = new Token() { Name = "ADA", Logo = "../images/tokens/token-ada.svg" }; 
+        AppStateService.AddLiquidityCurrentlySelectedTokenOne = new Token() { Name = "ADA", Logo = "../images/tokens/token-ada.svg" };
     }
 
     private async void OnAppStatePropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -91,4 +89,10 @@ public partial class AddLiquidityPage
         };
     }
 
+    private void HandleTokenTwoSelection(Token token)
+    {
+        ArgumentNullException.ThrowIfNull(AppStateService);
+        AppStateService.AddLiquidityCurrentlySelectedTokenTwo = token;
+        _isOverlayVisible = false;
+    }
 }

@@ -8,7 +8,7 @@
     </div>
     <MudCard Elevation="6" Class="!pb-2 mt-2">
         <MudCardHeader Class="flex flex-col items-start gap-2 !pb-0">
-            <MudText Typo="Typo.h2" Class="text-[14px] font-semibold">SelectPair</MudText>
+            <MudText Typo="Typo.h2" Class="text-[14px] font-semibold">Select Pair</MudText>
             <div class="flex justify-between w-full">
                 <TokenChip
                     Tokens="Tokens"
@@ -18,11 +18,12 @@
                 <TokenChip
                     Tokens="Tokens"
                     CurrentlySelectedToken="AppStateService.AddLiquidityCurrentlySelectedTokenTwo"
-                    HandleSelectedToken="@((Token token) => AppStateService.AddLiquidityCurrentlySelectedTokenTwo = token)"
+                    HandleSelectedToken="@((Token token) => HandleTokenTwoSelection(token))"
                 />
             </div>
         </MudCardHeader>
-        <MudCardContent>
+        <MudCardContent Class="relative">
+            <MudOverlay Visible="_isOverlayVisible" Absolute="true" DarkBackground="true" />
             <div>
                 <MudText Typo="Typo.h3" Class="text-[14px] font-semibold">Pool</MudText>
                 <MudSelect @bind-Value="_currentlySelectedPool" T="Pool" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter" Class="add-liquidity-pool-selection">
