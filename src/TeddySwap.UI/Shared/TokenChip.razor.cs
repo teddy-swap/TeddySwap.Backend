@@ -13,13 +13,13 @@ public partial class TokenChip
     [Inject]
     protected new AppStateService? AppStateService { get; set; }
 
-    [Parameter, EditorRequired]
+    [Parameter]
     public IEnumerable<Token> Tokens { get; set; } = new List<Token>();
 
     [Parameter, EditorRequired]
     public Token? CurrentlySelectedToken { get; set; }
 
-    [Parameter, EditorRequired]
+    [Parameter]
     public Action<Token>? HandleSelectedToken { get; set; }
 
     [Parameter]

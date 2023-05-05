@@ -3,7 +3,7 @@
 
 <div class="max-w-[448px] m-auto">
     <div class="flex gap-1 items-center">
-        <MudIconButton Href="/liquidity" Icon="@Icons.Material.Filled.ArrowBack" aria-label="back to liquidity page"></MudIconButton>
+        <MudIconButton OnClick="@(() => AppStateService.AddLiquidityCurrentlySelectedTokenTwo = null)" Href="/liquidity" Icon="@Icons.Material.Filled.ArrowBack" aria-label="back to liquidity page"></MudIconButton>
         <MudText Typo="Typo.h1" Class="text-[20px] font-bold !outline-none">Add Liquidity</MudText>
     </div>
     <MudCard Elevation="6" Class="!pb-2 mt-2">
@@ -142,7 +142,7 @@
                     </div>
                 </div>
             </div>
-            <div class="@(_isTokenTwoSelected ? "h-[74px] mt-5" : "h-0 mt-0") transition-height duration-200 ease-in-out flex justify-between gap-3">
+            <div class="@(_isTokenTwoSelected ? "h-[74px] mt-5 visible" : "h-0 mt-0 invisible") transition-height duration-200 ease-in-out flex justify-between gap-3">
                 <MudCard Elevation="2" Class="grow !bg-[var(--mud-palette-drawer-background)]">
                     <MudCardContent Class="text-center">
                         <MudText Class="text-[16px] font-semibold">1.45058</MudText>
@@ -159,8 +159,25 @@
                         </MudText>
                     </MudCardContent>
                 </MudCard>
-            </div>
-            <MudButton FullWidth Variant="Variant.Filled" Color="Color.Primary" Class="normal-case mt-5 !text-[20px]">Add Liquidity</MudButton>
+            </div>  
+            @if (AppStateService.AddLiquidityTokenOneAmount == 0)
+            {
+                <MudButton FullWidth Disabled="true" Variant="Variant.Filled" Color="Color.Primary" Class="normal-case mt-5 !text-[20px]">
+                    @(_isTokenTwoSelected ? "Enter an amount" : "Select a token")
+                </MudButton>
+            }
+            else
+            {
+                <MudButton
+                    FullWidth
+                    Variant="Variant.Filled"
+                    Color="Color.Primary"
+                    Class="normal-case mt-5 !text-[20px]"
+                    OnClick="OpenDialog"
+                >
+                    Add Liquidity
+                </MudButton>
+            }
         </MudCardContent>
     </MudCard>
 </div>

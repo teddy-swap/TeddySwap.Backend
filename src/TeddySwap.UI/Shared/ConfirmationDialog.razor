@@ -1,0 +1,29 @@
+@using TeddySwap.UI.Models
+
+
+<MudDialog Class="w-[92%] max-w-[496px] pb-4">
+    <DialogContent>
+        <MudIconButton
+            OnClick="@(() => MudDialog?.Close())"
+            Class="absolute top-[-56px] right-[10px] z-[10]"
+            Icon="@Icons.Material.Filled.Close"
+            aria-label="close"
+        >
+        </MudIconButton>
+        <div class="flex flex-col gap-2">
+            @foreach (TokenAsset tokenAsset in TokenAssets)
+            {
+                <MudPaper Class="flex justify-between items-center p-4 ">
+                    <div class="font-semibold text-[16px]">@tokenAsset.Amount</div>
+                    <div class="confirm-swap-dialog-token-chip">
+                        <TokenChip Disabled="true" CurrentlySelectedToken="tokenAsset.Token" />
+                    </div>
+                </MudPaper>
+            }
+        </div>
+        @ChildContent
+    </DialogContent>
+    <DialogActions>
+        
+    </DialogActions>
+</MudDialog>

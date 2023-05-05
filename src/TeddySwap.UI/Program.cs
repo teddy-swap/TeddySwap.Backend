@@ -31,7 +31,7 @@ builder.Services.AddSingleton<NftService>();
 builder.Services.AddSingleton<RewardService>();
 builder.Services.AddScoped<IconsService>();
 builder.Services.AddScoped<CardanoWalletService>();
-builder.Services.AddScoped<SwapCalculatorService>();
+builder.Services.AddScoped<TeddySwapCalculatorService>();
 
 var app = builder.Build();
 

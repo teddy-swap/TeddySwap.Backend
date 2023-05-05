@@ -1,0 +1,105 @@
+@using TeddySwap.UI.Models
+@using TeddySwap.UI.Services;
+
+@inject IconsService IconsService
+
+
+<MudDialog Class="w-[92%] max-w-[496px] pb-4">
+    <DialogContent>
+        <MudIconButton
+            OnClick="@(() => MudDialog?.Close())"
+            Class="absolute top-[-56px] right-[10px] z-[10]"
+            Icon="@Icons.Material.Filled.Close"
+            aria-label="close"
+        >
+        </MudIconButton>
+        <div class="flex flex-col gap-1">
+            <MudText Typo="Typo.h3" Class="text-[14px] font-semibold">Assets</MudText>
+            <div class="flex flex-col gap-2">
+                <MudPaper Class="flex justify-between items-center p-4 ">
+                    <div class="font-semibold text-[16px]">123,456</div>
+                    <div class="confirm-swap-dialog-token-chip">
+                        <TokenChip Disabled="true" CurrentlySelectedToken="_testToken1" />
+                    </div>
+                </MudPaper>
+                <MudPaper Class="flex justify-between items-center p-4 ">
+                    <div class="font-semibold text-[16px]">123,456</div>
+                    <div class="confirm-swap-dialog-token-chip">
+                        <TokenChip Disabled="true" CurrentlySelectedToken="_testToken2" />
+                    </div>
+                </MudPaper>
+            </div>
+        </div>
+        <div class="mt-6 flex flex-col gap-1">
+            <MudText Typo="Typo.h3" Class="text-[14px] font-semibold">Initial price</MudText>
+            <div class="flex justify-between gap-3">
+                <MudCard Elevation="2" Class="grow">
+                    <MudCardContent Class="text-center">
+                        <MudText Class="text-[16px] font-semibold">1.45058</MudText>
+                        <MudText Class="text-[12px] !text-[var(--mud-palette-text-secondary)]">
+                            ADA per DJEDt
+                        </MudText>
+                    </MudCardContent>
+                </MudCard>
+                <MudCard Elevation="2" Class="grow">
+                    <MudCardContent Class="text-center">
+                        <MudText Class="text-[16px] font-semibold">0.701726</MudText>
+                        <MudText Class="text-[12px] !text-[var(--mud-palette-text-secondary)]">
+                            DJEDt per ADA
+                        </MudText>
+                    </MudCardContent>
+                </MudCard>
+            </div>
+        </div>
+        <div class="mt-6 flex flex-col gap-1">
+            <MudText Typo="Typo.h3" Class="text-[14px] font-semibold">Fees</MudText>
+            <MudPaper>
+                <MudList Class="w-full">
+                    <MudListItem Class="flex justify-between items-center py-0">
+                        <div class="flex justify-between items-center text-[12px]">
+                            <div>Refundable deposit:</div>
+                            <div class="font-semibold">2 ADA</div>
+                        </div>
+                    </MudListItem>
+                    <MudListItem Class="flex justify-between items-center py-0">
+                    <div class="flex justify-between items-center text-[12px]">
+                        <div class="flex">
+                            <div>Total Fees</div>
+                            <MudTooltip Placement="Placement.Right" Class="max-w-[200px] text-left">
+                                <ChildContent>
+                                    <MudIcon Class="w-[14px] h-[14px] ml-1" Icon="@IconsService.OutlinedQuestionMark" Size="Size.Small" />
+                                </ChildContent>
+                                <TooltipContent>
+                                    <MudText Typo="Typo.caption">
+                                        <div>Transaction fee: 1 ADA</div>
+                                        <div>Execution fee: 2 ADA</div>
+                                    </MudText>
+                                </TooltipContent>
+                            </MudTooltip>
+                            <span>:</span>
+                        </div>
+                        <div class="font-semibold">3ADA</div>
+                    </div>
+                </MudListItem>
+                </MudList>
+            </MudPaper>
+        </div>
+    </DialogContent>
+    <DialogActions>
+        <div class="w-full flex justify-center">
+            <MudProgressCircular Color="Color.Primary" Style="height:70px;width:70px;" Indeterminate="true" />
+        </div>
+
+
+        @* <div class="px-[16px] w-full mt-2">
+            <MudButton
+                FullWidth
+                Class="text-[20px] py-[6px] font-medium normal-case"
+                Variant="Variant.Filled"
+                Color="Color.Primary"
+            >
+                Confirm Add Liquidity
+            </MudButton>
+        </div> *@
+    </DialogActions>
+</MudDialog>

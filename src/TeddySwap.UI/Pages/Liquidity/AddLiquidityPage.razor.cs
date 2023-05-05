@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using TeddySwap.UI.Models;
 using TeddySwap.UI.Services;
+using TeddySwap.UI.Shared;
 
 namespace TeddySwap.UI.Pages.Liquidity;
 
@@ -11,6 +12,9 @@ public partial class AddLiquidityPage
 {
     [Inject]
     public AppStateService? AppStateService { get; set; }
+
+    [Inject]
+    public IDialogService? DialogService { get; set; }
 
     private IEnumerable<Token>? Tokens { get; set; }
 
@@ -95,5 +99,14 @@ public partial class AddLiquidityPage
         AppStateService.AddLiquidityCurrentlySelectedTokenTwo = token;
         _isTokenTwoSelected = true;
         _currentlySelectedPool = _pools.ElementAt(0);
+    }
+
+    private void OpenDialog()
+    {
+        ArgumentNullException.ThrowIfNull(DialogService);
+
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+  
+        DialogService.Show<AddLiquidityConfirmationDialog>("Confirm Add Liquidity", options);
     }
 }

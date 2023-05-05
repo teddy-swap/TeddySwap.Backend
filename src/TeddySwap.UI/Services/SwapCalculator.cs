@@ -1,6 +1,6 @@
 namespace TeddySwap.UI.Services;
 
-public class SwapCalculatorService
+public class TeddySwapCalculatorService
 {
     private double _adaValue { get; set; } = 0.3;
 
