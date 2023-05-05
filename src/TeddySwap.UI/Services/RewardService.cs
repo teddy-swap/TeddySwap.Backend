@@ -5,7 +5,9 @@ namespace TeddySwap.UI.Services;
 public class RewardService
 {
     private const double ROUND_ONE_MULTIPLIER = 2.75;
+    private const decimal ROUND_ONE_MILESTONE_BONUS_MULTIPLIER = 350M / 150M;
     private const int EFFECTIVE_NFTS = 4_246;
+    private const int MAX_MILESTONE_BONUS = 10_733;
     private const int AVAILABLE_REWARDS = 33_453_000;
     private const string ROUND_ONE_POLICY_ID = "ab182ed76b669b49ee54a37dee0d0064ad4208a859cc4fdf3f906d87";
     private const string ROUND_TWO_POLICY_ID = "da3562fad43b7759f679970fb4e0ec07ab5bebe5c703043acda07a3c";
@@ -31,7 +33,7 @@ public class RewardService
         TbcNft? nft = _nftService.GetNft(ROUND_ONE_POLICY_ID, nftName);
         int rank = int.Parse(nft?.RarityRank ?? "0");
         int baseReward = GetRoundOneBaseReward(rank);
-        decimal bonusReward = baseReward * (decimal)0.10;
+        decimal bonusReward = baseReward * (decimal)0.10 + (decimal)MAX_MILESTONE_BONUS * ROUND_ONE_MILESTONE_BONUS_MULTIPLIER;
         decimal earlySupporterBonus = AVAILABLE_REWARDS * ((decimal)ROUND_ONE_MULTIPLIER / EFFECTIVE_NFTS);
         
         return new() 
@@ -91,7 +93,7 @@ public class RewardService
         return mintOrder switch
         {
             (<= 0)                    => 0,
-            (>= 1) and (<= 1_200)     => 10_733,
+            (>= 1) and (<= 1_200)     => MAX_MILESTONE_BONUS,
             (<= 1_400)                => 9_733,
             (<= 1_600)                => 8_400,
             (<= 1_800)                => 6_400,

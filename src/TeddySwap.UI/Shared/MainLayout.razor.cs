@@ -47,6 +47,9 @@ public partial class MainLayout
     [Inject]
     protected ISnackbar? Snackbar { get; set; }
 
+    [Inject]
+    protected ILogger<MainLayout>? Logger { get; set; }
+
     protected IEnumerable<CardanoWallet> CardanoWallets { get; set; } = new List<CardanoWallet>();
     protected bool IsWalletDialogShown { get; set; } = false;
     protected DialogOptions WalletDialogOptions => new()
@@ -71,7 +74,7 @@ public partial class MainLayout
             {
                 // @TODO log error
             }
-            
+
             IsLoaded = true;
             await InvokeAsync(StateHasChanged);
         }
@@ -80,10 +83,17 @@ public partial class MainLayout
 
     protected async Task OnConnectWalletShowClicked()
     {
-        ArgumentNullException.ThrowIfNull(CardanoWalletService);
-        CardanoWallets = (await CardanoWalletService.GetAvailableWalletsAsync()).OrderBy(a => a.Name);
-        IsWalletDialogShown = true;
-        await InvokeAsync(StateHasChanged);
+        try
+        {
+            ArgumentNullException.ThrowIfNull(CardanoWalletService);
+            CardanoWallets = (await CardanoWalletService.GetAvailableWalletsAsync()).OrderBy(a => a.Name);
+            IsWalletDialogShown = true;
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            Logger?.LogError(ex, "Error Getting Available Wallets!");
+        }
     }
 
     protected async Task OnConnectWalletClicked(CardanoWallet wallet)

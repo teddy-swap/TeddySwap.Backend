@@ -34,7 +34,6 @@ public class HeartBeatWorker : BackgroundService
                 BlockInfoResponse? blockInfoResponse = await httpClient.GetFromJsonAsync<BlockInfoResponse>($"{_configService.ExplorerApiUrl}/cardano/v1/blocks/bestBlock");
                 ulong latestBlockNo = blockInfoResponse?.BlockNo ?? _heartBeatService.LatestBlockNo;
                 ulong latestSlotNo = blockInfoResponse?.SlotNo ?? _heartBeatService.LatestSlotNo;
-
                 if (latestBlockNo > _heartBeatService.LatestBlockNo)
                 {
                     _heartBeatService.LatestBlockNo = blockInfoResponse?.BlockNo ?? _heartBeatService.LatestBlockNo;
