@@ -43,7 +43,7 @@ public partial class AddLiquidityPage
                     )
                 },
                 Fee = 0.08M,
-                Tvl = 0.2M
+                Tvl = 26.29M
             },
             new()
             {
@@ -55,7 +55,7 @@ public partial class AddLiquidityPage
                     )
                 },
                 Fee = 0.06M,
-                Tvl = 0.4M
+                Tvl = 500M
             },
             new()
             {
@@ -67,7 +67,7 @@ public partial class AddLiquidityPage
                     )
                 },
                 Fee = 0.1M,
-                Tvl = 0.03M
+                Tvl = 200M
             }
         };
 
