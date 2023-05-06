@@ -1,8 +1,7 @@
 namespace TeddySwap.UI.Models;
 
-public class TokenAsset
+public record TokenAsset
 {
     public Token? Token { get; set; }
-
     public decimal Amount { get; set; }
 }
