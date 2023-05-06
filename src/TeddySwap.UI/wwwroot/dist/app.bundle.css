@@ -1310,6 +1310,10 @@ video {
   background-color: var(--mud-palette-warning-darken);
 }
 
+.bg-\[var\(--mud-palette-drawer-background\)\] {
+  background-color: var(--mud-palette-drawer-background);
+}
+
 .bg-\[url\(\'\/images\/bear-with-balloons\.png\'\)\] {
   background-image: url('/images/bear-with-balloons.png');
 }

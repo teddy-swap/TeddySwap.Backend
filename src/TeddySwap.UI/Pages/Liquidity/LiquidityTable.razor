@@ -3,7 +3,7 @@
     Hover="true"
     Breakpoint="Breakpoint.Sm"
     Class="!p-[24px] flex flex-col gap-7 liquidity-table !rounded-none !rounded-b"
-    HeaderClass="backdrop-blur-[100px]"
+    HeaderClass="bg-[var(--mud-palette-drawer-background)]"
     RowClass="relative"
 >
 	<ToolBarContent>
@@ -70,7 +70,7 @@
             <MudIconButton
                 aria-label="Expand row"
                 Icon="@Icons.Material.Filled.KeyboardArrowDown"
-                Class="@((context.ShowDetails ? "rotate-180" : "rotate-0") + " transition-transform duration-200 ease-in-out m-auto")"
+                Class="@((context.ShowDetails ? "rotate-180" : "rotate-0") + " transition-transform duration-200 ease-in-out block m-auto")"
                 OnClick="@(() => ExpandRow(context.Number))"
             />
         </MudTd>
