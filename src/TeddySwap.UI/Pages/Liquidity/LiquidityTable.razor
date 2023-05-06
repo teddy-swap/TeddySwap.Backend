@@ -27,7 +27,6 @@
                     AdornmentIcon="@Icons.Material.Filled.Search"
                     IconSize="Size.Medium"
                     Class="!mt-0"
-                
                 >
                 </MudTextField>
                 <div class="absolute right-[10px] top-[12px]">
@@ -47,6 +46,7 @@
 		<MudTh>Volume 7D</MudTh>
         <MudTh>Fee</MudTh>
         <MudTh>APR</MudTh>
+        <MudTh></MudTh>
 	</HeaderContent>
 	<RowTemplate>
 		<MudTd DataLabel="Pair">
@@ -66,26 +66,18 @@
 		<MudTd DataLabel="Volume 7D">@context.Volume7D.ToString("N0") TEDY</MudTd>
 		<MudTd DataLabel="Fee">@context.Fee%</MudTd>
 		<MudTd DataLabel="APR">@context.APR%</MudTd>
-        <MudIconButton
-            aria-label="Expand row"
-            Icon="@Icons.Material.Filled.KeyboardArrowDown"
-            Class="@((context.ShowDetails ? "rotate-180" : "rotate-0") + " transition-transform duration-200 ease-in-out absolute hidden lg:block right-[6px] top-[15px] !p-[2px]")"
-            OnClick="@(() => ExpandRow(context.Number))"
-            Color="Color.Primary"
-        />
-        <MudTd Class="justify-center lg:hidden">
+        <MudTd>
             <MudIconButton
                 aria-label="Expand row"
                 Icon="@Icons.Material.Filled.KeyboardArrowDown"
-                Class="@((context.ShowDetails ? "rotate-180" : "rotate-0") + " transition-transform duration-200 ease-in-out absolute !p-[2px]")"
+                Class="@((context.ShowDetails ? "rotate-180" : "rotate-0") + " transition-transform duration-200 ease-in-out m-auto")"
                 OnClick="@(() => ExpandRow(context.Number))"
-                Color="Color.Primary"
             />
         </MudTd>
 	</RowTemplate>
 	<ChildRowContent>
         <tr>
-            <td colspan="6">
+            <td colspan="7">
                 <div class="@((context.ShowDetails ? "h-[323px] lg:h-[96px] p-[16px]" : "h-0 p-0") + " transition-height overflow-hidden ease-in-out duration-200 bg-[var(--mud-palette-surface)] rounded flex flex-col lg:flex-row lg:items-center lg:space-between lg:gap-8")">
                     <div class="flex flex-col lg:flex-row gap-3 lg:gap-7 w-full grow-[2]">
                         <div class="flex items-center justify-between lg:justify-start lg:flex-col lg:items-start lg:gap-1">
