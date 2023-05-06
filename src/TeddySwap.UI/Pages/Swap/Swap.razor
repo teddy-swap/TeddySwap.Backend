@@ -51,7 +51,7 @@
                                 <TokenChip
                                     Tokens="Tokens"
                                     CurrentlySelectedToken="AppStateService.FromCurrentlySelectedToken"
-                                    HandleSelectedToken="@((Token token) => AppStateService.FromCurrentlySelectedToken = token)"
+                                    OnSelectedToken="@((Token token) => AppStateService.FromCurrentlySelectedToken = token)"
                                 />
                             </div>
                             <div class="flex justify-between text-[12px] absolute w-full bottom-[13px] px-[14px]">
@@ -89,7 +89,7 @@
                                 <TokenChip
                                     Tokens="Tokens"
                                     CurrentlySelectedToken="AppStateService.ToCurrentlySelectedToken"
-                                    HandleSelectedToken="@((Token token) => AppStateService.ToCurrentlySelectedToken = token)"
+                                    OnSelectedToken="@((Token token) => AppStateService.ToCurrentlySelectedToken = token)"
                                 />
                             </div>
                         </div>

@@ -17,18 +17,27 @@
             >
                 Add Liquidity
             </MudButton>
-            <MudTextField
-                Immediate
-                @bind-Value="_searchValue"
-                Variant="Variant.Outlined"
-                Placeholder="Type token name or pool ID"
-                Adornment="Adornment.Start"
-                AdornmentIcon="@Icons.Material.Filled.Search"
-                IconSize="Size.Medium"
-                Class="!mt-0"
+            <div class="relative">
+                <MudTextField
+                    Immediate
+                    @bind-Value="_searchValue"
+                    Variant="Variant.Outlined"
+                    Placeholder="Type token name or pool ID"
+                    Adornment="Adornment.Start"
+                    AdornmentIcon="@Icons.Material.Filled.Search"
+                    IconSize="Size.Medium"
+                    Class="!mt-0"
                 
-            >
-            </MudTextField>
+                >
+                </MudTextField>
+                <div class="absolute right-[10px] top-[12px]">
+                    <TokenChip
+                        Tokens="_tokens"
+                        CurrentlySelectedToken="_currentlySelectedToken"
+                        OnSelectedToken="@((token) => HandleSelectedToken(token))"
+                    />
+                </div>
+            </div>
         </div>
     </ToolBarContent>
 	<HeaderContent>

@@ -13,12 +13,12 @@
                 <TokenChip
                     Tokens="Tokens"
                     CurrentlySelectedToken="AppStateService.AddLiquidityCurrentlySelectedTokenOne"
-                    HandleSelectedToken="@((Token token) => AppStateService.AddLiquidityCurrentlySelectedTokenOne = token)"
+                    OnSelectedToken="@((Token token) => AppStateService.AddLiquidityCurrentlySelectedTokenOne = token)"
                 />
                 <TokenChip
                     Tokens="Tokens"
                     CurrentlySelectedToken="AppStateService.AddLiquidityCurrentlySelectedTokenTwo"
-                    HandleSelectedToken="@((Token token) => HandleTokenTwoSelection(token))"
+                    OnSelectedToken="@((Token token) => HandleTokenTwoSelection(token))"
                 />
             </div>
         </MudCardHeader>
@@ -109,7 +109,7 @@
                         <TokenChip
                             Tokens="Tokens"
                             CurrentlySelectedToken="AppStateService.AddLiquidityCurrentlySelectedTokenOne"
-                            HandleSelectedToken="@((Token token) => AppStateService.AddLiquidityCurrentlySelectedTokenOne = token)"
+                            OnSelectedToken="@((Token token) => AppStateService.AddLiquidityCurrentlySelectedTokenOne = token)"
                         />
                     </div>
                     <div class="flex justify-between text-[12px] absolute w-full bottom-[13px] px-[14px]">
@@ -133,7 +133,7 @@
                         <TokenChip
                             Tokens="Tokens"
                             CurrentlySelectedToken="AppStateService.AddLiquidityCurrentlySelectedTokenTwo"
-                            HandleSelectedToken="@((Token token) => AppStateService.AddLiquidityCurrentlySelectedTokenTwo = token)"
+                            OnSelectedToken="@((Token token) => AppStateService.AddLiquidityCurrentlySelectedTokenTwo = token)"
                         />
                     </div>
                     <div class="flex justify-between text-[12px] absolute w-full bottom-[13px] px-[14px]">

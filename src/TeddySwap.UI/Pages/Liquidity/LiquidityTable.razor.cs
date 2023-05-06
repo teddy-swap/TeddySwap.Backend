@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Components;
 using TeddySwap.UI.Models;
 
@@ -8,7 +9,23 @@ public partial class LiquidityTable
     [Parameter]
     public IEnumerable<TokenPairDetails>? TokenPairs { get; set; }
 
-    private string _searchValue { get; set; } = string.Empty;
+    public IEnumerable<Token>? _tokens { get; set; }
+    private string? _searchValue { get; set; }
+    private Token? _currentlySelectedToken { get; set; }
+
+    protected override void OnInitialized()
+    {
+        string tokensJson = File.ReadAllText("./wwwroot/tokens.json");
+        ArgumentException.ThrowIfNullOrEmpty(tokensJson);
+        _tokens = JsonSerializer.Deserialize<IEnumerable<Token>>(tokensJson);
+    }
+
+    private void HandleSelectedToken(Token token)
+    {
+        _searchValue = token.Name;
+        _currentlySelectedToken = token;
+        StateHasChanged();
+    }
 
     private void ExpandRow(int num)
 	{
