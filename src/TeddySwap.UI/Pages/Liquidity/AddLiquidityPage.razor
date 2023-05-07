@@ -4,7 +4,9 @@
 <div class="max-w-[448px] m-auto">
     <div class="flex gap-1 items-center">
         <MudIconButton OnClick="@(() => AppStateService.AddLiquidityCurrentlySelectedTokenTwo = null)" Href="/liquidity" Icon="@Icons.Material.Filled.ArrowBack" aria-label="back to liquidity page"></MudIconButton>
-        <MudText Typo="Typo.h1" Class="text-[20px] font-bold !outline-none">Add Liquidity</MudText>
+        <MudText Typo="Typo.h1" Class="text-[20px] font-bold !outline-none">
+            @(_createNewPool ? "Create" : "Add") Liquidity
+        </MudText>
     </div>
     <MudCard Elevation="6" Class="!pb-2 mt-2">
         <MudCardHeader Class="flex flex-col items-start gap-2 !pb-0">
@@ -18,14 +20,14 @@
                 <TokenChip
                     Tokens="Tokens"
                     CurrentlySelectedToken="AppStateService.AddLiquidityCurrentlySelectedTokenTwo"
-                    OnSelectedToken="@((Token token) => HandleTokenTwoSelection(token))"
+                    OnSelectedToken="@((Token token) => HandleTokenTwoSelected(token))"
                 />
             </div>
         </MudCardHeader>
         <MudCardContent Class="relative">
             <div>
-                <MudText Typo="Typo.h3" Class="text-[14px] font-semibold">Pool</MudText>
-                <MudSelect Disabled="!_isTokenTwoSelected" @bind-Value="_currentlySelectedPool" T="Pool" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter" Class="add-liquidity-pool-selection">
+                <MudText Typo="Typo.h3" Class="@((_isTokenTwoSelected ? "text-white" : "text-[var(--mud-palette-text-secondary)]") + " text-[14px] font-semibold")">Pool</MudText>
+                <MudSelect Disabled="!_isTokenTwoSelected" Value="_currentlySelectedPool" ValueChanged="HandlePoolSelected" T="Pool" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter" Class="add-liquidity-pool-selection">
                     @foreach (Pool pool in _pools)
                     {
                         <MudSelectItem T="Pool" Class="!py-0" Value="pool">
@@ -51,51 +53,59 @@
                 </MudSelect>
             </div>
             <div class="flex flex-col md:flex-row w-full items-start md:items-center md:justify-between gap-2 mt-5">
-                <MudText Typo="Typo.h3" Class="text-[14px] font-semibold">Liquidity</MudText>
+                <MudText Typo="Typo.h3" Class="@((_isTokenTwoSelected ? "text-white" : "text-[var(--mud-palette-text-secondary)]") + " text-[14px] font-semibold")">Liquidity</MudText>
                 <div class="liquidity-btn-group w-full md:w-fit flex justify-between gap-1">
-                    <MudButton
-                        DisableElevation="true"
-                        Disabled="!_isTokenTwoSelected"
-                        OnClick="@(() => OnLiquidityBtnClicked(25))"
-                        Size="Size.Small"
-                        Class="@(AppStateService.LiquidityPercentageValue == 25 ? "py-[6px] px-[16px] h-[36.5px] rounded-[50px] bg-[var(--mud-palette-primary)] hover:bg-[var(--mud-palette-primary-darken)]" : "py-[6px] px-[16px] h-[36.5px] rounded-[50px] hover:bg-[rgba(3, 105, 161, 0.08)]")"
-                        Color="Color.Transparent"
-                        Variant="Variant.Filled"
-                    >
-                            25%
-                    </MudButton>
-                    <MudButton 
-                        DisableElevation="true"
-                        Disabled="!_isTokenTwoSelected"
-                        OnClick="@(() => OnLiquidityBtnClicked(50))"
-                        Size="Size.Small"
-                        Class="@(AppStateService.LiquidityPercentageValue == 50 ? "py-[6px] px-[16px] h-[36.5px] rounded-[50px] bg-[var(--mud-palette-primary)] hover:bg-[var(--mud-palette-primary-darken)]" : "py-[6px] px-[16px] h-[36.5px] rounded-[50px] hover:bg-[rgba(3, 105, 161, 0.08)]")"
-                        Color="Color.Transparent"
-                        Variant="Variant.Filled">
-                            50%
-                    </MudButton>
-                    <MudButton
-                        DisableElevation="true"
-                        Disabled="!_isTokenTwoSelected"
-                        OnClick="@(() => OnLiquidityBtnClicked(75))"
-                        Size="Size.Small"
-                        Class="@(AppStateService.LiquidityPercentageValue == 75 ? "py-[6px] px-[16px] h-[36.5px] rounded-[50px] bg-[var(--mud-palette-primary)] hover:bg-[var(--mud-palette-primary-darken)]" : "py-[6px] px-[16px] h-[36.5px] rounded-[50px] hover:bg-[rgba(3, 105, 161, 0.08)]")"
-                        Color="Color.Transparent"
-                        Variant="Variant.Filled">
-                            75%
-                    </MudButton>
-                    <MudButton
-                        DisableElevation="true"
-                        Disabled="!_isTokenTwoSelected"
-                        OnClick="@(() => OnLiquidityBtnClicked(100))"
-                        Size="Size.Small"
-                        Class="@(AppStateService.LiquidityPercentageValue == 100 ? "py-[6px] px-[16px] h-[36.5px] rounded-[50px] bg-[var(--mud-palette-primary)] hover:bg-[var(--mud-palette-primary-darken)]" : "py-[6px] px-[16px] h-[36.5px] rounded-[50px] hover:bg-[rgba(3, 105, 161, 0.08)]")"
-                        Color="Color.Transparent"
-                        Variant="Variant.Filled">
-                            100%
-                    </MudButton>
+                    @foreach (int liquidityPercentage in _defaultLiquidityPercentages!)
+                    {
+                        <MudButton 
+                            DisableElevation="true"
+                            Disabled="!_isTokenTwoSelected"
+                            OnClick="@(() => OnLiquidityBtnClicked(liquidityPercentage))"
+                            Size="Size.Small"
+                            Class="@(_currentLiquidityPercentage == liquidityPercentage ? "py-[6px] px-[16px] h-[36.5px] rounded-[50px] bg-[var(--mud-palette-primary)] hover:bg-[var(--mud-palette-primary-darken)]" : "py-[6px] px-[16px] h-[36.5px] rounded-[50px] hover:bg-[rgba(3, 105, 161, 0.08)]")"
+                            Color="Color.Transparent"
+                            Variant="Variant.Filled">
+                                @liquidityPercentage%
+                        </MudButton>
+                    }
                 </div>
             </div>
+            
+            <div class="flex flex-col mt-5 gap-1.5">
+                <MudText Typo="Typo.h3" Class="@((_isTokenTwoSelected ? "text-white" : "text-[var(--mud-palette-text-secondary)]") + " text-[14px] font-semibold")">Fee</MudText>
+                <div class="flex items-center gap-4">
+                    <MudNumericField
+                        HideSpinButtons
+                        Disabled="!_isTokenTwoSelected"
+                        Value="AppStateService.AddLiquidityFeePercentage"
+                        ValueChanged="HandleFeeValueChanged"
+                        Placeholder="0.0"
+                        Variant="Variant.Outlined"
+                        Min="0.01"
+                        Class="!mt-0 liquidity-fee-input"
+                        Format="N2"
+                        T="double"
+                        Adornment="Adornment.End"
+                        AdornmentText="%"
+                    />
+                    <div class="liquidity-btn-group w-full md:w-fit flex justify-between gap-1">
+                        @foreach (double feePercentage in _defaultFeePercentages!)
+                        {
+                            <MudButton 
+                                DisableElevation="true"
+                                Disabled="!_isTokenTwoSelected"
+                                OnClick="@(() => OnFeeBtnClicked(feePercentage))"
+                                Size="Size.Small"
+                                Class="@(AppStateService.AddLiquidityFeePercentage == feePercentage ? "py-[6px] px-[16px] h-[36.5px] rounded-[50px] bg-[var(--mud-palette-primary)] hover:bg-[var(--mud-palette-primary-darken)]" : "py-[6px] px-[16px] h-[36.5px] rounded-[50px] hover:bg-[rgba(3, 105, 161, 0.08)]")"
+                                Color="Color.Transparent"
+                                Variant="Variant.Filled">
+                                    @feePercentage%
+                            </MudButton>
+                        }
+                    </div>
+                </div>
+            </div>
+
             <div class="mt-5 flex flex-col gap-3">
                 <div class="relative">
                     <MudNumericField
@@ -106,7 +116,7 @@
                         Placeholder="0.0"
                         Variant="Variant.Outlined"
                         Min="0.0"
-                        Class="swap-input"
+                        Class="add-liquidity-input"
                         Format="N2"
                         T="double"
                     />
@@ -132,7 +142,7 @@
                         Placeholder="0.0"
                         Variant="Variant.Outlined"
                         Min="0.0"
-                        Class="swap-input"
+                        Class="add-liquidity-input"
                         Format="N2"
                         T="double"
                     />
@@ -181,11 +191,37 @@
                     Variant="Variant.Filled"
                     Color="Color.Primary"
                     Class="normal-case mt-5 !text-[20px]"
-                    OnClick="OpenDialog"
+                    OnClick="OpenAddLiquidityConfirmationDialog"
                 >
-                    Add Liquidity
+                    @(_createNewPool ? "Create" : "Add") Liquidity
                 </MudButton>
             }
         </MudCardContent>
     </MudCard>
 </div>
+
+<MudDialog @bind-IsVisible="_isFeeUnavailable" Class="max-w-[496px] !pb-2" ClassActions="!px-[23px]">
+    <DialogContent>
+        <MudText Class="text-center font-semibold">
+            We couldn't find a pool with the fee you specified. Would you like to create a new pool with this fee?
+        </MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton
+            OnClick="CancelPoolCreation"
+            Class="grow normal-case font-bold"
+            Color="Color.Primary"
+            Variant="Variant.Outlined"
+        >
+            No
+        </MudButton>
+        <MudButton
+            OnClick="InitializePoolCreation"
+            Class="grow normal-case font-bold"
+            Color="Color.Primary"
+            Variant="Variant.Filled"
+        >
+            Yes
+        </MudButton>
+    </DialogActions>
+</MudDialog>

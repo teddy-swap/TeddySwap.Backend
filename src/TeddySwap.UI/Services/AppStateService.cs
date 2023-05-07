@@ -18,18 +18,6 @@ public class AppStateService : INotifyPropertyChanged
         }
     }
 
-    private int _liquidityPercentageValue;
-
-    public int LiquidityPercentageValue
-    {
-        get => _liquidityPercentageValue;
-        set
-        {
-            _liquidityPercentageValue = value;
-            OnPropertyChanged();
-        }
-    }
-
     private double _honeyValue;
 
     public double HoneyValue
@@ -89,6 +77,18 @@ public class AppStateService : INotifyPropertyChanged
             OnPropertyChanged();
         }
     }
+
+    private double _addLiquidityFeePercentage;
+    public double AddLiquidityFeePercentage
+    {
+        get => _addLiquidityFeePercentage;
+        set
+        {
+            _addLiquidityFeePercentage = value;
+            OnPropertyChanged();
+        }
+    }
+    
 
     private Token? _fromCurrentlySelectedToken;
 

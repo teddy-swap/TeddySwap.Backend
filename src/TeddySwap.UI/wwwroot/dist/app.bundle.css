@@ -1192,6 +1192,10 @@ video {
   gap: 0.25rem;
 }
 
+.gap-1\.5 {
+  gap: 0.375rem;
+}
+
 .gap-2 {
   gap: 0.5rem;
 }
@@ -1452,6 +1456,16 @@ video {
   padding-bottom: 8px;
 }
 
+.px-\[23px\] {
+  padding-left: 23px;
+  padding-right: 23px;
+}
+
+.\!px-\[23px\] {
+  padding-left: 23px !important;
+  padding-right: 23px !important;
+}
+
 .\!pb-0 {
   padding-bottom: 0px !important;
 }
@@ -1498,6 +1512,14 @@ video {
 
 .pt-\[4px\] {
   padding-top: 4px;
+}
+
+.\!pb-4 {
+  padding-bottom: 1rem !important;
+}
+
+.\!pb-3 {
+  padding-bottom: 0.75rem !important;
 }
 
 .text-left {
@@ -1716,19 +1738,13 @@ body:has(.mud-drawer--open) {
   margin-left: 0 !important;
 }
 
-.add-liquidity-pool-selection .mud-input-slot {
+.add-liquidity-pool-selection .mud-input-slot,
+.liquidity-fee-input .mud-input-slot {
   padding-top: 10px !important;
   padding-bottom: 10px !important;
   display: flex !important;
   align-items: center !important;
-  /* padding-left: 100px !important; */
 }
-
-/* .add-liquidity-pool-selection .mud-input-slot {
-    padding-top: 7px !important;
-    padding-bottom: 7px !important;
-    padding-left: 100px !important;
-} */
 
 .swap-chart .mud-tabs-scroll-button {
   display: none;
@@ -1765,13 +1781,15 @@ body:has(.mud-drawer--open) {
   background-color: var(--mud-palette-primary-darken);
 }
 
-.swap-input .mud-input-label {
+.swap-input .mud-input-label,
+.add-liquidity-input .mud-input-label {
   border-radius: 4px;
   color: white !important;
   background-color: var(--mud-palette-drawer-background) !important;
 }
 
-.swap-input .mud-input.mud-input-outlined {
+.swap-input .mud-input.mud-input-outlined,
+.add-liquidity-input .mud-input.mud-input-outlined {
   padding-bottom: 25px;
 }
 
