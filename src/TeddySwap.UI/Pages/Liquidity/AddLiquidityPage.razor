@@ -23,10 +23,9 @@
             </div>
         </MudCardHeader>
         <MudCardContent Class="relative">
-            <MudOverlay Visible="!_isTokenTwoSelected" Absolute="true" DarkBackground="true" />
             <div>
                 <MudText Typo="Typo.h3" Class="text-[14px] font-semibold">Pool</MudText>
-                <MudSelect @bind-Value="_currentlySelectedPool" T="Pool" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter" Class="add-liquidity-pool-selection">
+                <MudSelect Disabled="!_isTokenTwoSelected" @bind-Value="_currentlySelectedPool" T="Pool" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter" Class="add-liquidity-pool-selection">
                     @foreach (Pool pool in _pools)
                     {
                         <MudSelectItem T="Pool" Class="!py-0" Value="pool">
@@ -55,16 +54,19 @@
                 <MudText Typo="Typo.h3" Class="text-[14px] font-semibold">Liquidity</MudText>
                 <div class="liquidity-btn-group w-full md:w-fit flex justify-between gap-1">
                     <MudButton
-                        DisableElevation
+                        DisableElevation="true"
+                        Disabled="!_isTokenTwoSelected"
                         OnClick="@(() => OnLiquidityBtnClicked(25))"
                         Size="Size.Small"
                         Class="@(AppStateService.LiquidityPercentageValue == 25 ? "py-[6px] px-[16px] h-[36.5px] rounded-[50px] bg-[var(--mud-palette-primary)] hover:bg-[var(--mud-palette-primary-darken)]" : "py-[6px] px-[16px] h-[36.5px] rounded-[50px] hover:bg-[rgba(3, 105, 161, 0.08)]")"
                         Color="Color.Transparent"
-                        Variant="Variant.Filled">
+                        Variant="Variant.Filled"
+                    >
                             25%
                     </MudButton>
                     <MudButton 
-                        DisableElevation
+                        DisableElevation="true"
+                        Disabled="!_isTokenTwoSelected"
                         OnClick="@(() => OnLiquidityBtnClicked(50))"
                         Size="Size.Small"
                         Class="@(AppStateService.LiquidityPercentageValue == 50 ? "py-[6px] px-[16px] h-[36.5px] rounded-[50px] bg-[var(--mud-palette-primary)] hover:bg-[var(--mud-palette-primary-darken)]" : "py-[6px] px-[16px] h-[36.5px] rounded-[50px] hover:bg-[rgba(3, 105, 161, 0.08)]")"
@@ -73,7 +75,8 @@
                             50%
                     </MudButton>
                     <MudButton
-                        DisableElevation
+                        DisableElevation="true"
+                        Disabled="!_isTokenTwoSelected"
                         OnClick="@(() => OnLiquidityBtnClicked(75))"
                         Size="Size.Small"
                         Class="@(AppStateService.LiquidityPercentageValue == 75 ? "py-[6px] px-[16px] h-[36.5px] rounded-[50px] bg-[var(--mud-palette-primary)] hover:bg-[var(--mud-palette-primary-darken)]" : "py-[6px] px-[16px] h-[36.5px] rounded-[50px] hover:bg-[rgba(3, 105, 161, 0.08)]")"
@@ -82,7 +85,8 @@
                             75%
                     </MudButton>
                     <MudButton
-                        DisableElevation
+                        DisableElevation="true"
+                        Disabled="!_isTokenTwoSelected"
                         OnClick="@(() => OnLiquidityBtnClicked(100))"
                         Size="Size.Small"
                         Class="@(AppStateService.LiquidityPercentageValue == 100 ? "py-[6px] px-[16px] h-[36.5px] rounded-[50px] bg-[var(--mud-palette-primary)] hover:bg-[var(--mud-palette-primary-darken)]" : "py-[6px] px-[16px] h-[36.5px] rounded-[50px] hover:bg-[rgba(3, 105, 161, 0.08)]")"
@@ -97,6 +101,7 @@
                     <MudNumericField
                         HideSpinButtons
                         Immediate
+                        Disabled="!_isTokenTwoSelected"
                         @bind-Value="AppStateService.AddLiquidityTokenOneAmount"
                         Placeholder="0.0"
                         Variant="Variant.Outlined"
@@ -107,6 +112,7 @@
                     />
                     <div class="absolute right-[8px] top-[17px]">
                         <TokenChip
+                            Disabled="!_isTokenTwoSelected"
                             Tokens="Tokens"
                             CurrentlySelectedToken="AppStateService.AddLiquidityCurrentlySelectedTokenOne"
                             OnSelectedToken="@((Token token) => AppStateService.AddLiquidityCurrentlySelectedTokenOne = token)"
@@ -121,6 +127,7 @@
                     <MudNumericField
                         HideSpinButtons
                         Immediate
+                        Disabled="!_isTokenTwoSelected"
                         @bind-Value="AppStateService.AddLiquidityTokenTwoAmount"
                         Placeholder="0.0"
                         Variant="Variant.Outlined"
@@ -131,6 +138,7 @@
                     />
                     <div class="absolute right-[8px] top-[17px]">
                         <TokenChip
+                            Disabled="!_isTokenTwoSelected"
                             Tokens="Tokens"
                             CurrentlySelectedToken="AppStateService.AddLiquidityCurrentlySelectedTokenTwo"
                             OnSelectedToken="@((Token token) => AppStateService.AddLiquidityCurrentlySelectedTokenTwo = token)"
