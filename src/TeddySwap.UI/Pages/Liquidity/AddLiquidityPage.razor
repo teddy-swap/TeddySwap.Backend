@@ -3,7 +3,7 @@
 
 <div class="max-w-[448px] m-auto">
     <div class="flex gap-1 items-center">
-        <MudIconButton OnClick="@(() => AppStateService.AddLiquidityCurrentlySelectedTokenTwo = null)" Href="/liquidity" Icon="@Icons.Material.Filled.ArrowBack" aria-label="back to liquidity page"></MudIconButton>
+        <MudIconButton OnClick="@(() => AppStateService.LiquidityCurrentlySelectedTokenTwo = null)" Href="/liquidity" Icon="@Icons.Material.Filled.ArrowBack" aria-label="back to liquidity page"></MudIconButton>
         <MudText Typo="Typo.h1" Class="text-[20px] font-bold !outline-none">
             @(_createNewPool ? "Create" : "Add") Liquidity
         </MudText>
@@ -14,12 +14,12 @@
             <div class="flex justify-between w-full">
                 <TokenChip
                     Tokens="Tokens"
-                    CurrentlySelectedToken="AppStateService.AddLiquidityCurrentlySelectedTokenOne"
-                    OnSelectedToken="@((Token token) => AppStateService.AddLiquidityCurrentlySelectedTokenOne = token)"
+                    CurrentlySelectedToken="AppStateService?.LiquidityCurrentlySelectedTokenOne"
+                    OnSelectedToken="@((Token token) => AppStateService.LiquidityCurrentlySelectedTokenOne = token)"
                 />
                 <TokenChip
                     Tokens="Tokens"
-                    CurrentlySelectedToken="AppStateService.AddLiquidityCurrentlySelectedTokenTwo"
+                    CurrentlySelectedToken="AppStateService?.LiquidityCurrentlySelectedTokenTwo"
                     OnSelectedToken="@((Token token) => HandleTokenTwoSelected(token))"
                 />
             </div>
@@ -77,7 +77,7 @@
                     <MudNumericField
                         HideSpinButtons
                         Disabled="!_isTokenTwoSelected"
-                        Value="AppStateService.AddLiquidityFeePercentage"
+                        Value="AppStateService.LiquidityFeePercentage"
                         ValueChanged="HandleFeeValueChanged"
                         Placeholder="0.0"
                         Variant="Variant.Outlined"
@@ -96,7 +96,7 @@
                                 Disabled="!_isTokenTwoSelected"
                                 OnClick="@(() => OnFeeBtnClicked(feePercentage))"
                                 Size="Size.Small"
-                                Class="@(AppStateService.AddLiquidityFeePercentage == feePercentage ? "py-[6px] px-[16px] h-[36.5px] rounded-[50px] bg-[var(--mud-palette-primary)] hover:bg-[var(--mud-palette-primary-darken)]" : "py-[6px] px-[16px] h-[36.5px] rounded-[50px] hover:bg-[rgba(3, 105, 161, 0.08)]")"
+                                Class="@(AppStateService.LiquidityFeePercentage == feePercentage ? "py-[6px] px-[16px] h-[36.5px] rounded-[50px] bg-[var(--mud-palette-primary)] hover:bg-[var(--mud-palette-primary-darken)]" : "py-[6px] px-[16px] h-[36.5px] rounded-[50px] hover:bg-[rgba(3, 105, 161, 0.08)]")"
                                 Color="Color.Transparent"
                                 Variant="Variant.Filled">
                                     @feePercentage%
@@ -112,7 +112,7 @@
                         HideSpinButtons
                         Immediate
                         Disabled="!_isTokenTwoSelected"
-                        @bind-Value="AppStateService.AddLiquidityTokenOneAmount"
+                        @bind-Value="AppStateService.LiquidityTokenOneAmount"
                         Placeholder="0.0"
                         Variant="Variant.Outlined"
                         Min="0.0"
@@ -124,8 +124,8 @@
                         <TokenChip
                             Disabled="!_isTokenTwoSelected"
                             Tokens="Tokens"
-                            CurrentlySelectedToken="AppStateService.AddLiquidityCurrentlySelectedTokenOne"
-                            OnSelectedToken="@((Token token) => AppStateService.AddLiquidityCurrentlySelectedTokenOne = token)"
+                            CurrentlySelectedToken="AppStateService.LiquidityCurrentlySelectedTokenOne"
+                            OnSelectedToken="@((Token token) => AppStateService.LiquidityCurrentlySelectedTokenOne = token)"
                         />
                     </div>
                     <div class="@((_isTokenTwoSelected ? "text-white" : "text-[var(--mud-palette-text-secondary)]") + " flex justify-between text-[12px] absolute w-full bottom-[13px] px-[14px]")">
@@ -138,7 +138,7 @@
                         HideSpinButtons
                         Immediate
                         Disabled="!_isTokenTwoSelected"
-                        @bind-Value="AppStateService.AddLiquidityTokenTwoAmount"
+                        @bind-Value="AppStateService.LiquidityTokenTwoAmount"
                         Placeholder="0.0"
                         Variant="Variant.Outlined"
                         Min="0.0"
@@ -150,8 +150,8 @@
                         <TokenChip
                             Disabled="!_isTokenTwoSelected"
                             Tokens="Tokens"
-                            CurrentlySelectedToken="AppStateService.AddLiquidityCurrentlySelectedTokenTwo"
-                            OnSelectedToken="@((Token token) => AppStateService.AddLiquidityCurrentlySelectedTokenTwo = token)"
+                            CurrentlySelectedToken="AppStateService.LiquidityCurrentlySelectedTokenTwo"
+                            OnSelectedToken="@((Token token) => AppStateService.LiquidityCurrentlySelectedTokenTwo = token)"
                         />
                     </div>
                     <div class="@((_isTokenTwoSelected ? "text-white" : "text-[var(--mud-palette-text-secondary)]") + " flex justify-between text-[12px] absolute w-full bottom-[13px] px-[14px]")">
@@ -165,7 +165,7 @@
                     <MudCardContent Class="text-center">
                         <MudText Class="text-[16px] font-semibold">1.45058</MudText>
                         <MudText Class="text-[12px] !text-[var(--mud-palette-text-secondary)]">
-                            @AppStateService?.AddLiquidityCurrentlySelectedTokenOne?.Name per @AppStateService?.AddLiquidityCurrentlySelectedTokenTwo?.Name
+                            @AppStateService?.LiquidityCurrentlySelectedTokenOne?.Name per @AppStateService?.LiquidityCurrentlySelectedTokenTwo?.Name
                         </MudText>
                     </MudCardContent>
                 </MudCard>
@@ -173,12 +173,12 @@
                     <MudCardContent Class="text-center">
                         <MudText Class="text-[16px] font-semibold">0.701726</MudText>
                         <MudText Class="text-[12px] !text-[var(--mud-palette-text-secondary)]">
-                            @AppStateService?.AddLiquidityCurrentlySelectedTokenTwo?.Name per @AppStateService?.AddLiquidityCurrentlySelectedTokenOne?.Name
+                            @AppStateService?.LiquidityCurrentlySelectedTokenTwo?.Name per @AppStateService?.LiquidityCurrentlySelectedTokenOne?.Name
                         </MudText>
                     </MudCardContent>
                 </MudCard>
             </div>  
-            @if (AppStateService.AddLiquidityTokenOneAmount == 0)
+            @if (AppStateService.LiquidityTokenOneAmount == 0)
             {
                 <MudButton FullWidth Disabled="true" Variant="Variant.Filled" Color="Color.Primary" Class="normal-case mt-5 !text-[20px]">
                     @(_isTokenTwoSelected ? "Enter an amount" : "Select a token")

@@ -54,37 +54,37 @@ public class AppStateService : INotifyPropertyChanged
         }
     }
 
-    private double _addLiquidityTokenOneAmount;
+    private double _liquidityTokenOneAmount;
 
-    public double AddLiquidityTokenOneAmount
+    public double LiquidityTokenOneAmount
     {
-        get => _addLiquidityTokenOneAmount;
+        get => _liquidityTokenOneAmount;
         set
         {
-            _addLiquidityTokenOneAmount = value;
+            _liquidityTokenOneAmount = value;
             OnPropertyChanged();
         }
     }
 
-    private double _addLiquidityTokenTwoAmount;
+    private double _liquidityTokenTwoAmount;
 
-    public double AddLiquidityTokenTwoAmount
+    public double LiquidityTokenTwoAmount
     {
-        get => _addLiquidityTokenTwoAmount;
+        get => _liquidityTokenTwoAmount;
         set
         {
-            _addLiquidityTokenTwoAmount = value;
+            _liquidityTokenTwoAmount = value;
             OnPropertyChanged();
         }
     }
 
-    private double _addLiquidityFeePercentage;
-    public double AddLiquidityFeePercentage
+    private double _liquidityFeePercentage;
+    public double LiquidityFeePercentage
     {
-        get => _addLiquidityFeePercentage;
+        get => _liquidityFeePercentage;
         set
         {
-            _addLiquidityFeePercentage = value;
+            _liquidityFeePercentage = value;
             OnPropertyChanged();
         }
     }
@@ -114,26 +114,26 @@ public class AppStateService : INotifyPropertyChanged
         }
     }
 
-    private Token? _addLiquidityCurrentlySelectedTokenOne;
+    private Token? _liquidityCurrentlySelectedTokenOne;
 
-    public Token? AddLiquidityCurrentlySelectedTokenOne
+    public Token? LiquidityCurrentlySelectedTokenOne
     {
-        get => _addLiquidityCurrentlySelectedTokenOne;
+        get => _liquidityCurrentlySelectedTokenOne;
         set
         {
-            _addLiquidityCurrentlySelectedTokenOne = value;
+            _liquidityCurrentlySelectedTokenOne = value;
             OnPropertyChanged();
         }
     }
 
-    private Token? _addLiquidityCurrentlySelectedTokenTwo;
+    private Token? _liquidityCurrentlySelectedTokenTwo;
 
-    public Token? AddLiquidityCurrentlySelectedTokenTwo
+    public Token? LiquidityCurrentlySelectedTokenTwo
     {
-        get => _addLiquidityCurrentlySelectedTokenTwo;
+        get => _liquidityCurrentlySelectedTokenTwo;
         set
         {
-            _addLiquidityCurrentlySelectedTokenTwo = value;
+            _liquidityCurrentlySelectedTokenTwo = value;
             OnPropertyChanged();
         }
     }

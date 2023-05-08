@@ -19,15 +19,15 @@
             <MudText Typo="Typo.h3" Class="text-[14px] font-semibold">Assets</MudText>
             <div class="flex flex-col gap-2">
                 <MudPaper Class="flex justify-between items-center p-4 ">
-                    <div class="font-semibold text-[16px]">@AppStateService?.AddLiquidityTokenOneAmount</div>
+                    <div class="font-semibold text-[16px]">@AppStateService?.LiquidityTokenOneAmount</div>
                     <div class="confirm-swap-dialog-token-chip">
-                        <TokenChip Disabled="true" CurrentlySelectedToken="AppStateService?.AddLiquidityCurrentlySelectedTokenOne" />
+                        <TokenChip Disabled="true" CurrentlySelectedToken="AppStateService?.LiquidityCurrentlySelectedTokenOne" />
                     </div>
                 </MudPaper>
                 <MudPaper Class="flex justify-between items-center p-4 ">
-                    <div class="font-semibold text-[16px]">@AppStateService?.AddLiquidityTokenTwoAmount</div>
+                    <div class="font-semibold text-[16px]">@AppStateService?.LiquidityTokenTwoAmount</div>
                     <div class="confirm-swap-dialog-token-chip">
-                        <TokenChip Disabled="true" CurrentlySelectedToken="AppStateService?.AddLiquidityCurrentlySelectedTokenTwo" />
+                        <TokenChip Disabled="true" CurrentlySelectedToken="AppStateService?.LiquidityCurrentlySelectedTokenTwo" />
                     </div>
                 </MudPaper>
             </div>
@@ -39,7 +39,7 @@
                     <MudCardContent Class="text-center">
                         <MudText Class="text-[16px] font-semibold">1.45058</MudText>
                         <MudText Class="text-[12px] !text-[var(--mud-palette-text-secondary)]">
-                            @AppStateService?.AddLiquidityCurrentlySelectedTokenOne?.Name per @AppStateService?.AddLiquidityCurrentlySelectedTokenTwo?.Name
+                            @AppStateService?.LiquidityCurrentlySelectedTokenOne?.Name per @AppStateService?.LiquidityCurrentlySelectedTokenTwo?.Name
                         </MudText>
                     </MudCardContent>
                 </MudCard>
@@ -47,7 +47,7 @@
                     <MudCardContent Class="text-center">
                         <MudText Class="text-[16px] font-semibold">0.701726</MudText>
                         <MudText Class="text-[12px] !text-[var(--mud-palette-text-secondary)]">
-                            @AppStateService?.AddLiquidityCurrentlySelectedTokenTwo?.Name per @AppStateService?.AddLiquidityCurrentlySelectedTokenOne?.Name
+                            @AppStateService?.LiquidityCurrentlySelectedTokenTwo?.Name per @AppStateService?.LiquidityCurrentlySelectedTokenOne?.Name
                         </MudText>
                     </MudCardContent>
                 </MudCard>
@@ -95,8 +95,8 @@
             <MudText Class="font-semibold text-[20px]">Waiting for confirmation</MudText>
             <MudText Class="text-[14px]">
                 Adding liquidity
-                <span>@AppStateService?.AddLiquidityTokenOneAmount @AppStateService?.AddLiquidityCurrentlySelectedTokenOne?.Name</span> and 
-                <span>@AppStateService?.AddLiquidityTokenTwoAmount @AppStateService?.AddLiquidityCurrentlySelectedTokenTwo?.Name</span>
+                <span>@AppStateService?.LiquidityTokenOneAmount @AppStateService?.LiquidityCurrentlySelectedTokenOne?.Name</span> and 
+                <span>@AppStateService?.LiquidityTokenTwoAmount @AppStateService?.LiquidityCurrentlySelectedTokenTwo?.Name</span>
             </MudText>
             <MudText Class="text-[14px] text-[var(--mud-palette-text-secondary)]">Confirm this transaction in your wallet.</MudText>
         </div>

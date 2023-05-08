@@ -84,8 +84,8 @@ public partial class AddLiquidityPage
         AppStateService.PropertyChanged += OnAppStatePropertyChanged;
         AppStateService.FromCurrentlySelectedToken = Tokens?.ElementAt(0);
         AppStateService.ToCurrentlySelectedToken = Tokens?.ElementAt(2);
-        AppStateService.AddLiquidityFeePercentage = GetMinPoolFee();
-        AppStateService.AddLiquidityCurrentlySelectedTokenOne = new Token() { Name = "ADA", Logo = "../images/tokens/token-ada.svg" };
+        AppStateService.LiquidityFeePercentage = GetMinPoolFee();
+        AppStateService.LiquidityCurrentlySelectedTokenOne = new Token() { Name = "ADA", Logo = "../images/tokens/token-ada.svg" };
     }
 
     private async void OnAppStatePropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -105,7 +105,7 @@ public partial class AddLiquidityPage
     private void OnFeeBtnClicked(double value)
     {
         ArgumentNullException.ThrowIfNull(AppStateService);
-        AppStateService.AddLiquidityFeePercentage = value switch
+        AppStateService.LiquidityFeePercentage = value switch
         {
             0.01 => 0.01,
             0.03 => 0.03,
@@ -117,7 +117,7 @@ public partial class AddLiquidityPage
     private void CheckFeeExists()
     {
         ArgumentNullException.ThrowIfNull(AppStateService);
-        Pool? matchingPool = _pools.FirstOrDefault(p => p.Fee == AppStateService.AddLiquidityFeePercentage);
+        Pool? matchingPool = _pools.FirstOrDefault(p => p.Fee == AppStateService.LiquidityFeePercentage);
         if (matchingPool is null)
         {
             _isFeeUnavailable = true;
@@ -133,7 +133,7 @@ public partial class AddLiquidityPage
     private void CancelPoolCreation()
     {   
         ArgumentNullException.ThrowIfNull(AppStateService);
-        AppStateService.AddLiquidityFeePercentage = GetMinPoolFee();
+        AppStateService.LiquidityFeePercentage = GetMinPoolFee();
         CheckFeeExists();
     }
 
@@ -149,20 +149,20 @@ public partial class AddLiquidityPage
     {
         ArgumentNullException.ThrowIfNull(AppStateService);
         _currentlySelectedPool = pool;
-        AppStateService.AddLiquidityFeePercentage = _currentlySelectedPool.Fee;
+        AppStateService.LiquidityFeePercentage = _currentlySelectedPool.Fee;
     }
 
     private void HandleFeeValueChanged(double value)
     {
         ArgumentNullException.ThrowIfNull(AppStateService);
-        AppStateService.AddLiquidityFeePercentage = value;
+        AppStateService.LiquidityFeePercentage = value;
         CheckFeeExists();
     }
 
     private void HandleTokenTwoSelected(Token token)
     {
         ArgumentNullException.ThrowIfNull(AppStateService);
-        AppStateService.AddLiquidityCurrentlySelectedTokenTwo = token;
+        AppStateService.LiquidityCurrentlySelectedTokenTwo = token;
         _isTokenTwoSelected = true;
         _currentlySelectedPool = _pools.ElementAt(0);
     }
