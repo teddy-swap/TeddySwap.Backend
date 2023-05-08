@@ -12,6 +12,7 @@ public partial class LiquidityTable
     public IEnumerable<Token>? _tokens { get; set; }
     private string? _searchValue { get; set; }
     private Token? _currentlySelectedToken { get; set; }
+    public TokenPair? SelectedRowTokenPair { get; set; }
 
     protected override void OnInitialized()
     {
@@ -33,7 +34,12 @@ public partial class LiquidityTable
         LiquidityData selectedData = LiquidityData.First(d => d.Number == num);
         selectedData.ShowDetails = !selectedData.ShowDetails;
 	}
-    
+    private void SelectRowTokenPair(int num)
+    {   
+        ArgumentNullException.ThrowIfNull(LiquidityData);
+        SelectedRowTokenPair = LiquidityData.First(d => d.Number == num).TokenPair;
+    }
+
     private IEnumerable<LiquidityData>? _filteredData =>
         string.IsNullOrEmpty(_searchValue)
             ? LiquidityData

@@ -13,7 +13,7 @@
                 Variant="Variant.Filled"
                 Color="Color.Primary"
                 Class="normal-case text-[16px] md:max-w-[160px] md:absolute md:top-[-74px] md:right-0 justify-self-end font-bold"
-                Href="/liquidity/add"
+                Href="/liquidity/liquidity-center"
             >
                 Add Liquidity
             </MudButton>
@@ -29,7 +29,7 @@
                     Class="!mt-0"
                 >
                 </MudTextField>
-                <div class="absolute right-[10px] top-[12px]">
+                <div class="absolute right-[10px] top-[12px] hidden md:block">
                     <TokenChip
                         Tokens="_tokens"
                         CurrentlySelectedToken="_currentlySelectedToken"
@@ -68,7 +68,7 @@
             <MudIconButton
                 aria-label="Expand row"
                 Icon="@Icons.Material.Filled.KeyboardArrowDown"
-                Class="@((context.ShowDetails ? "rotate-180" : "rotate-0") + " transition-transform duration-200 ease-in-out block")"
+                Class="@((context.ShowDetails ? "rotate-180" : "rotate-0") + " transition-transform duration-200 ease-in-out block m-auto lg:m-0")"
                 OnClick="@(() => ExpandRow(context.Number))"
             />
         </MudTd>
@@ -85,10 +85,17 @@
                                 <MudText Class="text-[12px] lg:text-[14px] text-[var(--mud-palette-text-secondary)] font-semibold">1 @context.TokenTwoInfo.Token.Name = 5.024 @context.TokenOneInfo.Token.Name</MudText>
                             </div>
                         </div>
+                        <div class="flex items-center justify-between lg:justify-start lg:flex-col lg:items-start lg:gap-1">
+                            <MudText Class="text-[var(--mud-palette-text-secondary)] text-[12px]">Total Liquidity</MudText>
+                            <div class="text-right lg:text-left">
+                                <MudText Class="text-[12px] lg:text-[14px] text-[var(--mud-palette-text-secondary)] font-semibold">@context.TokenOneInfo.Token.Name: 134,384,920</MudText>
+                                <MudText Class="text-[12px] lg:text-[14px] text-[var(--mud-palette-text-secondary)] font-semibold">@context.TokenTwoInfo.Token.Name : 26,747,918</MudText>
+                            </div>
+                        </div>
                     </div>
                     <div class="@((context.ShowDetails ? "opacity-100" : "opacity-0") + " transition-all duration-1000 ease-in-out flex flex-col lg:flex-row gap-3 items-center lg:items-start mt-6 lg:!mt-0 grow")">
                         <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="w-full lg:!w-[204px] !py-px normal-case">Increase Liquidity</MudButton>
-                        <MudButton Variant="Variant.Outlined" Color="Color.Primary" Class="w-full lg:!w-[204px] !py-px normal-case">Remove Liquidity</MudButton>
+                        <MudButton Variant="Variant.Outlined" Color="Color.Primary" Class="w-full lg:!w-[204px] !py-px normal-case">Pool Overview</MudButton>
                     </div>
                 </div>
             </td>

@@ -1069,6 +1069,14 @@ video {
   max-width: 600px;
 }
 
+.max-w-\[1000px\] {
+  max-width: 1000px;
+}
+
+.max-w-\[1500px\] {
+  max-width: 1500px;
+}
+
 .shrink-0 {
   flex-shrink: 0;
 }
@@ -1955,6 +1963,10 @@ body:has(.mud-drawer--open) {
     display: block !important;
   }
 
+  .md\:block {
+    display: block;
+  }
+
   .md\:grid {
     display: grid;
   }
@@ -2044,6 +2056,10 @@ body:has(.mud-drawer--open) {
 
   .lg\:order-1 {
     order: 1;
+  }
+
+  .lg\:m-0 {
+    margin: 0px;
   }
 
   .lg\:\!mb-8 {

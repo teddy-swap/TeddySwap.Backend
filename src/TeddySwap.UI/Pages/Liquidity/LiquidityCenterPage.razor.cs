@@ -4,11 +4,10 @@ using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using TeddySwap.UI.Models;
 using TeddySwap.UI.Services;
-using TeddySwap.UI.Shared;
 
 namespace TeddySwap.UI.Pages.Liquidity;
 
-public partial class AddLiquidityPage
+public partial class LiquidityCenterPage
 {
     [Inject]
     public AppStateService? AppStateService { get; set; }
@@ -18,6 +17,9 @@ public partial class AddLiquidityPage
 
     [CascadingParameter]
     MudDialogInstance? MudDialog { get; set; }
+
+    [Parameter]
+    public TokenPair? TokenPair { get; set; }
 
     private IEnumerable<Token>? Tokens { get; set; }
     private IEnumerable<int>? _defaultLiquidityPercentages { get; set; }
@@ -85,7 +87,16 @@ public partial class AddLiquidityPage
         AppStateService.FromCurrentlySelectedToken = Tokens?.ElementAt(0);
         AppStateService.ToCurrentlySelectedToken = Tokens?.ElementAt(2);
         AppStateService.LiquidityFeePercentage = GetMinPoolFee();
-        AppStateService.LiquidityCurrentlySelectedTokenOne = new Token() { Name = "ADA", Logo = "../images/tokens/token-ada.svg" };
+
+        if (TokenPair is not null)
+        {
+            AppStateService.LiquidityCurrentlySelectedTokenOne = TokenPair.Tokens.Token1;
+            AppStateService.LiquidityCurrentlySelectedTokenTwo = TokenPair.Tokens.Token2;
+        }
+        else
+        {
+            AppStateService.LiquidityCurrentlySelectedTokenOne = new Token() { Name = "ADA", Logo = "../images/tokens/token-ada.svg" };
+        }
     }
 
     private async void OnAppStatePropertyChanged(object? sender, PropertyChangedEventArgs e)

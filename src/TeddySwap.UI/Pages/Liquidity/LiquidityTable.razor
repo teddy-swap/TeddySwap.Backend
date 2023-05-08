@@ -13,7 +13,7 @@
                 Variant="Variant.Filled"
                 Color="Color.Primary"
                 Class="normal-case text-[16px] md:max-w-[160px] md:absolute md:top-[-74px] md:right-0 justify-self-end font-bold"
-                Href="/liquidity/add"
+                Href="/liquidity/liquidity-center"
             >
                 Add Liquidity
             </MudButton>
@@ -29,7 +29,7 @@
                     Class="!mt-0"
                 >
                 </MudTextField>
-                <div class="absolute right-[10px] top-[12px]">
+                <div class="absolute right-[10px] top-[12px] hidden md:block">
                     <TokenChip
                         Tokens="_tokens"
                         CurrentlySelectedToken="_currentlySelectedToken"
@@ -112,7 +112,13 @@
                     </div>
                     <div class="@((context.ShowDetails ? "opacity-100" : "opacity-0") + " transition-all duration-1000 ease-in-out flex flex-col lg:flex-row gap-3 items-center lg:items-start mt-6 lg:!mt-0 grow")">
                         <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="w-full lg:!w-[204px] !py-px normal-case">Swap</MudButton>
-                        <MudButton Variant="Variant.Outlined" Color="Color.Primary" Class="w-full lg:!w-[204px] !py-px normal-case">Pool Overview</MudButton>
+                        <MudButton
+                            Variant="Variant.Outlined"
+                            Color="Color.Primary"
+                            Class="w-full lg:!w-[204px] !py-px normal-case"
+                        >
+                            Add Liquidity
+                        </MudButton>
                     </div>
                 </div>
             </td>
