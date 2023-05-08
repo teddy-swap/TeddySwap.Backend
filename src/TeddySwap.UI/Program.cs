@@ -21,7 +21,20 @@ builder.Services.AddMudServices(config =>
 });
 
 builder.Services.AddRazorPages();
-builder.Services.AddServerSideBlazor();
+builder.Services.
+    AddServerSideBlazor(o =>
+    {
+        o.JSInteropDefaultCallTimeout = TimeSpan.FromMinutes(2);
+        o.MaxBufferedUnacknowledgedRenderBatches = int.MaxValue;
+    })
+    .AddHubOptions((o) =>
+    {
+        o.MaximumReceiveMessageSize = long.MaxValue;
+        o.StreamBufferCapacity = int.MaxValue;
+        o.ClientTimeoutInterval = TimeSpan.FromMinutes(2);
+        o.HandshakeTimeout = TimeSpan.FromMinutes(2);
+    });
+
 builder.Services.AddHostedService<HeartBeatWorker>();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<ConfigService>();

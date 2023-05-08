@@ -163,21 +163,25 @@ public partial class Rewards : IAsyncDisposable
 
             try
             {
-                string queryAddress = new Address(IsMainnet ? CardanoWalletService.ConnectedAddress : MainnetAddress).GetStakeAddress().ToString();
-
-                TotalRoundOneNft = await QueryService.Query($"SinkService.GetNftCountByAddressPolicy:{CardanoWalletService.SessionId}:{queryAddress}:ab182ed76b669b49ee54a37dee0d0064ad4208a859cc4fdf3f906d87:{HeartBeatService.LatestSlotNo}", async () =>
+                string rawQueryAddress = IsMainnet ? CardanoWalletService.ConnectedAddress : MainnetAddress;
+                if (!string.IsNullOrEmpty(rawQueryAddress))
                 {
-                    return await SinkService.GetNftCountByStakeAddressPolicyAsync(queryAddress, ROUND_ONE_POLICY_ID);
-                });
+                    string queryAddress = new Address(rawQueryAddress).GetStakeAddress().ToString();
 
-                TotalRoundTwoNft = await QueryService.Query($"SinkService.GetNftCountByAddressPolicy:{CardanoWalletService.SessionId}:{queryAddress}:da3562fad43b7759f679970fb4e0ec07ab5bebe5c703043acda07a3c:{HeartBeatService.LatestSlotNo}", async () =>
-                {
-                    return await SinkService.GetNftCountByStakeAddressPolicyAsync(queryAddress, ROUND_TWO_POLICY_ID);
-                });
+                    TotalRoundOneNft = await QueryService.Query($"SinkService.GetNftCountByAddressPolicy:{CardanoWalletService.SessionId}:{queryAddress}:ab182ed76b669b49ee54a37dee0d0064ad4208a859cc4fdf3f906d87:{HeartBeatService.LatestSlotNo}", async () =>
+                    {
+                        return await SinkService.GetNftCountByStakeAddressPolicyAsync(queryAddress, ROUND_ONE_POLICY_ID);
+                    });
 
-                TotalRoundOneItnNftBonus = TotalRoundOneNft * 5;
-                TotalRoundTwoItnNftBonus = TotalRoundTwoNft * 2;
-                TotalItnNftBonus = (TotalRoundOneItnNftBonus + TotalRoundTwoItnNftBonus) / 100 * LeaderBoardResponse.BaseReward;
+                    TotalRoundTwoNft = await QueryService.Query($"SinkService.GetNftCountByAddressPolicy:{CardanoWalletService.SessionId}:{queryAddress}:da3562fad43b7759f679970fb4e0ec07ab5bebe5c703043acda07a3c:{HeartBeatService.LatestSlotNo}", async () =>
+                    {
+                        return await SinkService.GetNftCountByStakeAddressPolicyAsync(queryAddress, ROUND_TWO_POLICY_ID);
+                    });
+
+                    TotalRoundOneItnNftBonus = TotalRoundOneNft * 5;
+                    TotalRoundTwoItnNftBonus = TotalRoundTwoNft * 2;
+                    TotalItnNftBonus = (TotalRoundOneItnNftBonus + TotalRoundTwoItnNftBonus) / 100 * LeaderBoardResponse.BaseReward;
+                }
             }
             catch (Exception ex)
             {
