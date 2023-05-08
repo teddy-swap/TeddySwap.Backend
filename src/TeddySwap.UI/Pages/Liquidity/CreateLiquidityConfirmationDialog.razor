@@ -80,7 +80,7 @@
             </MudText>
             <MudText Class="text-[14px] text-[var(--mud-palette-text-secondary)]">Confirm this transaction in your wallet.</MudText>
         </div>
-        <div class="@((_isConfirmed ? "hidden" : "block") + " px-[16px] w-full mt-2")">
+        <div class="@((_isConfirmed ? "hidden" : "block") + " px-[16px] w-full !m-0 mt-2")">
             <MudButton
                 FullWidth
                 OnClick="HandleConfirmationBtnClicked"

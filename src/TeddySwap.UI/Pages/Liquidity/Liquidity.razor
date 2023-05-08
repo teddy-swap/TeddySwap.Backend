@@ -2,9 +2,9 @@
 
 <MudTabs Elevation="6" ApplyEffectsToContainer="true" Class="liquidity rounded">
     <MudTabPanel Text="All Liquidity">
-        <LiquidityTable TokenPairs="_allTokenPairs" />
+        <LiquidityTable LiquidityData="_allLiquidityData" />
     </MudTabPanel>
     <MudTabPanel Text="Your Liquidity">
-        <LiquidityTable TokenPairs="_userTokenPairs" />
+        <UserLiquidityTable UserLiquidityData="_userLiquidityData" />
     </MudTabPanel>
 </MudTabs>

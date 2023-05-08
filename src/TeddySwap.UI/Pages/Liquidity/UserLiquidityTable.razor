@@ -1,0 +1,97 @@
+<MudTable
+    Items="_filteredData"
+    Hover="true"
+    Breakpoint="Breakpoint.Sm"
+    Class="!p-[24px] flex flex-col gap-7 liquidity-table !rounded-none !rounded-b"
+    HeaderClass="bg-[var(--mud-palette-drawer-background)]"
+    RowClass="relative"
+>
+	<ToolBarContent>
+        <div class="flex flex-col md:grid grid-cols-1 w-full gap-3">
+            <MudButton 
+                FullWidth
+                Variant="Variant.Filled"
+                Color="Color.Primary"
+                Class="normal-case text-[16px] md:max-w-[160px] md:absolute md:top-[-74px] md:right-0 justify-self-end font-bold"
+                Href="/liquidity/add"
+            >
+                Add Liquidity
+            </MudButton>
+            <div class="relative">
+                <MudTextField
+                    Immediate
+                    @bind-Value="_searchValue"
+                    Variant="Variant.Outlined"
+                    Placeholder="Type token name or pool ID"
+                    Adornment="Adornment.Start"
+                    AdornmentIcon="@Icons.Material.Filled.Search"
+                    IconSize="Size.Medium"
+                    Class="!mt-0"
+                >
+                </MudTextField>
+                <div class="absolute right-[10px] top-[12px]">
+                    <TokenChip
+                        Tokens="_tokens"
+                        CurrentlySelectedToken="_currentlySelectedToken"
+                        OnSelectedToken="@((token) => HandleSelectedToken(token))"
+                    />
+                </div>
+            </div>
+        </div>
+    </ToolBarContent>
+	<HeaderContent>
+		<MudTh>Pair</MudTh>
+		<MudTh>Amount Added</MudTh>
+		<MudTh>Current Balance</MudTh>
+		<MudTh>Fee Share</MudTh>
+        <MudTh>Impermanent Loss</MudTh>
+        <MudTh></MudTh>
+	</HeaderContent>
+	<RowTemplate>
+		<MudTd DataLabel="Pair">
+            <div class="flex items-center">
+                <div class="flex relative">
+                    <MudImage Src=@context.TokenOneInfo.Token.Logo Height="24" Width="24" Alt="" />
+                    <MudImage Src=@context.TokenTwoInfo.Token.Logo Height="24" Width="24" Alt="" Class="absolute left-[18px]" />
+                </div>
+                <MudText Typo="Typo.h6" Class="font-semibold text-[16px] ml-7">
+                    @context.TokenOneInfo.Token.Name/@context.TokenTwoInfo.Token.Name
+                </MudText>
+                <MudIcon Icon="@Icons.Material.Filled.Verified" Size="Size.Small" Class="ml-2" />
+            </div>
+        </MudTd>
+		<MudTd DataLabel="Amount Added">@context.TokenOneInfo.AmountAdded ADA / @context.TokenTwoInfo.AmountAdded ADA</MudTd>
+		<MudTd DataLabel="Current Balance">@context.TokenOneInfo.CurrentBalance ADA / @context.TokenTwoInfo.CurrentBalance ADA</MudTd>
+		<MudTd DataLabel="Fee Share">@context.FeeShare%</MudTd>
+		<MudTd DataLabel="Impermanent Loss">@context.ImpermanentLoss ADA</MudTd>
+        <MudTd>
+            <MudIconButton
+                aria-label="Expand row"
+                Icon="@Icons.Material.Filled.KeyboardArrowDown"
+                Class="@((context.ShowDetails ? "rotate-180" : "rotate-0") + " transition-transform duration-200 ease-in-out block")"
+                OnClick="@(() => ExpandRow(context.Number))"
+            />
+        </MudTd>
+	</RowTemplate>
+	<ChildRowContent>
+        <tr>
+            <td colspan="6">
+                <div class="@((context.ShowDetails ? "h-[323px] lg:h-[96px] p-[16px]" : "h-0 p-0") + " transition-all overflow-hidden ease-in-out duration-150 bg-[var(--mud-palette-surface)] rounded flex flex-col lg:flex-row lg:items-center lg:space-between lg:gap-8")">
+                    <div class="@((context.ShowDetails ? "opacity-100" : "opacity-0") + " transition-all duration-1000 ease-in-out flex flex-col lg:flex-row gap-3 lg:gap-7 w-full grow-[2]")">
+                        <div class="flex items-center justify-between lg:justify-start lg:flex-col lg:items-start lg:gap-1">
+                            <MudText Class="text-[var(--mud-palette-text-secondary)] text-[12px]">Price</MudText>
+                            <div class="text-right lg:text-left">
+                                <MudText Class="text-[12px] lg:text-[14px] text-[var(--mud-palette-text-secondary)] font-semibold">1 @context.TokenOneInfo.Token.Name = 0.19903 @context.TokenTwoInfo.Token.Name</MudText>
+                                <MudText Class="text-[12px] lg:text-[14px] text-[var(--mud-palette-text-secondary)] font-semibold">1 @context.TokenTwoInfo.Token.Name = 5.024 @context.TokenOneInfo.Token.Name</MudText>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="@((context.ShowDetails ? "opacity-100" : "opacity-0") + " transition-all duration-1000 ease-in-out flex flex-col lg:flex-row gap-3 items-center lg:items-start mt-6 lg:!mt-0 grow")">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="w-full lg:!w-[204px] !py-px normal-case">Increase Liquidity</MudButton>
+                        <MudButton Variant="Variant.Outlined" Color="Color.Primary" Class="w-full lg:!w-[204px] !py-px normal-case">Remove Liquidity</MudButton>
+                    </div>
+                </div>
+            </td>
+        </tr>
+	</ChildRowContent>
+</MudTable>

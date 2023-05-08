@@ -1,6 +1,6 @@
 namespace TeddySwap.UI.Models;
 
-public record TokenPairDetails
+public record LiquidityData
 {
     public TokenPair TokenPair { get; set; } = new();
     public double TVL { get; set; }

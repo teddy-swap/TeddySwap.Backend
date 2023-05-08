@@ -20,6 +20,7 @@ public partial class TokenChip
 
     [Parameter]
     public bool Disabled { get; set; } = false;
+    
     private void OpenTokenSelectionDialog()
     {
         var options = new DialogOptions { CloseOnEscapeKey = true };

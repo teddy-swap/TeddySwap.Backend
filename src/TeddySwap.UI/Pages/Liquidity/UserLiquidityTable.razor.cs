@@ -4,10 +4,10 @@ using TeddySwap.UI.Models;
 
 namespace TeddySwap.UI.Pages.Liquidity;
 
-public partial class LiquidityTable
+public partial class UserLiquidityTable
 {
     [Parameter]
-    public IEnumerable<LiquidityData>? LiquidityData { get; set; }
+    public IEnumerable<UserLiquidityData>? UserLiquidityData { get; set; }
 
     public IEnumerable<Token>? _tokens { get; set; }
     private string? _searchValue { get; set; }
@@ -29,16 +29,16 @@ public partial class LiquidityTable
 
     private void ExpandRow(int num)
 	{
-        ArgumentNullException.ThrowIfNull(LiquidityData);
-        LiquidityData selectedData = LiquidityData.First(d => d.Number == num);
+        ArgumentNullException.ThrowIfNull(UserLiquidityData);
+        UserLiquidityData selectedData = UserLiquidityData.First(d => d.Number == num);
         selectedData.ShowDetails = !selectedData.ShowDetails;
 	}
     
-    private IEnumerable<LiquidityData>? _filteredData =>
+    private IEnumerable<UserLiquidityData>? _filteredData =>
         string.IsNullOrEmpty(_searchValue)
-            ? LiquidityData
-            : LiquidityData?.Where(
-                d => d.TokenPair.Tokens.Token1.Name.ToLower().Contains(_searchValue.ToLower()) || 
-                     d.TokenPair.Tokens.Token2.Name.ToLower().Contains(_searchValue.ToLower())
+            ? UserLiquidityData
+            : UserLiquidityData?.Where(
+                d => d.TokenOneInfo.Token.Name.ToLower().Contains(_searchValue.ToLower()) || 
+                     d.TokenTwoInfo.Token.Name.ToLower().Contains(_searchValue.ToLower())
             );
 }
