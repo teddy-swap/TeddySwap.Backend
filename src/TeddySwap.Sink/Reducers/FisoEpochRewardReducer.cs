@@ -6,42 +6,36 @@ using Microsoft.Extensions.Options;
 using TeddySwap.Common.Models;
 using TeddySwap.Sink.Data;
 using TeddySwap.Sink.Models;
+using TeddySwap.Sink.Models.Models;
 using TeddySwap.Sink.Models.Oura;
 using TeddySwap.Sink.Services;
 
 namespace TeddySwap.Sink.Reducers;
 
 [OuraReducer(OuraVariant.Block)]
+[DbContext(DbContextVariant.Fiso)]
 public class FisoEpochRewardReducer : OuraReducerBase
 {
-    private readonly ILogger<FisoEpochRewardReducer> _logger;
-    private readonly IDbContextFactory<TeddySwapFisoSinkDbContext> _dbContextFactory;
     private readonly CardanoService _cardanoService;
     private readonly IPoolClient _poolClient;
     private readonly TeddySwapSinkSettings _settings;
 
     public FisoEpochRewardReducer(
-        ILogger<FisoEpochRewardReducer> logger,
-        IDbContextFactory<TeddySwapFisoSinkDbContext> dbContextFactory,
         IOptions<TeddySwapSinkSettings> settings,
         CardanoService cardanoService,
-        IPoolClient poolClient
-        )
+        IPoolClient poolClient)
     {
-        _logger = logger;
-        _dbContextFactory = dbContextFactory;
         _cardanoService = cardanoService;
         _poolClient = poolClient;
         _settings = settings.Value;
     }
 
-    public async Task ReduceAsync(OuraBlockEvent blockEvent)
+    public async Task ReduceAsync(OuraBlockEvent blockEvent, TeddySwapFisoSinkDbContext _dbContext)
     {
         if (blockEvent.Context is not null &&
             blockEvent.Context.BlockNumber is not null &&
             blockEvent.Context.Slot is not null)
         {
-            using TeddySwapFisoSinkDbContext _dbContext = await _dbContextFactory.CreateDbContextAsync();
             Block? previousBlock = await _dbContext.Blocks
                 .Where(b => b.Slot < blockEvent.Context.Slot)
                 .OrderByDescending(b => b.Slot)
@@ -216,9 +210,8 @@ public class FisoEpochRewardReducer : OuraReducerBase
         return points;
     }
 
-    public async Task RollbackAsync(Block rollbackBlock)
+    public async Task RollbackAsync(Block rollbackBlock, TeddySwapFisoSinkDbContext _dbContext)
     {
-        using TeddySwapFisoSinkDbContext _dbContext = await _dbContextFactory.CreateDbContextAsync();
         Block? prevBlock = await _dbContext.Blocks
             .Where(b => b.BlockNumber == rollbackBlock.BlockNumber - 1)
             .FirstOrDefaultAsync();

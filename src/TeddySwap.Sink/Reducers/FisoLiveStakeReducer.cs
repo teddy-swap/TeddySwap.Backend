@@ -5,49 +5,38 @@ using Microsoft.Extensions.Options;
 using TeddySwap.Common.Models;
 using TeddySwap.Sink.Data;
 using TeddySwap.Sink.Models;
+using TeddySwap.Sink.Models.Models;
 using TeddySwap.Sink.Models.Oura;
 using TeddySwap.Sink.Services;
 
 namespace TeddySwap.Sink.Reducers;
 
 [OuraReducer(OuraVariant.TxInput, OuraVariant.TxOutput, OuraVariant.CollateralInput, OuraVariant.CollateralOutput)]
+[DbContext(DbContextVariant.Fiso)]
 public class FisoLiveStakeReducer : OuraReducerBase
 {
-    private readonly ILogger<FisoLiveStakeReducer> _logger;
-    private readonly IDbContextFactory<TeddySwapFisoSinkDbContext> _dbContextFactory;
     private readonly IDbContextFactory<CardanoDbSyncContext> _cardanoDbSyncContextFactory;
     private readonly CardanoService _cardanoService;
-    private readonly IPoolClient _poolClient;
-    private readonly ITransactionClient _transactionClient;
+
     private readonly TeddySwapSinkSettings _settings;
 
     public FisoLiveStakeReducer(
-        ILogger<FisoLiveStakeReducer> logger,
-        IDbContextFactory<TeddySwapFisoSinkDbContext> dbContextFactory,
         IOptions<TeddySwapSinkSettings> settings,
         CardanoService cardanoService,
-        IPoolClient poolClient,
-        ITransactionClient transactionClient,
         IDbContextFactory<CardanoDbSyncContext> cardanoDbSyncContextFactory)
     {
-        _logger = logger;
-        _dbContextFactory = dbContextFactory;
         _cardanoService = cardanoService;
-        _poolClient = poolClient;
         _settings = settings.Value;
-        _transactionClient = transactionClient;
         _cardanoDbSyncContextFactory = cardanoDbSyncContextFactory;
     }
 
-    public async Task ReduceAsync(OuraEvent ouraEvent)
+    public async Task ReduceAsync(OuraEvent ouraEvent, TeddySwapFisoSinkDbContext _dbContext)
     {
         if (ouraEvent.Context is null || ouraEvent.Context.Slot is null) return;
 
         ulong epoch = _cardanoService.CalculateEpochBySlot((ulong)ouraEvent.Context.Slot);
 
         if (epoch < _settings.FisoStartEpoch - 1 || epoch >= _settings.FisoEndEpoch) return;
-
-        using TeddySwapFisoSinkDbContext _dbContext = await _dbContextFactory.CreateDbContextAsync();
         await (ouraEvent.Variant switch
         {
             OuraVariant.TxInput => Task.Run(async () =>
@@ -59,12 +48,9 @@ public class FisoLiveStakeReducer : OuraReducerBase
                     txInput.Context.TxIdx is not null &&
                     txInput.Context.TxHash is not null)
                 {
-                    if (txInput.Context.InvalidTransactions is not null &&
-                        txInput.Context.InvalidTransactions.ToList().Contains((ulong)txInput.Context.TxIdx)) return;
+                    if (_cardanoService.IsInvalidTransaction(txInput.Context.InvalidTransactions, (ulong)txInput.Context.TxIdx)) return;
 
                     TxOutput? input = await _dbContext.TxOutputs
-                        .Include(txOut => txOut.Transaction)
-                        .ThenInclude(transaction => transaction.Block)
                         .Where(txOut => txOut.TxHash == txInput.TxHash && txOut.Index == txInput.Index)
                         .FirstOrDefaultAsync();
 
@@ -153,8 +139,6 @@ public class FisoLiveStakeReducer : OuraReducerBase
                     if (txInput.Context.HasCollateralOutput && txInput.Context.TxHash is not null)
                     {
                         TxOutput? input = await _dbContext.TxOutputs
-                            .Include(txOut => txOut.Transaction)
-                            .ThenInclude(transaction => transaction.Block)
                             .Where(txOut => txOut.TxHash == txInput.TxHash && txOut.Index == txInput.Index)
                             .FirstOrDefaultAsync();
 
@@ -230,7 +214,7 @@ public class FisoLiveStakeReducer : OuraReducerBase
         });
     }
 
-    public async Task<Common.Models.CardanoDbSync.TxOut?> GetTxOut(string hash, int index)
+    private async Task<Common.Models.CardanoDbSync.TxOut?> GetTxOut(string hash, int index)
     {
         using CardanoDbSyncContext _dbContext = await _cardanoDbSyncContextFactory.CreateDbContextAsync();
         byte[] txHashBytes = Convert.FromHexString(hash);
@@ -242,11 +226,9 @@ public class FisoLiveStakeReducer : OuraReducerBase
         return txOut;
     }
 
-    public async Task<TxOutput?> ResolveTxOutAsync(string hash, ulong index, TeddySwapFisoSinkDbContext dbContext)
+    private async Task<TxOutput?> ResolveTxOutAsync(string hash, ulong index, TeddySwapFisoSinkDbContext dbContext)
     {
         TxOutput? txInOut = await dbContext.TxOutputs
-            .Include(txOut => txOut.Transaction)
-            .ThenInclude(transaction => transaction.Block)
             .Where(txOut => txOut.TxHash == hash && txOut.Index == index)
             .FirstOrDefaultAsync();
 
@@ -266,7 +248,7 @@ public class FisoLiveStakeReducer : OuraReducerBase
         return txInOut;
     }
 
-    public async Task UpdateFisoPoolAsync(string address, ulong epoch, ulong amount, TeddySwapFisoSinkDbContext dbContext)
+    private async Task UpdateFisoPoolAsync(string address, ulong epoch, ulong amount, TeddySwapFisoSinkDbContext dbContext)
     {
         string? stakeAddress = _cardanoService.TryGetStakeAddress(address);
 
@@ -288,52 +270,64 @@ public class FisoLiveStakeReducer : OuraReducerBase
         dbContext.FisoPoolActiveStakes.Update(fisoPoolActiveStake);
     }
 
-    public async Task RollbackAsync(Block rollbackBlock)
+    private async Task UpdateFisoPoolCollaterals(Transaction transaction, ulong epoch, TeddySwapFisoSinkDbContext dbContext)
     {
-        using TeddySwapFisoSinkDbContext _dbContext = await _dbContextFactory.CreateDbContextAsync();
-        List<Transaction> transactions = await _dbContext.Transactions
-            .Include(tx => tx.Inputs)
-            .Include(tx => tx.Outputs)
-            .Include(tx => tx.CollateralTxIns)
-            .Include(tx => tx.CollateralTxOut)
-            .Include(tx => tx.Block)
-            .Where(tx => tx.Block == rollbackBlock)
-            .ToListAsync();
+        var collateralInputs = await dbContext.CollateralTxIns
+                    .Where(ci => ci.TxHash == transaction.Hash)
+                    .ToListAsync();
 
-        if (!transactions.Any()) return;
+        var collateralTxOut = await dbContext.CollateralTxOuts
+            .Where(co => co.TxHash == transaction.Hash)
+            .FirstOrDefaultAsync();
+
+        foreach (CollateralTxIn collateralTxIn in collateralInputs)
+        {
+            TxOutput? txInOut = await ResolveTxOutAsync(collateralTxIn.TxHash, collateralTxIn.TxOutputIndex, dbContext);
+
+            if (txInOut is null) continue;
+
+            await UpdateFisoPoolAsync(txInOut.Address, epoch, txInOut.Amount, dbContext);
+        }
+
+        if (collateralTxOut is not null) await UpdateFisoPoolAsync(collateralTxOut.Address, epoch, collateralTxOut.Amount, dbContext);
+
+    }
+
+    public async Task RollbackAsync(Block rollbackBlock, TeddySwapFisoSinkDbContext _dbContext)
+    {
+        var transactions = await _dbContext.Transactions
+            .Where(t => t.BlockHash == rollbackBlock.BlockHash)
+            .ToListAsync();
 
         foreach (Transaction transaction in transactions)
         {
-            ulong epoch = transaction.Block.Epoch;
+            ulong epoch = rollbackBlock.Epoch;
 
-            if (!(transaction.Block.InvalidTransactions is not null &&
-                transaction.Block.InvalidTransactions.ToList().Contains(transaction.Index)))
+            if (transaction.IsValid)
             {
-                foreach (TxInput input in transaction.Inputs)
+                var inputs = await _dbContext.TxInputs
+                    .Where(i => i.TxHash == transaction.Hash)
+                    .ToListAsync();
+
+                var outputs = await _dbContext.TxOutputs
+                    .Where(o => o.TxHash == transaction.Hash)
+                    .ToListAsync();
+
+                foreach (TxInput input in inputs)
                 {
                     TxOutput? txInOut = await ResolveTxOutAsync(input.TxHash, input.TxOutputIndex, _dbContext);
 
                     if (txInOut is null) continue;
 
                     await UpdateFisoPoolAsync(txInOut.Address, epoch, txInOut.Amount, _dbContext);
-
                 }
 
-                foreach (TxOutput output in transaction.Outputs) await UpdateFisoPoolAsync(output.Address, epoch, output.Amount, _dbContext);
+                foreach (TxOutput output in outputs) await UpdateFisoPoolAsync(output.Address, epoch, output.Amount, _dbContext);
+                if (transaction.HasCollateralOutput) await UpdateFisoPoolCollaterals(transaction, epoch, _dbContext);
             }
             else
             {
-                foreach (CollateralTxIn collateralTxIn in transaction.CollateralTxIns)
-                {
-                    TxOutput? txInOut = await ResolveTxOutAsync(collateralTxIn.TxHash, collateralTxIn.TxOutputIndex, _dbContext);
-
-                    if (txInOut is null) continue;
-
-                    await UpdateFisoPoolAsync(txInOut.Address, epoch, txInOut.Amount, _dbContext);
-                }
-
-                if (transaction.CollateralTxOut is not null)
-                    await UpdateFisoPoolAsync(transaction.CollateralTxOut.Address, epoch, transaction.CollateralTxOut.Amount, _dbContext);
+                await UpdateFisoPoolCollaterals(transaction, epoch, _dbContext);
             }
         }
     }

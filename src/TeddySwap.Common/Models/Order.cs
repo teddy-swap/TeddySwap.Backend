@@ -5,6 +5,7 @@ namespace TeddySwap.Common.Models;
 
 public record Order
 {
+    // @TODO: Remove relation
     public string TxHash { get; init; } = string.Empty;
     public ulong Index { get; init; }
     public string Blockhash { get; set; } = string.Empty;

@@ -60,4 +60,8 @@ public class CardanoService
             AddressUtility.GetRewardAddress(Convert.FromHexString(stakeKeyHash), _settings.NetworkType).ToString() :
             null;
     }
+
+    public bool IsInvalidTransaction(IEnumerable<ulong>? invalidTransactions, ulong transactionIndex) =>
+        invalidTransactions is not null && invalidTransactions.ToList().Contains(transactionIndex);
+
 }

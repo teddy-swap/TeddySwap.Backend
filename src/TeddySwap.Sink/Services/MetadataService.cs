@@ -1,4 +1,3 @@
-
 using System.Text;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
@@ -12,22 +11,6 @@ namespace TeddySwap.Sink.Services;
 
 public class MetadataService
 {
-
-    private readonly TeddySwapSinkSettings _settings;
-    private readonly ILogger<MetadataService> _logger;
-    private readonly IDbContextFactory<TeddySwapNftSinkDbContext> _dbContextFactory;
-
-    public MetadataService(
-        IOptions<TeddySwapSinkSettings> settings,
-        IDbContextFactory<TeddySwapNftSinkDbContext> dbContextFactory,
-        ILogger<MetadataService> logger)
-    {
-        _settings = settings.Value;
-        _logger = logger;
-        _dbContextFactory = dbContextFactory;
-    }
-
-
     public List<AssetClass> FindAssets(OuraTransaction transaction, List<string> policyIds)
     {
 
@@ -87,5 +70,4 @@ public class MetadataService
         }
         return assets;
     }
-
 }

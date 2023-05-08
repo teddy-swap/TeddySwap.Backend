@@ -2,7 +2,7 @@ using TeddySwap.Sink.Models.Oura;
 
 namespace TeddySwap.Sink.Reducers;
 
-public class OuraReducerAttribute : System.Attribute
+public class OuraReducerAttribute : Attribute
 {
     public ICollection<OuraVariant> Variants { get; private set; }
 
