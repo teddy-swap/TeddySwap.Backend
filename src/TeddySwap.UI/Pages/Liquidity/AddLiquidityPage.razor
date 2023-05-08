@@ -128,7 +128,7 @@
                             OnSelectedToken="@((Token token) => AppStateService.AddLiquidityCurrentlySelectedTokenOne = token)"
                         />
                     </div>
-                    <div class="flex justify-between text-[12px] absolute w-full bottom-[13px] px-[14px]">
+                    <div class="@((_isTokenTwoSelected ? "text-white" : "text-[var(--mud-palette-text-secondary)]") + " flex justify-between text-[12px] absolute w-full bottom-[13px] px-[14px]")">
                         <span>~5,155 ADA</span>
                         <span>Balance: 17,228</span>
                     </div>
@@ -154,7 +154,7 @@
                             OnSelectedToken="@((Token token) => AppStateService.AddLiquidityCurrentlySelectedTokenTwo = token)"
                         />
                     </div>
-                    <div class="flex justify-between text-[12px] absolute w-full bottom-[13px] px-[14px]">
+                    <div class="@((_isTokenTwoSelected ? "text-white" : "text-[var(--mud-palette-text-secondary)]") + " flex justify-between text-[12px] absolute w-full bottom-[13px] px-[14px]")">
                         <span>~5,155 ADA</span>
                         <span>Balance: 5,298</span>
                     </div>

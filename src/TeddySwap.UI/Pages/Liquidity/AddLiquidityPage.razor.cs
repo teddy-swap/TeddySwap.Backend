@@ -171,6 +171,6 @@ public partial class AddLiquidityPage
     {
         ArgumentNullException.ThrowIfNull(DialogService);
         var options = new DialogOptions { CloseOnEscapeKey = true };
-        DialogService.Show<AddLiquidityConfirmationDialog>("Confirm Add Liquidity", options);
+        DialogService.Show<AddLiquidityConfirmationDialog>("", options);
     }
 }

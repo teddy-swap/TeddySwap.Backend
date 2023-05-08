@@ -24,7 +24,6 @@ public partial class LiquidityTable
     {
         _searchValue = token.Name;
         _currentlySelectedToken = token;
-        StateHasChanged();
     }
 
     private void ExpandRow(int num)
