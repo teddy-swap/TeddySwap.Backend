@@ -15,7 +15,7 @@ public class TeddySwapNftSinkDbContext : TeddySwapSinkCoreDbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<MintTransaction>().HasKey(mt => new { mt.PolicyId, mt.TokenName });
+        modelBuilder.Entity<MintTransaction>().HasKey(mt => new { mt.PolicyId, mt.TokenName, mt.TxHash });
         modelBuilder.Entity<NftOwner>().HasKey(nft => new { nft.PolicyId, nft.TokenName });
         base.OnModelCreating(modelBuilder);
     }

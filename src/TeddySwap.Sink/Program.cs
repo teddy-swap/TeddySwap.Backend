@@ -5,6 +5,7 @@ using Refit;
 using TeddySwap.Common.Models;
 using TeddySwap.Sink.Data;
 using TeddySwap.Sink.Extensions;
+using TeddySwap.Sink.Filters;
 using TeddySwap.Sink.Models;
 using TeddySwap.Sink.Services;
 
@@ -27,10 +28,12 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddPooledDbContextFactory<TeddySwapSinkCoreDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("TeddySwapSink")));
-builder.Services.AddPooledDbContextFactory<TeddySwapOrderSinkDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("TeddySwapSink")));
-builder.Services.AddPooledDbContextFactory<TeddySwapNftSinkDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("TeddySwapSink")));
-builder.Services.AddPooledDbContextFactory<TeddySwapFisoSinkDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("TeddySwapSink")));
+
+builder.Services.AddPooledDbContextFactory<TeddySwapSinkCoreDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("TeddySwapSink")), 10);
+builder.Services.AddPooledDbContextFactory<TeddySwapOrderSinkDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("TeddySwapSink")), 10);
+builder.Services.AddPooledDbContextFactory<TeddySwapNftSinkDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("TeddySwapSink")), 10);
+builder.Services.AddPooledDbContextFactory<TeddySwapFisoSinkDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("TeddySwapSink")), 10);
+builder.Services.AddPooledDbContextFactory<TeddySwapBadgerAddressSinkDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("TeddySwapSink")), 10);
 builder.Services.AddPooledDbContextFactory<CardanoDbSyncContext>(options =>
 {
     if (builder.Configuration["ASPNETCORE_ENVIRONMENT"]?.ToString() != "Production")
@@ -42,12 +45,15 @@ builder.Services.AddPooledDbContextFactory<CardanoDbSyncContext>(options =>
     });
 }, 10);
 builder.Services.Configure<TeddySwapSinkSettings>(options => builder.Configuration.GetSection("TeddySwapSinkSettings").Bind(options));
+builder.Services.Configure<CardanoFilters>(options => builder.Configuration.GetSection("CardanoFilters").Bind(options));
+builder.Services.AddSingleton<CardanoFilterService>();
 builder.Services.AddSingleton<CardanoService>();
 builder.Services.AddSingleton<ByteArrayService>();
 builder.Services.AddSingleton<CborService>();
 builder.Services.AddSingleton<DatumService>();
 builder.Services.AddSingleton<MetadataService>();
 builder.Services.AddScoped<OrderService>();
+builder.Services.AddSingleton<OuraService>();
 builder.Services.AddOuraReducers();
 builder.Services.AddKoios(koiosEndpoint);
 
@@ -68,9 +74,9 @@ var path = ouraSettings.GetValue<string>("CursorPath");
 var offset = ouraSettings.GetValue<int>("Offset");
 
 using var scopedProvider = app.Services.CreateScope();
-var service = scopedProvider.ServiceProvider;
-var dbContextFactory = service.GetRequiredService<IDbContextFactory<TeddySwapSinkCoreDbContext>>();
-using var dbContext = await dbContextFactory.CreateDbContextAsync();
+IServiceProvider service = scopedProvider.ServiceProvider;
+IDbContextFactory<TeddySwapSinkCoreDbContext> dbContextFactory = service.GetRequiredService<IDbContextFactory<TeddySwapSinkCoreDbContext>>();
+using TeddySwapSinkCoreDbContext? dbContext = await dbContextFactory.CreateDbContextAsync();
 
 if (dbContext is not null)
 {

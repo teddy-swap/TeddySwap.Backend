@@ -3,18 +3,21 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TeddySwap.Sink.Data;
 
 #nullable disable
 
-namespace TeddySwap.Sink.Data.Migrations.TeddySwapNftSinkDb
+namespace TeddySwap.Sink.Data.Migrations
 {
-    [DbContext(typeof(TeddySwapNftSinkDbContext))]
-    partial class TeddySwapNftSinkDbContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(TeddySwapBadgerAddressSinkDbContext))]
+    [Migration("20230426134656_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -47,6 +50,35 @@ namespace TeddySwap.Sink.Data.Migrations.TeddySwapNftSinkDb
                     b.HasKey("PolicyId", "Name", "TxOutputHash", "TxOutputIndex");
 
                     b.ToTable("Assets");
+                });
+
+            modelBuilder.Entity("TeddySwap.Common.Models.BadgerAddressVerification", b =>
+                {
+                    b.Property<string>("Address")
+                        .HasColumnType("text");
+
+                    b.Property<string>("TxHash")
+                        .HasColumnType("text");
+
+                    b.Property<string>("BlockHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("LinkAddress")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LinkStakeAddress")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("Slot")
+                        .HasColumnType("numeric(20,0)");
+
+                    b.Property<string>("StakeAddress")
+                        .HasColumnType("text");
+
+                    b.HasKey("Address", "TxHash");
+
+                    b.ToTable("BadgerAddressVerifications");
                 });
 
             modelBuilder.Entity("TeddySwap.Common.Models.Block", b =>
@@ -117,59 +149,6 @@ namespace TeddySwap.Sink.Data.Migrations.TeddySwapNftSinkDb
                     b.HasKey("Address", "TxHash");
 
                     b.ToTable("CollateralTxOuts");
-                });
-
-            modelBuilder.Entity("TeddySwap.Common.Models.MintTransaction", b =>
-                {
-                    b.Property<string>("PolicyId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("TokenName")
-                        .HasColumnType("text");
-
-                    b.Property<string>("TxHash")
-                        .HasColumnType("text");
-
-                    b.Property<string>("AsciiTokenName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("BlockHash")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Metadata")
-                        .HasColumnType("text");
-
-                    b.Property<decimal>("Slot")
-                        .HasColumnType("numeric(20,0)");
-
-                    b.Property<decimal>("TxIndex")
-                        .HasColumnType("numeric(20,0)");
-
-                    b.HasKey("PolicyId", "TokenName", "TxHash");
-
-                    b.ToTable("MintTransactions");
-                });
-
-            modelBuilder.Entity("TeddySwap.Common.Models.NftOwner", b =>
-                {
-                    b.Property<string>("PolicyId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("TokenName")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("StakeAddress")
-                        .HasColumnType("text");
-
-                    b.HasKey("PolicyId", "TokenName");
-
-                    b.ToTable("NftOwners");
                 });
 
             modelBuilder.Entity("TeddySwap.Common.Models.Transaction", b =>

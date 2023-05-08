@@ -21,7 +21,7 @@ public class AddressVerificationService
     public async Task AddVerificationAsync(string testnetAddress, string mainnetAddress, string testnetSignedData)
     {
         AddressVerification? av = await _dbContext.AddressVerifications.Where(av => av.TestnetAddress == testnetAddress).FirstOrDefaultAsync();
-        
+
         if (av is not null)
             _dbContext.AddressVerifications.Remove(av);
 

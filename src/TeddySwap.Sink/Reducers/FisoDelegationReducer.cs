@@ -5,35 +5,31 @@ using Microsoft.Extensions.Options;
 using TeddySwap.Common.Models;
 using TeddySwap.Sink.Data;
 using TeddySwap.Sink.Models;
+using TeddySwap.Sink.Models.Models;
 using TeddySwap.Sink.Models.Oura;
 using TeddySwap.Sink.Services;
 
 namespace TeddySwap.Sink.Reducers;
 
 [OuraReducer(OuraVariant.StakeDelegation)]
+[DbContext(DbContextVariant.Fiso)]
 public class FisoDelegationReducer : OuraReducerBase
 {
-    private readonly ILogger<FisoDelegationReducer> _logger;
-    private readonly IDbContextFactory<TeddySwapFisoSinkDbContext> _dbContextFactory;
     private readonly IDbContextFactory<CardanoDbSyncContext> _cardanoDbSyncContextFactory;
     private readonly CardanoService _cardanoService;
     private readonly TeddySwapSinkSettings _settings;
 
     public FisoDelegationReducer(
-        ILogger<FisoDelegationReducer> logger,
-        IDbContextFactory<TeddySwapFisoSinkDbContext> dbContextFactory,
         IDbContextFactory<CardanoDbSyncContext> cardanoDbSyncContextFactory,
         IOptions<TeddySwapSinkSettings> settings,
         CardanoService cardanoService)
     {
-        _logger = logger;
-        _dbContextFactory = dbContextFactory;
         _cardanoDbSyncContextFactory = cardanoDbSyncContextFactory;
         _cardanoService = cardanoService;
         _settings = settings.Value;
     }
 
-    public async Task ReduceAsync(OuraStakeDelegationEvent stakeDelegationEvent)
+    public async Task ReduceAsync(OuraStakeDelegationEvent stakeDelegationEvent, TeddySwapFisoSinkDbContext _dbContext)
     {
 
         if (stakeDelegationEvent is not null &&
@@ -47,18 +43,7 @@ public class FisoDelegationReducer : OuraReducerBase
             ulong epoch = _cardanoService.CalculateEpochBySlot((ulong)stakeDelegationEvent.Context.Slot!);
 
             if (epoch < _settings.FisoStartEpoch - 1 || epoch >= _settings.FisoEndEpoch) return;
-
-            using TeddySwapFisoSinkDbContext _dbContext = await _dbContextFactory.CreateDbContextAsync();
-
-            Transaction? transaction = await _dbContext.Transactions
-                .Include(t => t.Block)
-                .Where(t => t.Hash == stakeDelegationEvent.Context.TxHash)
-                .FirstOrDefaultAsync();
-
-            if (transaction is null) throw new NullReferenceException("Transaction does not exist!");
-
-            if (transaction.Block.InvalidTransactions is not null &&
-                transaction.Block.InvalidTransactions.Contains(transaction.Index)) return;
+            if (_cardanoService.IsInvalidTransaction(stakeDelegationEvent.Context.InvalidTransactions, (ulong)stakeDelegationEvent.Context.TxIdx)) return;
 
             string? stakeAddress = _cardanoService.GetStakeAddressFromEvent(stakeDelegationEvent);
 
@@ -128,6 +113,7 @@ public class FisoDelegationReducer : OuraReducerBase
     public async Task<decimal> GetStakeAddressLiveStakeByBlockAsync(string stakeAddress, int blockNumber)
     {
         using CardanoDbSyncContext _dbContext = await _cardanoDbSyncContextFactory.CreateDbContextAsync();
+
         long stakeId = await _dbContext.StakeAddresses
             .Where(sa => sa.View == stakeAddress)
             .Select(sa => sa.Id)
@@ -166,10 +152,8 @@ public class FisoDelegationReducer : OuraReducerBase
 
         return stakeAmount + rewardAmount - withdrawalAmount;
     }
-    public async Task RollbackAsync(Block rollbackBlock)
+    public async Task RollbackAsync(Block rollbackBlock, TeddySwapFisoSinkDbContext _dbContext)
     {
-        using TeddySwapFisoSinkDbContext _dbContext = await _dbContextFactory.CreateDbContextAsync();
-
         List<FisoDelegation> fisoDelegations = await _dbContext.FisoDelegations
             .Where(fd => fd.BlockNumber == rollbackBlock.BlockNumber)
             .ToListAsync();
