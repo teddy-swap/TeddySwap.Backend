@@ -54,7 +54,7 @@
             </div>
             <div class="flex flex-col md:flex-row w-full items-start md:items-center md:justify-between gap-2 mt-5">
                 <MudText Typo="Typo.h3" Class="@((_isTokenTwoSelected ? "text-white" : "text-[var(--mud-palette-text-secondary)]") + " text-[14px] font-semibold")">Liquidity</MudText>
-                <div class="liquidity-btn-group w-full md:w-fit flex justify-between gap-1">
+                <div class="liquidity-btn-group w-full md:w-fit flex justify-between gap-2">
                     @foreach (int liquidityPercentage in _defaultLiquidityPercentages!)
                     {
                         <MudButton 
@@ -88,7 +88,7 @@
                         Adornment="Adornment.End"
                         AdornmentText="%"
                     />
-                    <div class="liquidity-btn-group w-full md:w-fit flex justify-between gap-1">
+                    <div class="liquidity-btn-group w-full md:w-fit flex justify-between gap-2">
                         @foreach (double feePercentage in _defaultFeePercentages!)
                         {
                             <MudButton 
@@ -191,7 +191,7 @@
                     Variant="Variant.Filled"
                     Color="Color.Primary"
                     Class="normal-case mt-5 !text-[20px]"
-                    OnClick="OpenAddLiquidityConfirmationDialog"
+                    OnClick="OpenLiquidityConfirmationDialog"
                 >
                     @(_createNewPool ? "Create" : "Add") Liquidity
                 </MudButton>

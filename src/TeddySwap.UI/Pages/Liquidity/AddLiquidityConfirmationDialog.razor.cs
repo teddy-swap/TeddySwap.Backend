@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
-using TeddySwap.UI.Models;
 using TeddySwap.UI.Services;
 
 namespace TeddySwap.UI.Pages.Liquidity;

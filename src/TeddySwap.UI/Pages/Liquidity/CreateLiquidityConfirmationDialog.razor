@@ -1,0 +1,95 @@
+@using TeddySwap.UI.Services;
+@inject IconsService IconsService
+
+<MudDialog Class="w-[92%] max-w-[496px] pb-4" ClassContent="@((_isConfirmed ? "!hidden" : "!block"))">
+     <TitleContent>
+        <div class="flex items-center justify-between">
+            <MudText Typo="Typo.h6" Class="@(_isConfirmed ? "hidden" : "block")">Confirm Create Liquidity</MudText>
+            <MudIconButton
+                OnClick="@(() => MudDialog?.Close())"
+                Class="justify-self-end block"
+                Icon="@Icons.Material.Filled.Close"
+                aria-label="close"
+            >
+            </MudIconButton>
+        </div>
+    </TitleContent>
+    <DialogContent>
+        <div class="flex flex-col gap-1">
+            <MudText Typo="Typo.h3" Class="text-[14px] font-semibold">Assets</MudText>
+            <div class="flex flex-col gap-2">
+                <MudPaper Class="flex justify-between items-center p-4 ">
+                    <div class="font-semibold text-[16px]">@AppStateService?.LiquidityTokenOneAmount</div>
+                    <div class="confirm-swap-dialog-token-chip">
+                        <TokenChip Disabled="true" CurrentlySelectedToken="AppStateService?.LiquidityCurrentlySelectedTokenOne" />
+                    </div>
+                </MudPaper>
+                <MudPaper Class="flex justify-between items-center p-4 ">
+                    <div class="font-semibold text-[16px]">@AppStateService?.LiquidityTokenTwoAmount</div>
+                    <div class="confirm-swap-dialog-token-chip">
+                        <TokenChip Disabled="true" CurrentlySelectedToken="AppStateService?.LiquidityCurrentlySelectedTokenTwo" />
+                    </div>
+                </MudPaper>
+            </div>
+        </div>
+        <div class="mt-6 flex flex-col gap-1">
+            <MudText Typo="Typo.h3" Class="text-[14px] font-semibold">Initial price</MudText>
+            <div class="flex justify-between gap-3">
+                <MudCard Elevation="2" Class="grow">
+                    <MudCardContent Class="text-center">
+                        <MudText Class="text-[16px] font-semibold">1.45058</MudText>
+                        <MudText Class="text-[12px] !text-[var(--mud-palette-text-secondary)]">
+                            @AppStateService?.LiquidityCurrentlySelectedTokenOne?.Name per @AppStateService?.LiquidityCurrentlySelectedTokenTwo?.Name
+                        </MudText>
+                    </MudCardContent>
+                </MudCard>
+                <MudCard Elevation="2" Class="grow">
+                    <MudCardContent Class="text-center">
+                        <MudText Class="text-[16px] font-semibold">0.701726</MudText>
+                        <MudText Class="text-[12px] !text-[var(--mud-palette-text-secondary)]">
+                            @AppStateService?.LiquidityCurrentlySelectedTokenTwo?.Name per @AppStateService?.LiquidityCurrentlySelectedTokenOne?.Name
+                        </MudText>
+                    </MudCardContent>
+                </MudCard>
+            </div>
+        </div>
+        <div class="mt-6 flex flex-col gap-1">
+            <MudText Typo="Typo.h3" Class="text-[14px] font-semibold">Pool Configuration</MudText>
+            <MudPaper>
+                <MudList Class="w-full">
+                    <MudListItem Class="flex justify-between items-center py-0">
+                        <div class="flex justify-between items-center text-[12px]">
+                            <div>Fee:</div>
+                            <div class="font-semibold">@AppStateService?.LiquidityFeePercentage%</div>
+                        </div>
+                    </MudListItem>
+                </MudList>
+            </MudPaper>
+        </div>
+    </DialogContent>
+    <DialogActions>
+        <div class="@((_isConfirmed ? "block" : "hidden") + " flex flex-col !items-center w-full gap-3")">
+            <div class="w-full flex justify-center">
+                <MudProgressCircular Color="Color.Primary" Style="height:70px;width:70px;" Indeterminate="true" />
+            </div>
+            <MudText Class="font-semibold text-[20px]">Waiting for confirmation</MudText>
+            <MudText Class="text-[14px]">
+                Creating liquidity
+                <span>@AppStateService?.LiquidityTokenOneAmount @AppStateService?.LiquidityCurrentlySelectedTokenOne?.Name</span> and 
+                <span>@AppStateService?.LiquidityTokenTwoAmount @AppStateService?.LiquidityCurrentlySelectedTokenTwo?.Name</span>
+            </MudText>
+            <MudText Class="text-[14px] text-[var(--mud-palette-text-secondary)]">Confirm this transaction in your wallet.</MudText>
+        </div>
+        <div class="@((_isConfirmed ? "hidden" : "block") + " px-[16px] w-full mt-2")">
+            <MudButton
+                FullWidth
+                OnClick="HandleConfirmationBtnClicked"
+                Class="text-[20px] py-[6px] font-medium normal-case"
+                Variant="Variant.Filled"
+                Color="Color.Primary"
+            >
+                Confirm Create Liquidity
+            </MudButton>
+        </div>
+    </DialogActions>
+</MudDialog>

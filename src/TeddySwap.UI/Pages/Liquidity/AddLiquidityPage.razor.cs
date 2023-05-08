@@ -114,22 +114,6 @@ public partial class AddLiquidityPage
         CheckFeeExists();
     }
 
-    private void CheckFeeExists()
-    {
-        ArgumentNullException.ThrowIfNull(AppStateService);
-        Pool? matchingPool = _pools.FirstOrDefault(p => p.Fee == AppStateService.LiquidityFeePercentage);
-        if (matchingPool is null)
-        {
-            _isFeeUnavailable = true;
-        }
-        else
-        {
-            _currentlySelectedPool = matchingPool;
-            _isFeeUnavailable = false;
-            _createNewPool = false;
-        }
-    }
-
     private void CancelPoolCreation()
     {   
         ArgumentNullException.ThrowIfNull(AppStateService);
@@ -159,6 +143,23 @@ public partial class AddLiquidityPage
         CheckFeeExists();
     }
 
+    private void CheckFeeExists()
+    {
+        ArgumentNullException.ThrowIfNull(AppStateService);
+        Pool? matchingPool = _pools.FirstOrDefault(p => p.Fee == AppStateService.LiquidityFeePercentage);
+        if (matchingPool is null)
+        {
+            _isFeeUnavailable = true;
+        }
+        else
+        {
+            _currentlySelectedPool = matchingPool;
+            _isFeeUnavailable = false;
+            _createNewPool = false;
+        }
+    }
+
+
     private void HandleTokenTwoSelected(Token token)
     {
         ArgumentNullException.ThrowIfNull(AppStateService);
@@ -167,10 +168,17 @@ public partial class AddLiquidityPage
         _currentlySelectedPool = _pools.ElementAt(0);
     }
 
-    private void OpenAddLiquidityConfirmationDialog()
+    private void OpenLiquidityConfirmationDialog()
     {
         ArgumentNullException.ThrowIfNull(DialogService);
         var options = new DialogOptions { CloseOnEscapeKey = true };
-        DialogService.Show<AddLiquidityConfirmationDialog>("", options);
+        if (_createNewPool)
+        {
+            DialogService.Show<CreateLiquidityConfirmationDialog>("", options);
+        }
+        else
+        {
+            DialogService.Show<AddLiquidityConfirmationDialog>("", options);
+        }
     }
 }
