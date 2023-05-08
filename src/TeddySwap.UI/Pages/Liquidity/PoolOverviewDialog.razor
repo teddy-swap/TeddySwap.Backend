@@ -1,0 +1,88 @@
+<MudDialog Class="w-[92%] max-w-[496px] pb-4" ClassActions="!px-[24px]">
+    <TitleContent>
+        <div class="flex items-center justify-between">
+            <MudText Typo="Typo.h6">Pool Overview</MudText>
+            <MudIconButton
+                OnClick="@(() => MudDialog?.Close())"
+                Class="justify-self-end block"
+                Icon="@Icons.Material.Filled.Close"
+                aria-label="close"
+            >
+            </MudIconButton>
+        </div>
+    </TitleContent>
+    <DialogContent>
+        <div class="flex relative items-center">
+            <div class="flex relative">
+                <MudImage Src="../images/tokens/djed.png" Height="24" Width="24" Alt="" />
+                <MudImage Src="../images/tokens/token-ada.svg" Height="24" Width="24" Alt="" Class="absolute left-[18px]" />
+            </div>
+            <MudText Typo="Typo.h6" Class="text-[20px] ml-6">DJEDt / ADA</MudText>
+        </div>
+        <div class="flex flex-col gap-1 mt-5">
+            <MudText Typo="Typo.h3" Class="text-[14px] font-semibold">Total liquidity</MudText>
+            <div class="flex flex-col gap-2">
+                <MudPaper Class="flex justify-between items-center p-4 ">
+                    <div class="font-semibold text-[16px]">134,384,920</div>
+                    <div class="confirm-swap-dialog-token-chip">
+                        <TokenChip Disabled="true" CurrentlySelectedToken="_tokenOne" />
+                    </div>
+                </MudPaper>
+                <MudPaper Class="flex justify-between items-center p-4 ">
+                    <div class="font-semibold text-[16px]">26,747,918</div>
+                    <div class="confirm-swap-dialog-token-chip">
+                        <TokenChip Disabled="true" CurrentlySelectedToken="_tokenTwo" />
+                    </div>
+                </MudPaper>
+            </div>
+        </div>
+        <div class="flex flex-col gap-1 mt-5">
+            <MudText Typo="Typo.h3" Class="text-[14px] font-semibold">Your liquidity</MudText>
+            <div class="flex flex-col gap-2">
+                <MudPaper Class="flex justify-between items-center p-4 ">
+                    <div class="font-semibold text-[16px]">10,500</div>
+                    <div class="confirm-swap-dialog-token-chip">
+                        <TokenChip Disabled="true" CurrentlySelectedToken="_tokenOne" />
+                    </div>
+                </MudPaper>
+                <MudPaper Class="flex justify-between items-center p-4 ">
+                    <div class="font-semibold text-[16px]">100,239</div>
+                    <div class="confirm-swap-dialog-token-chip">
+                        <TokenChip Disabled="true" CurrentlySelectedToken="_tokenTwo" />
+                    </div>
+                </MudPaper>
+            </div>
+        </div>
+        <div class="flex flex-col gap-1 mt-5">
+            <MudText Typo="Typo.h3" Class="text-[14px] font-semibold">Current price</MudText>
+            <div class="flex justify-between gap-3">
+                <MudCard Elevation="2" Class="grow !bg-[var(--mud-palette-surface)]">
+                    <MudCardContent Class="text-center">
+                        <MudText Class="text-[16px] font-semibold">1.45058</MudText>
+                        <MudText Class="text-[12px] !text-[var(--mud-palette-text-secondary)]">
+                            @_tokenOne.Name per @_tokenTwo.Name
+                        </MudText>
+                    </MudCardContent>
+                </MudCard>
+                <MudCard Elevation="2" Class="grow !bg-[var(--mud-palette-surface)]">
+                    <MudCardContent Class="text-center">
+                        <MudText Class="text-[16px] font-semibold">0.701726</MudText>
+                        <MudText Class="text-[12px] !text-[var(--mud-palette-text-secondary)]">
+                            @_tokenTwo.Name per @_tokenOne.Name
+                        </MudText>
+                    </MudCardContent>
+                </MudCard>
+            </div>
+        </div>
+    </DialogContent>
+    <DialogActions>
+        <MudButton
+            FullWidth
+            Class="text-[20px] py-[6px] font-medium normal-case"
+            Variant="Variant.Filled"
+            Color="Color.Primary"
+        >
+            Remove Liquidity
+        </MudButton>
+    </DialogActions>
+</MudDialog>

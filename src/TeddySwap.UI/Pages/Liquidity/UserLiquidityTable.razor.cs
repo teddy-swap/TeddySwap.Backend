@@ -1,11 +1,15 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Components;
+using MudBlazor;
 using TeddySwap.UI.Models;
 
 namespace TeddySwap.UI.Pages.Liquidity;
 
 public partial class UserLiquidityTable
 {
+    [Inject]
+    IDialogService? DialogService { get; set; }
+
     [Parameter]
     public IEnumerable<UserLiquidityData>? UserLiquidityData { get; set; }
 
@@ -33,6 +37,12 @@ public partial class UserLiquidityTable
         UserLiquidityData selectedData = UserLiquidityData.First(d => d.Number == num);
         selectedData.ShowDetails = !selectedData.ShowDetails;
 	}
+
+    private void OpenPoolOverviewDialog()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        DialogService?.Show<PoolOverviewDialog>("Pool Overview", options);
+    }
     
     private IEnumerable<UserLiquidityData>? _filteredData =>
         string.IsNullOrEmpty(_searchValue)
