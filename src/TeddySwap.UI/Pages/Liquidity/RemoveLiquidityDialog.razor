@@ -34,7 +34,6 @@
                         </div>
                         <MudSlider
                             @bind-Value=@removeAmount
-                            TickMarkLabels="_labels"
                             Variant="Variant.Filled"
                             Class="relative"
                         >
@@ -71,6 +70,7 @@
     <DialogActions>
         <MudButton
             FullWidth
+            OnClick="OpenRemoveConfirmationDialog"
             Class="text-[20px] py-[6px] font-medium normal-case"
             Variant="Variant.Filled"
             Color="Color.Primary"
