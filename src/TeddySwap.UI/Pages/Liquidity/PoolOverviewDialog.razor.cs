@@ -14,6 +14,6 @@ public partial class PoolOverviewDialog
     [Inject]
     public AppStateService? AppStateService { get; set; }
 
-    private Token _tokenOne = new() { Logo = "../images/tokens/djed.png", Name = "DJEDt" };
-    private Token _tokenTwo = new() { Logo = "../images/tokens/token-ada.svg", Name = "ADA" };
+    [Parameter, EditorRequired]
+    public UserLiquidityData UserLiquidityData { get; set; } = new();
 }

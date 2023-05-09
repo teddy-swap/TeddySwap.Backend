@@ -96,7 +96,7 @@
                     <div class="@((context.ShowDetails ? "opacity-100" : "opacity-0") + " transition-all duration-1000 ease-in-out flex flex-col lg:flex-row gap-3 items-center lg:items-start mt-6 lg:!mt-0 grow")">
                         <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="w-full lg:!w-[204px] !py-px normal-case">Increase Liquidity</MudButton>
                         <MudButton
-                            OnClick="OpenPoolOverviewDialog"
+                            OnClick="@(() => OpenPoolOverviewDialog(context.Number))"
                             Variant="Variant.Outlined"
                             Color="Color.Primary"
                             Class="w-full lg:!w-[204px] !py-px normal-case"

@@ -111,6 +111,24 @@ public partial class Liquidity
                 FeeShare = 0.05,
                 ImpermanentLoss = 20,
                 Number = 1
+            },
+            new()
+            {
+                TokenOneInfo = new()
+                {
+                    Token = new Token() { Name = "ADA", Logo = "../images/tokens/token-ada.svg" },
+                    AmountAdded = 10_300,
+                    CurrentBalance = 2_500
+                },
+                TokenTwoInfo = new()
+                {
+                    Token = new Token() { Name = "DJEDt", Logo = "../images/tokens/djed.png" },
+                    AmountAdded = 3_000,
+                    CurrentBalance = 10_000
+                },
+                FeeShare = 0.04,
+                ImpermanentLoss = 10.67M,
+                Number = 2
             }
         };
 

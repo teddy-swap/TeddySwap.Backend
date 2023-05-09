@@ -33,15 +33,23 @@ public partial class UserLiquidityTable
 
     private void ExpandRow(int num)
 	{
-        ArgumentNullException.ThrowIfNull(UserLiquidityData);
-        UserLiquidityData selectedData = UserLiquidityData.First(d => d.Number == num);
-        selectedData.ShowDetails = !selectedData.ShowDetails;
+        UserLiquidityData rowData = GetRowData(num);
+        rowData.ShowDetails = !rowData.ShowDetails;
 	}
 
-    private void OpenPoolOverviewDialog()
+    private void OpenPoolOverviewDialog(int num)
     {
         var options = new DialogOptions { CloseOnEscapeKey = true };
-        DialogService?.Show<PoolOverviewDialog>("Pool Overview", options);
+        var parameters = new DialogParameters();
+        UserLiquidityData rowData = GetRowData(num);
+        parameters.Add("UserLiquidityData", rowData);
+        DialogService?.Show<PoolOverviewDialog>("Pool Overview", parameters, options);
+    }
+
+    private UserLiquidityData GetRowData(int num)
+    {
+        ArgumentNullException.ThrowIfNull(UserLiquidityData);
+        return UserLiquidityData.First(d => d.Number == num);
     }
     
     private IEnumerable<UserLiquidityData>? _filteredData =>

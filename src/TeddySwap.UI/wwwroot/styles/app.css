@@ -142,6 +142,10 @@ body:has(.mud-drawer--open) {
     background-color: var(--mud-palette-drawer-background);
 }
 
+.mud-dialog-title h6 {
+    font-weight: bold;
+}
+
 .mud-nav-link {
     font-weight: bold;
 }
