@@ -1,0 +1,81 @@
+<MudDialog Class="w-[92%] max-w-[496px] pb-4" ClassActions="!px-[24px]">
+    <TitleContent>
+        <div class="flex items-center justify-between">
+            <MudText Typo="Typo.h6">Remove Liquidity</MudText>
+            <MudIconButton
+                OnClick="@(() => MudDialog?.Close())"
+                Class="justify-self-end block"
+                Icon="@Icons.Material.Filled.Close"
+                aria-label="close"
+            >
+            </MudIconButton>
+        </div>
+    </TitleContent>
+    <DialogContent>
+        <div>
+            <div class="flex relative items-center">
+                <div class="flex relative">
+                    <MudImage Src=@UserLiquidityData.TokenOneInfo.Token.Logo Height="24" Width="24" Alt="@(UserLiquidityData.TokenOneInfo.Token.Name + " logo")" />
+                    <MudImage Src=@UserLiquidityData.TokenTwoInfo.Token.Logo Height="24" Width="24" Alt="@(UserLiquidityData.TokenTwoInfo.Token.Name + " logo")" Class="absolute left-[18px]" />
+                </div>
+                <MudText Typo="Typo.h6" Class="text-[20px] ml-6 font-semibold">@UserLiquidityData.TokenOneInfo.Token.Name / @UserLiquidityData.TokenTwoInfo.Token.Name</MudText>
+            </div>
+            <div class="flex flex-col gap-1 mt-5">
+                <MudText Typo="Typo.h3" Class="text-[14px] font-semibold">Amount</MudText>
+                <MudPaper Elevation="2" Class="!py-[20px] !px-[35px]">
+                    <MudText Typo="Typo.h1" Class="text-center text-[38px] font-semibold">@removeAmount%</MudText>
+                    <div class="mt-7">
+                        <div class="flex justify-between w-full items-center">
+                            <div>Min</div>
+                            <div>25%</div>
+                            <div>50%</div>
+                            <div>75%</div>
+                            <div>Max</div>
+                        </div>
+                        <MudSlider
+                            @bind-Value=@removeAmount
+                            TickMarkLabels="_labels"
+                            Variant="Variant.Filled"
+                            Class="relative"
+                        >
+                            <div class="absolute flex justify-between items-center bottom-[10px] left-0 right-0">
+                                <div class="h-0.5 w-0.5 bg-[var(--mud-palette-primary)]"></div>
+                                <div class="h-0.5 w-0.5 bg-[var(--mud-palette-primary)]"></div>
+                                <div class="h-0.5 w-0.5 bg-[var(--mud-palette-primary)]"></div>
+                                <div class="h-0.5 w-0.5 bg-[var(--mud-palette-primary)]"></div>
+                                <div class="h-0.5 w-0.5 bg-[var(--mud-palette-primary)]"></div>
+                            </div>
+                        </MudSlider>
+                    </div>
+                </MudPaper>
+            </div>
+            <div class="flex flex-col gap-1 mt-5">
+                <MudText Typo="Typo.h3" Class="text-[14px] font-semibold">Assets to remove</MudText>
+                <div class="flex flex-col gap-2">
+                    <MudPaper Class="flex justify-between items-center p-4 ">
+                        <div class="font-semibold text-[16px]">@(1568 * ((decimal)removeAmount / (decimal)100)) (~@(1128 * ((decimal)removeAmount / (decimal)100)) ADA)</div>
+                        <div class="confirm-swap-dialog-token-chip">
+                            <TokenChip Disabled="true" CurrentlySelectedToken="UserLiquidityData.TokenOneInfo.Token" />
+                        </div>
+                    </MudPaper>
+                    <MudPaper Class="flex justify-between items-center p-4 ">
+                        <div class="font-semibold text-[16px]">@(568 * ((decimal)removeAmount / (decimal)100)) (~@(2128 * ((decimal)removeAmount / (decimal)100)) ADA)</div>
+                        <div class="confirm-swap-dialog-token-chip">
+                            <TokenChip Disabled="true" CurrentlySelectedToken="UserLiquidityData.TokenTwoInfo.Token" />
+                        </div>
+                    </MudPaper>
+                </div>
+            </div>
+        </div>
+    </DialogContent>
+    <DialogActions>
+        <MudButton
+            FullWidth
+            Class="text-[20px] py-[6px] font-medium normal-case"
+            Variant="Variant.Filled"
+            Color="Color.Primary"
+        >
+            Remove
+        </MudButton>
+    </DialogActions>
+</MudDialog>

@@ -13,77 +13,78 @@
     </TitleContent>
     <DialogContent>
         <div class="flex relative items-center">
-            <div class="flex relative">
-                <MudImage Src=@UserLiquidityData.TokenOneInfo.Token.Logo Height="24" Width="24" Alt="@(UserLiquidityData.TokenOneInfo.Token.Name + " logo")" />
-                <MudImage Src=@UserLiquidityData.TokenTwoInfo.Token.Logo Height="24" Width="24" Alt="@(UserLiquidityData.TokenTwoInfo.Token.Name + " logo")" Class="absolute left-[18px]" />
+                <div class="flex relative">
+                    <MudImage Src=@UserLiquidityData.TokenOneInfo.Token.Logo Height="24" Width="24" Alt="@(UserLiquidityData.TokenOneInfo.Token.Name + " logo")" />
+                    <MudImage Src=@UserLiquidityData.TokenTwoInfo.Token.Logo Height="24" Width="24" Alt="@(UserLiquidityData.TokenTwoInfo.Token.Name + " logo")" Class="absolute left-[18px]" />
+                </div>
+                <MudText Typo="Typo.h6" Class="text-[20px] ml-6 font-semibold">@UserLiquidityData.TokenOneInfo.Token.Name / @UserLiquidityData.TokenTwoInfo.Token.Name</MudText>
+                <MudChip Class="ml-2 !bg-[var(--mud-palette-surface)]" Size="Size.Small">@UserLiquidityData.FeeShare%</MudChip>
             </div>
-            <MudText Typo="Typo.h6" Class="text-[20px] ml-6 font-semibold">@UserLiquidityData.TokenOneInfo.Token.Name / @UserLiquidityData.TokenTwoInfo.Token.Name</MudText>
-            <MudChip Class="ml-2 !bg-[var(--mud-palette-surface)]" Size="Size.Small">@UserLiquidityData.FeeShare%</MudChip>
-        </div>
-        <div class="flex flex-col gap-1 mt-5">
-            <MudText Typo="Typo.h3" Class="text-[14px] font-semibold">Total liquidity</MudText>
-            <div class="flex flex-col gap-2">
-                <MudPaper Class="flex justify-between items-center p-4 ">
-                    <div class="font-semibold text-[16px]">134,384,920</div>
-                    <div class="confirm-swap-dialog-token-chip">
-                        <TokenChip Disabled="true" CurrentlySelectedToken="UserLiquidityData.TokenOneInfo.Token" />
-                    </div>
-                </MudPaper>
-                <MudPaper Class="flex justify-between items-center p-4 ">
-                    <div class="font-semibold text-[16px]">26,747,918</div>
-                    <div class="confirm-swap-dialog-token-chip">
-                        <TokenChip Disabled="true" CurrentlySelectedToken="UserLiquidityData.TokenTwoInfo.Token" />
-                    </div>
-                </MudPaper>
+            <div class="flex flex-col gap-1 mt-5">
+                <MudText Typo="Typo.h3" Class="text-[14px] font-semibold">Total liquidity</MudText>
+                <div class="flex flex-col gap-2">
+                    <MudPaper Elevation="2" Class="flex justify-between items-center p-4 ">
+                        <div class="font-semibold text-[16px]">134,384,920</div>
+                        <div class="confirm-swap-dialog-token-chip">
+                            <TokenChip Disabled="true" CurrentlySelectedToken="UserLiquidityData.TokenOneInfo.Token" />
+                        </div>
+                    </MudPaper>
+                    <MudPaper Elevation="2" Class="flex justify-between items-center p-4 ">
+                        <div class="font-semibold text-[16px]">26,747,918</div>
+                        <div class="confirm-swap-dialog-token-chip">
+                            <TokenChip Disabled="true" CurrentlySelectedToken="UserLiquidityData.TokenTwoInfo.Token" />
+                        </div>
+                    </MudPaper>
+                </div>
             </div>
-        </div>
-        <div class="flex flex-col gap-1 mt-5">
-            <MudText Typo="Typo.h3" Class="text-[14px] font-semibold">Your liquidity</MudText>
-            <div class="flex flex-col gap-2">
-                <MudPaper Class="flex justify-between items-center p-4 ">
-                    <div class="font-semibold text-[16px]">@(UserLiquidityData.TokenOneInfo.AmountAdded + UserLiquidityData.TokenOneInfo.CurrentBalance)</div>
-                    <div class="confirm-swap-dialog-token-chip">
-                        <TokenChip Disabled="true" CurrentlySelectedToken="UserLiquidityData.TokenOneInfo.Token" />
-                    </div>
-                </MudPaper>
-                <MudPaper Class="flex justify-between items-center p-4 ">
-                    <div class="font-semibold text-[16px]">@(UserLiquidityData.TokenTwoInfo.AmountAdded + UserLiquidityData.TokenTwoInfo.CurrentBalance)</div>
-                    <div class="confirm-swap-dialog-token-chip">
-                        <TokenChip Disabled="true" CurrentlySelectedToken="UserLiquidityData.TokenTwoInfo.Token" />
-                    </div>
-                </MudPaper>
+            <div class="flex flex-col gap-1 mt-5">
+                <MudText Typo="Typo.h3" Class="text-[14px] font-semibold">Your liquidity</MudText>
+                <div class="flex flex-col gap-2">
+                    <MudPaper Elevation="2" Class="flex justify-between items-center p-4 ">
+                        <div class="font-semibold text-[16px]">@(UserLiquidityData.TokenOneInfo.AmountAdded + UserLiquidityData.TokenOneInfo.CurrentBalance)</div>
+                        <div class="confirm-swap-dialog-token-chip">
+                            <TokenChip Disabled="true" CurrentlySelectedToken="UserLiquidityData.TokenOneInfo.Token" />
+                        </div>
+                    </MudPaper>
+                    <MudPaper Elevation="2" Class="flex justify-between items-center p-4 ">
+                        <div class="font-semibold text-[16px]">@(UserLiquidityData.TokenTwoInfo.AmountAdded + UserLiquidityData.TokenTwoInfo.CurrentBalance)</div>
+                        <div class="confirm-swap-dialog-token-chip">
+                            <TokenChip Disabled="true" CurrentlySelectedToken="UserLiquidityData.TokenTwoInfo.Token" />
+                        </div>
+                    </MudPaper>
+                </div>
             </div>
-        </div>
-        <div class="flex flex-col gap-1 mt-5">
-            <MudText Typo="Typo.h3" Class="text-[14px] font-semibold">Current price</MudText>
-            <div class="flex justify-between gap-3">
-                <MudCard Elevation="2" Class="grow !bg-[var(--mud-palette-surface)]">
-                    <MudCardContent Class="text-center">
-                        <MudText Class="text-[16px] font-semibold">1.45058</MudText>
-                        <MudText Class="text-[12px] !text-[var(--mud-palette-text-secondary)]">
-                            @UserLiquidityData.TokenOneInfo.Token.Name per @UserLiquidityData.TokenTwoInfo.Token.Name
-                        </MudText>
-                    </MudCardContent>
-                </MudCard>
-                <MudCard Elevation="2" Class="grow !bg-[var(--mud-palette-surface)]">
-                    <MudCardContent Class="text-center">
-                        <MudText Class="text-[16px] font-semibold">0.701726</MudText>
-                        <MudText Class="text-[12px] !text-[var(--mud-palette-text-secondary)]">
-                            @UserLiquidityData.TokenTwoInfo.Token.Name per @UserLiquidityData.TokenOneInfo.Token.Name
-                        </MudText>
-                    </MudCardContent>
-                </MudCard>
+            <div class="flex flex-col gap-1 mt-5">
+                <MudText Typo="Typo.h3" Class="text-[14px] font-semibold">Current price</MudText>
+                <div class="flex justify-between gap-3">
+                    <MudCard Elevation="2" Class="grow !bg-[var(--mud-palette-surface)]">
+                        <MudCardContent Class="text-center">
+                            <MudText Class="text-[16px] font-semibold">1.45058</MudText>
+                            <MudText Class="text-[12px] !text-[var(--mud-palette-text-secondary)]">
+                                @UserLiquidityData.TokenOneInfo.Token.Name per @UserLiquidityData.TokenTwoInfo.Token.Name
+                            </MudText>
+                        </MudCardContent>
+                    </MudCard>
+                    <MudCard Elevation="2" Class="grow !bg-[var(--mud-palette-surface)]">
+                        <MudCardContent Class="text-center">
+                            <MudText Class="text-[16px] font-semibold">0.701726</MudText>
+                            <MudText Class="text-[12px] !text-[var(--mud-palette-text-secondary)]">
+                                @UserLiquidityData.TokenTwoInfo.Token.Name per @UserLiquidityData.TokenOneInfo.Token.Name
+                            </MudText>
+                        </MudCardContent>
+                    </MudCard>
+                </div>
             </div>
-        </div>
     </DialogContent>
     <DialogActions>
         <MudButton
+            OnClick="OpenRemoveLiquidityDialog"
             FullWidth
-            Class="text-[20px] py-[6px] font-medium normal-case"
+            Class="text-[20px] py-[6px] font-medium normal-case !m-0"
             Variant="Variant.Filled"
             Color="Color.Primary"
         >
-            Remove Liquidity
+            Pool Overview
         </MudButton>
     </DialogActions>
 </MudDialog>

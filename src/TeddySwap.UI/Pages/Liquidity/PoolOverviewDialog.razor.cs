@@ -14,6 +14,17 @@ public partial class PoolOverviewDialog
     [Inject]
     public AppStateService? AppStateService { get; set; }
 
+    [Inject]
+    IDialogService? DialogService { get; set; }
+
     [Parameter, EditorRequired]
     public UserLiquidityData UserLiquidityData { get; set; } = new();
+
+    private void OpenRemoveLiquidityDialog()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var parameters = new DialogParameters();
+        parameters.Add("UserLiquidityData", UserLiquidityData);
+        DialogService?.Show<RemoveLiquidityDialog>("Remove Liquidity", parameters, options);
+    }
 }

@@ -46,6 +46,11 @@ public partial class UserLiquidityTable
         DialogService?.Show<PoolOverviewDialog>("Pool Overview", parameters, options);
     }
 
+    private void OpenDialog()
+    {
+        // DialogService?.Show<RemoveLiquidityDialog>("Remove Liquidity");
+    }
+
     private UserLiquidityData GetRowData(int num)
     {
         ArgumentNullException.ThrowIfNull(UserLiquidityData);
