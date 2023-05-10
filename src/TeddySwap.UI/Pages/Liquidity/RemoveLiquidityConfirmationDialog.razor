@@ -1,7 +1,7 @@
 @using TeddySwap.UI.Services;
 @inject IconsService IconsService
 
-<MudDialog Class="w-[92%] max-w-[496px] pb-4" ClassActions="!px-[24px]">
+<MudDialog Class="w-[92%] max-w-[496px] pb-4" ClassContent="@((_isConfirmed ? "!hidden" : "!block"))">
      <TitleContent>
         <div class="flex items-center justify-between">
             <MudText Typo="Typo.h6">Confirm Remove Liquidity</MudText>
@@ -67,13 +67,28 @@
         </div>
     </DialogContent>
     <DialogActions>
-        <MudButton
-            FullWidth
-            Class="text-[20px] py-[6px] font-medium normal-case"
-            Variant="Variant.Filled"
-            Color="Color.Primary"
-        >
-            Confirm Remove Liquidity
-        </MudButton>
+        <div class="@((_isConfirmed ? "block visible" : "hidden invisible") + " flex flex-col !items-center w-full gap-3")">
+            <div class="w-full flex justify-center">
+                <MudProgressCircular Color="Color.Primary" Style="height:70px;width:70px;" Indeterminate="true" />
+            </div>
+            <MudText Class="font-semibold text-[20px]">Waiting for confirmation</MudText>
+            <MudText Class="text-[14px]">
+                Removing liquidity
+                <span>123,123 @TokenOne.Name</span> and 
+                <span>45,654 @TokenTwo.Name</span>
+            </MudText>
+            <MudText Class="text-[14px] text-[var(--mud-palette-text-secondary)]">Confirm this transaction in your wallet.</MudText>
+        </div>
+        <div class="@((_isConfirmed ? "hidden" : "block") + " px-[16px] w-full !m-0 mt-2")">
+            <MudButton
+                FullWidth
+                OnClick="HandleConfirmationBtnClicked"
+                Class="text-[20px] py-[6px] font-medium normal-case"
+                Variant="Variant.Filled"
+                Color="Color.Primary"
+            >
+                Confirm Remove Liquidity
+            </MudButton>
+        </div>
     </DialogActions>
 </MudDialog>

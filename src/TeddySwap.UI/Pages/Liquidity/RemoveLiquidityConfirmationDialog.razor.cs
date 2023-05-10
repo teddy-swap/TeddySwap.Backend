@@ -14,4 +14,8 @@ public partial class RemoveLiquidityConfirmationDialog
 
     [Parameter]
     public Token TokenTwo { get; set; } = new();
+
+    private bool _isConfirmed { get; set; } = false;
+
+    private void HandleConfirmationBtnClicked() => _isConfirmed = true;
 }
