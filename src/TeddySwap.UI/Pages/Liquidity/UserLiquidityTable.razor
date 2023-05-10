@@ -20,7 +20,9 @@
             <div class="relative">
                 <MudTextField
                     Immediate
-                    @bind-Value="_searchValue"
+                    T="string"
+                    Value="_searchValue"
+                    ValueChanged="HandleSearchValueChanged"
                     Variant="Variant.Outlined"
                     Placeholder="Type token name or pool ID"
                     Adornment="Adornment.Start"

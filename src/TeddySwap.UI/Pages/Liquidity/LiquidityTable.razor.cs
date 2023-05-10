@@ -28,6 +28,13 @@ public partial class LiquidityTable
         StateHasChanged();
     }
 
+    private void HandleSearchValueChanged(string newSearchValue)
+    {
+        _searchValue = newSearchValue;
+        if (_searchValue is not null && _searchValue != _currentlySelectedToken?.Name)
+            _currentlySelectedToken = null;
+    }
+
     private void ExpandRow(int num)
 	{
         ArgumentNullException.ThrowIfNull(LiquidityData);
