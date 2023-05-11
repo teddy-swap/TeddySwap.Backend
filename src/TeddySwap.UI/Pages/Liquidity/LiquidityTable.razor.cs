@@ -15,7 +15,6 @@ public partial class LiquidityTable
     public IEnumerable<Token>? _tokens { get; set; }
     private string? _searchValue { get; set; }
     private Token? _currentlySelectedToken { get; set; }
-    // public TokenPair? SelectedRowTokenPair { get; set; }
 
     protected override void OnInitialized()
     {

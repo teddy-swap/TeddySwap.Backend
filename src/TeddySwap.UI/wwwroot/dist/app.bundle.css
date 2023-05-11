@@ -1101,6 +1101,10 @@ video {
   max-width: 600px;
 }
 
+.max-w-\[400px\] {
+  max-width: 400px;
+}
+
 .shrink-0 {
   flex-shrink: 0;
 }
@@ -1614,6 +1618,18 @@ video {
 
 .text-\[38px\] {
   font-size: 38px;
+}
+
+.text-\[100px\] {
+  font-size: 100px;
+}
+
+.\!text-\[100px\] {
+  font-size: 100px !important;
+}
+
+.\!text-\[110px\] {
+  font-size: 110px !important;
 }
 
 .\!font-bold {
