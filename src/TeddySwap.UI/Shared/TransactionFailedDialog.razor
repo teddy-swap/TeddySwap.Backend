@@ -1,0 +1,23 @@
+<MudDialog Class="w-[92%] max-w-[400px] pb-4 text-center">
+    <TitleContent>
+        <div class="flex items-center justify-between">
+            <MudText Typo="Typo.h6">Transaction Failed</MudText>
+            <MudIconButton
+                OnClick="@(() => MudDialog?.Close())"
+                Class="justify-self-end block"
+                Icon="@Icons.Material.Filled.Close"
+                aria-label="close"
+            >
+            </MudIconButton>
+        </div>
+    </TitleContent>
+    <DialogContent>
+        <MudIcon
+            Class="!text-[110px]"
+            Icon="@Icons.Material.Filled.HighlightOff"
+            Color="Color.Error"
+            Size="Size.Large"
+        />
+        <MudText Class="text-[var(--mud-palette-text-secondary)]">Try again later</MudText>
+    </DialogContent>
+</MudDialog>

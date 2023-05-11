@@ -1085,6 +1085,10 @@ video {
   max-width: 200px;
 }
 
+.max-w-\[400px\] {
+  max-width: 400px;
+}
+
 .max-w-\[448px\] {
   max-width: 448px;
 }
@@ -1099,10 +1103,6 @@ video {
 
 .max-w-\[600px\] {
   max-width: 600px;
-}
-
-.max-w-\[400px\] {
-  max-width: 400px;
 }
 
 .shrink-0 {
@@ -1576,6 +1576,10 @@ video {
   text-align: right;
 }
 
+.\!text-\[110px\] {
+  font-size: 110px !important;
+}
+
 .\!text-\[12px\] {
   font-size: 12px !important;
 }
@@ -1618,18 +1622,6 @@ video {
 
 .text-\[38px\] {
   font-size: 38px;
-}
-
-.text-\[100px\] {
-  font-size: 100px;
-}
-
-.\!text-\[100px\] {
-  font-size: 100px !important;
-}
-
-.\!text-\[110px\] {
-  font-size: 110px !important;
 }
 
 .\!font-bold {
