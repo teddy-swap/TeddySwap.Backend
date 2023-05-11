@@ -51,6 +51,13 @@ public partial class LiquidityTable
         NavigationManager.NavigateTo($"/swap?tokenOne={JsonSerializer.Serialize(selectedData.TokenPair.Tokens.Token1)}&tokenTwo={JsonSerializer.Serialize(selectedData.TokenPair.Tokens.Token2)}");
     }
 
+    private void HandleAddLiquidityBtnClicked(int num)
+    {
+        ArgumentNullException.ThrowIfNull(NavigationManager);
+        LiquidityData selectedData = GetRowData(num);
+        NavigationManager.NavigateTo($"/liquidity/liquidity-center?tokenOne={JsonSerializer.Serialize(selectedData.TokenPair.Tokens.Token1)}&tokenTwo={JsonSerializer.Serialize(selectedData.TokenPair.Tokens.Token2)}");
+    }
+
     private LiquidityData GetRowData(int num)
     {
         ArgumentNullException.ThrowIfNull(LiquidityData);

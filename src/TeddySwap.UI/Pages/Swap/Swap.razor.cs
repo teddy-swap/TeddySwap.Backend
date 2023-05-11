@@ -37,35 +37,33 @@ public partial class Swap
     private bool _isPanelExpanded { get; set; } = false;
     private bool _areInputsSwapped { get; set; } = false;
     private bool _isChartButtonClicked { get; set; } = false;
-    private Token TokenOne { get; set; } = new();
-    private Token TokenTwo { get; set; } = new();
-    private TokenPair TokenPair { get; set; } = new();
+    private Token _swapTokenOne { get; set; } = new();
+    private Token _swapTokenTwo { get; set; } = new();
 
     protected override void OnInitialized()
     { 
+        ArgumentNullException.ThrowIfNull(AppStateService);
+        ArgumentNullException.ThrowIfNull(NavigationManager);
         string tokensJson = File.ReadAllText("./wwwroot/tokens.json");
         ArgumentException.ThrowIfNullOrEmpty(tokensJson);
         Tokens = JsonSerializer.Deserialize<IEnumerable<Token>>(tokensJson);
 
-        ArgumentNullException.ThrowIfNull(NavigationManager);
         Uri uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
         string? tokenOneQueryString = QueryHelpers.ParseQuery(uri.Query).GetValueOrDefault("tokenOne");
         string? tokenTwoQueryString = QueryHelpers.ParseQuery(uri.Query).GetValueOrDefault("tokenTwo");
 
-        if (!string.IsNullOrEmpty(tokenOneQueryString)) TokenOne = JsonSerializer.Deserialize<Token>(tokenOneQueryString);
-        if (!string.IsNullOrEmpty(tokenOneQueryString)) TokenTwo = JsonSerializer.Deserialize<Token>(tokenTwoQueryString);
+        if (!string.IsNullOrEmpty(tokenOneQueryString)) _swapTokenOne = JsonSerializer.Deserialize<Token>(tokenOneQueryString);
+        if (!string.IsNullOrEmpty(tokenOneQueryString)) _swapTokenTwo = JsonSerializer.Deserialize<Token>(tokenTwoQueryString);
 
-        ArgumentNullException.ThrowIfNull(AppStateService);
-
-        if (string.IsNullOrEmpty(TokenOne?.Name))
+        if (string.IsNullOrEmpty(_swapTokenOne?.Name))
         {
             AppStateService.FromCurrentlySelectedToken = Tokens?.ElementAt(0);
             AppStateService.ToCurrentlySelectedToken = Tokens?.ElementAt(2);
         }
         else
         {
-            AppStateService.FromCurrentlySelectedToken = TokenOne;
-            AppStateService.ToCurrentlySelectedToken = TokenTwo;
+            AppStateService.FromCurrentlySelectedToken = _swapTokenOne;
+            AppStateService.ToCurrentlySelectedToken = _swapTokenTwo;
         }
         
         AppStateService.PropertyChanged += OnAppStatePropertyChanged;

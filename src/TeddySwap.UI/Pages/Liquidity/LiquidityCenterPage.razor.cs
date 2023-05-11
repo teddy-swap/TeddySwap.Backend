@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Text.Json;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.WebUtilities;
 using MudBlazor;
 using TeddySwap.UI.Models;
 using TeddySwap.UI.Services;
@@ -15,11 +16,11 @@ public partial class LiquidityCenterPage
     [Inject]
     public IDialogService? DialogService { get; set; }
 
+    [Inject]
+    private NavigationManager? NavigationManager { get; set; }
+
     [CascadingParameter]
     MudDialogInstance? MudDialog { get; set; }
-
-    [Parameter]
-    public TokenPair? TokenPair { get; set; }
 
     private IEnumerable<Token>? Tokens { get; set; }
     private IEnumerable<int>? _defaultLiquidityPercentages { get; set; }
@@ -32,6 +33,8 @@ public partial class LiquidityCenterPage
     public double _currentlySelectedFee { get; set; }
     private bool _isFeeUnavailable { get; set; } = false;
     private bool _createNewPool { get; set; } = false;
+    private Token _addLiquidityTokenOne { get; set; } = new();
+    private Token _addLiquidityTokenTwo { get; set; } = new();
 
     protected override void OnInitialized()
     { 
@@ -39,6 +42,14 @@ public partial class LiquidityCenterPage
         ArgumentException.ThrowIfNullOrEmpty(tokensJson);
         Tokens = JsonSerializer.Deserialize<IEnumerable<Token>>(tokensJson);
         ArgumentNullException.ThrowIfNull(AppStateService);
+        ArgumentNullException.ThrowIfNull(NavigationManager);
+
+        Uri uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+        string? tokenOneQueryString = QueryHelpers.ParseQuery(uri.Query).GetValueOrDefault("tokenOne");
+        string? tokenTwoQueryString = QueryHelpers.ParseQuery(uri.Query).GetValueOrDefault("tokenTwo");
+
+        if (!string.IsNullOrEmpty(tokenOneQueryString)) _addLiquidityTokenOne = JsonSerializer.Deserialize<Token>(tokenOneQueryString);
+        if (!string.IsNullOrEmpty(tokenOneQueryString)) _addLiquidityTokenTwo = JsonSerializer.Deserialize<Token>(tokenTwoQueryString);
 
         _pools = new List<Pool>()
         {
@@ -83,20 +94,22 @@ public partial class LiquidityCenterPage
         _defaultLiquidityPercentages = new List<int>() { 25, 50, 75, 100 };
         _defaultFeePercentages = new List<double>() { 0.01, 0.03, 0.05 };
 
-        AppStateService.PropertyChanged += OnAppStatePropertyChanged;
-        AppStateService.FromCurrentlySelectedToken = Tokens?.ElementAt(0);
-        AppStateService.ToCurrentlySelectedToken = Tokens?.ElementAt(2);
         AppStateService.LiquidityFeePercentage = GetMinPoolFee();
 
-        if (TokenPair is not null)
+
+        if (!string.IsNullOrEmpty(_addLiquidityTokenOne?.Name))
         {
-            AppStateService.LiquidityCurrentlySelectedTokenOne = TokenPair.Tokens.Token1;
-            AppStateService.LiquidityCurrentlySelectedTokenTwo = TokenPair.Tokens.Token2;
+            AppStateService.LiquidityCurrentlySelectedTokenOne = _addLiquidityTokenOne;
+            AppStateService.LiquidityCurrentlySelectedTokenTwo = _addLiquidityTokenTwo;
         }
         else
         {
             AppStateService.LiquidityCurrentlySelectedTokenOne = new Token() { Name = "ADA", Logo = "../images/tokens/token-ada.svg" };
         }
+
+        if (AppStateService.LiquidityCurrentlySelectedTokenTwo is not null) _isTokenTwoSelected = true;
+
+        AppStateService.PropertyChanged += OnAppStatePropertyChanged;
     }
 
     private async void OnAppStatePropertyChanged(object? sender, PropertyChangedEventArgs e)
