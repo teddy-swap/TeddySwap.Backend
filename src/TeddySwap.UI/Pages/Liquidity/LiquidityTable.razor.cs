@@ -6,13 +6,16 @@ namespace TeddySwap.UI.Pages.Liquidity;
 
 public partial class LiquidityTable
 {
-    [Parameter]
+    [Inject]
+    NavigationManager? NavigationManager { get; set; }
+
+    [Parameter, EditorRequired]
     public IEnumerable<LiquidityData>? LiquidityData { get; set; }
 
     public IEnumerable<Token>? _tokens { get; set; }
     private string? _searchValue { get; set; }
     private Token? _currentlySelectedToken { get; set; }
-    public TokenPair? SelectedRowTokenPair { get; set; }
+    // public TokenPair? SelectedRowTokenPair { get; set; }
 
     protected override void OnInitialized()
     {
@@ -37,14 +40,21 @@ public partial class LiquidityTable
 
     private void ExpandRow(int num)
 	{
-        ArgumentNullException.ThrowIfNull(LiquidityData);
-        LiquidityData selectedData = LiquidityData.First(d => d.Number == num);
+        LiquidityData selectedData = GetRowData(num);
         selectedData.ShowDetails = !selectedData.ShowDetails;
 	}
-    private void SelectRowTokenPair(int num)
-    {   
+
+    private void HandleSwapBtnClicked(int num)
+    {
+        ArgumentNullException.ThrowIfNull(NavigationManager);
+        LiquidityData selectedData = GetRowData(num);
+        NavigationManager.NavigateTo($"/swap?tokenOne={JsonSerializer.Serialize(selectedData.TokenPair.Tokens.Token1)}&tokenTwo={JsonSerializer.Serialize(selectedData.TokenPair.Tokens.Token2)}");
+    }
+
+    private LiquidityData GetRowData(int num)
+    {
         ArgumentNullException.ThrowIfNull(LiquidityData);
-        SelectedRowTokenPair = LiquidityData.First(d => d.Number == num).TokenPair;
+        return LiquidityData.First(d => d.Number == num);
     }
 
     private IEnumerable<LiquidityData>? _filteredData =>

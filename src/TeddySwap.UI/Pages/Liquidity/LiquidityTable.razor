@@ -79,7 +79,7 @@
             <MudIconButton
                 aria-label="Expand row"
                 Icon="@Icons.Material.Filled.KeyboardArrowDown"
-                Class="@((context.ShowDetails ? "rotate-180" : "rotate-0") + " transition-transform duration-200 ease-in-out block m-auto")"
+                Class="@((context.ShowDetails ? "rotate-180" : "rotate-0") + " transition-transform duration-200 ease-in-out block m-auto lg:m-0")"
                 OnClick="@(() => ExpandRow(context.Number))"
             />
         </MudTd>
@@ -120,11 +120,19 @@
                         </div>
                     </div>
                     <div class="@((context.ShowDetails ? "opacity-100" : "opacity-0") + " transition-all duration-1000 ease-in-out flex flex-col lg:flex-row gap-3 items-center lg:items-start mt-6 lg:!mt-0 grow")">
-                        <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="w-full lg:!w-[204px] !py-px normal-case">Swap</MudButton>
+                        <MudButton
+                            OnClick="@(() => HandleSwapBtnClicked(context.Number))"
+                            Variant="Variant.Filled"
+                            Color="Color.Primary"
+                            Class="w-full lg:!w-[204px] !py-px normal-case"
+                        >
+                            Swap
+                        </MudButton>
                         <MudButton
                             Variant="Variant.Outlined"
                             Color="Color.Primary"
                             Class="w-full lg:!w-[204px] !py-px normal-case"
+                            Href="/liquidity/liquidity-center"
                         >
                             Add Liquidity
                         </MudButton>
