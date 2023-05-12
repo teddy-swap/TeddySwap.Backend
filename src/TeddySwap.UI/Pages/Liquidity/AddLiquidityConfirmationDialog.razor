@@ -1,7 +1,7 @@
 <MudDialog Class="w-[92%] max-w-[496px] pb-4" ClassContent="@((_isConfirmed ? "!hidden" : "!block"))">
      <TitleContent>
         <div class="flex items-center justify-between">
-            <MudText Typo="Typo.h6">Confirm Add Liquidity</MudText>
+            <MudText Class="!text-[16px] md:!text-[20px]" Typo="Typo.h6">Confirm Add Liquidity</MudText>
             <MudIconButton
                 OnClick="@(() => MudDialog?.Close())"
                 Class="justify-self-end block"
@@ -89,19 +89,19 @@
             <div class="w-full flex justify-center">
                 <MudProgressCircular Color="Color.Primary" Style="height:70px;width:70px;" Indeterminate="true" />
             </div>
-            <MudText Class="font-semibold text-[20px]">Waiting for confirmation</MudText>
-            <MudText Class="text-[14px]">
+            <MudText Class="font-semibold !text-[16px] md:text-[20px]">Waiting for confirmation</MudText>
+            <MudText Class="text-[12px] md:text-[14px] text-center">
                 Adding liquidity
                 <span>@AppStateService?.LiquidityTokenOneAmount @AppStateService?.LiquidityCurrentlySelectedTokenOne?.Name</span> and 
                 <span>@AppStateService?.LiquidityTokenTwoAmount @AppStateService?.LiquidityCurrentlySelectedTokenTwo?.Name</span>
             </MudText>
-            <MudText Class="text-[14px] text-[var(--mud-palette-text-secondary)]">Confirm this transaction in your wallet.</MudText>
+            <MudText Class="text-[12px] md:text-[14px] text-[var(--mud-palette-text-secondary)]">Confirm this transaction in your wallet.</MudText>
         </div>
         <div class="@((_isConfirmed ? "hidden" : "block") + " px-[16px] w-full !m-0 mt-2")">
             <MudButton
                 FullWidth
                 OnClick="HandleConfirmationBtnClicked"
-                Class="text-[20px] py-[6px] font-medium normal-case"
+                Class="!text-[16px] md:!text-[20px] py-[6px] font-medium normal-case"
                 Variant="Variant.Filled"
                 Color="Color.Primary"
             >

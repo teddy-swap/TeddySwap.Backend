@@ -1576,6 +1576,10 @@ video {
   padding-top: 4px;
 }
 
+.pl-\[28px\] {
+  padding-left: 28px;
+}
+
 .text-left {
   text-align: left;
 }
@@ -2101,6 +2105,14 @@ body:has(.mud-drawer--open) {
 
   .md\:text-\[12px\] {
     font-size: 12px;
+  }
+
+  .md\:text-\[20px\] {
+    font-size: 20px;
+  }
+
+  .md\:\!text-\[20px\] {
+    font-size: 20px !important;
   }
 }
 

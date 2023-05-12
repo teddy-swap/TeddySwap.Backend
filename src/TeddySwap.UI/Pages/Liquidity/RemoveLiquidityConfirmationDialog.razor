@@ -1,7 +1,7 @@
 <MudDialog Class="w-[92%] max-w-[496px] pb-4" ClassContent="@((_isConfirmed ? "!hidden" : "!block"))">
      <TitleContent>
         <div class="flex items-center justify-between">
-            <MudText Typo="Typo.h6">Confirm Remove Liquidity</MudText>
+            <MudText Typo="Typo.h6" Class="!text-[16px] md:!text-[20px]">Confirm Remove Liquidity</MudText>
             <MudIconButton
                 OnClick="@(() => MudDialog?.Close())"
                 Class="justify-self-end block"
@@ -16,13 +16,13 @@
             <MudText Typo="Typo.h3" Class="text-[14px] font-semibold">Pooled assets</MudText>
             <div class="flex flex-col gap-2">
                 <MudPaper Class="flex justify-between items-center p-4 ">
-                    <div class="font-semibold text-[16px]">486.08 (~349.68 ADA)</div>
+                    <div class="font-semibold text-[10px] md:text-[16px]">486.08 (~349.68 ADA)</div>
                     <div class="confirm-swap-dialog-token-chip">
                         <TokenChip Disabled="true" CurrentlySelectedToken="TokenOne" />
                     </div>
                 </MudPaper>
                 <MudPaper Class="flex justify-between items-center p-4 ">
-                    <div class="font-semibold text-[16px]">176.08 (~659.68 ADA)</div>
+                    <div class="font-semibold text-[10px] md:text-[16px]">176.08 (~659.68 ADA)</div>
                     <div class="confirm-swap-dialog-token-chip">
                         <TokenChip Disabled="true" CurrentlySelectedToken="TokenTwo" />
                     </div>
@@ -34,13 +34,13 @@
             <MudPaper>
                 <MudList Class="w-full">
                     <MudListItem Class="flex justify-between items-center py-0">
-                        <div class="flex justify-between items-center text-[12px]">
+                        <div class="flex justify-between items-center text-[10px] md:text-[12px]">
                             <div>Refundable deposit:</div>
                             <div class="font-semibold">2 ADA</div>
                         </div>
                     </MudListItem>
                     <MudListItem Class="flex justify-between items-center py-0">
-                    <div class="flex justify-between items-center text-[12px]">
+                    <div class="flex justify-between items-center text-[10px] md:text-[12px]">
                         <div class="flex">
                             <div>Total Fees</div>
                             <MudTooltip Placement="Placement.Right" Class="max-w-[200px] text-left">
@@ -68,19 +68,19 @@
             <div class="w-full flex justify-center">
                 <MudProgressCircular Color="Color.Primary" Style="height:70px;width:70px;" Indeterminate="true" />
             </div>
-            <MudText Class="font-semibold text-[20px]">Waiting for confirmation</MudText>
-            <MudText Class="text-[14px]">
+            <MudText Class="font-semibold !text-[16px] md:text-[20px]">Waiting for confirmation</MudText>
+            <MudText Class="text-[12px] md:text-[14px] text-center">
                 Removing liquidity
                 <span>123,123 @TokenOne.Name</span> and 
                 <span>45,654 @TokenTwo.Name</span>
             </MudText>
-            <MudText Class="text-[14px] text-[var(--mud-palette-text-secondary)]">Confirm this transaction in your wallet.</MudText>
+            <MudText Class="text-[12px] md:text-[14px] text-[var(--mud-palette-text-secondary)]">Confirm this transaction in your wallet.</MudText>
         </div>
         <div class="@((_isConfirmed ? "hidden" : "block") + " px-[16px] w-full !m-0 mt-2")">
             <MudButton
                 FullWidth
                 OnClick="HandleConfirmationBtnClicked"
-                Class="text-[20px] py-[6px] font-medium normal-case"
+                Class="!text-[16px] md:!text-[20px] py-[6px] font-medium normal-case"
                 Variant="Variant.Filled"
                 Color="Color.Primary"
             >
