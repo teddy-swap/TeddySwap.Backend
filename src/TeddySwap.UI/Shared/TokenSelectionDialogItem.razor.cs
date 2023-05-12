@@ -15,9 +15,9 @@ public partial class TokenSelectionDialogItem
     [Parameter]
     public EventCallback<Token> OnSelectedTokenClicked { get; set; }
 
-    private void HandleItemClicked()
+    private async Task HandleItemClicked()
     {
-        OnSelectedTokenClicked.InvokeAsync(Token);
+        await OnSelectedTokenClicked.InvokeAsync(Token);
         MudDialog.Close();
     }
 }

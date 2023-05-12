@@ -21,7 +21,6 @@ public partial class LiquidityCenterPage
 
     [CascadingParameter]
     MudDialogInstance? MudDialog { get; set; }
-
     private IEnumerable<Token>? Tokens { get; set; }
     private IEnumerable<int>? _defaultLiquidityPercentages { get; set; }
     private IEnumerable<double>? _defaultFeePercentages { get; set; }
@@ -49,7 +48,7 @@ public partial class LiquidityCenterPage
         string? tokenTwoQueryString = QueryHelpers.ParseQuery(uri.Query).GetValueOrDefault("tokenTwo");
 
         if (!string.IsNullOrEmpty(tokenOneQueryString)) _addLiquidityTokenOne = JsonSerializer.Deserialize<Token>(tokenOneQueryString);
-        if (!string.IsNullOrEmpty(tokenOneQueryString)) _addLiquidityTokenTwo = JsonSerializer.Deserialize<Token>(tokenTwoQueryString);
+        if (!string.IsNullOrEmpty(tokenTwoQueryString)) _addLiquidityTokenTwo = JsonSerializer.Deserialize<Token>(tokenTwoQueryString);
 
         _pools = new List<Pool>()
         {
@@ -96,7 +95,6 @@ public partial class LiquidityCenterPage
 
         AppStateService.LiquidityFeePercentage = GetMinPoolFee();
 
-
         if (!string.IsNullOrEmpty(_addLiquidityTokenOne?.Name))
         {
             AppStateService.LiquidityCurrentlySelectedTokenOne = _addLiquidityTokenOne;
@@ -108,7 +106,6 @@ public partial class LiquidityCenterPage
         }
 
         if (AppStateService.LiquidityCurrentlySelectedTokenTwo is not null) _isTokenTwoSelected = true;
-
         AppStateService.PropertyChanged += OnAppStatePropertyChanged;
     }
 
@@ -182,7 +179,6 @@ public partial class LiquidityCenterPage
             _createNewPool = false;
         }
     }
-
 
     private void HandleTokenTwoSelected(Token token)
     {

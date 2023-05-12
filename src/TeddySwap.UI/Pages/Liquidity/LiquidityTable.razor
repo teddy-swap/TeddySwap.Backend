@@ -54,11 +54,11 @@
 		<MudTd DataLabel="Pair">
             <div class="flex items-center">
                 <div class="flex relative">
-                    <MudImage Src=@context.TokenPair.Tokens.Token1.Logo Height="24" Width="24" Alt="" />
-                    <MudImage Src=@context.TokenPair.Tokens.Token2.Logo Height="24" Width="24" Alt="" Class="absolute left-[18px]" />
+                    <MudImage Src=@context.TokenOne.Logo Height="24" Width="24" Alt="" />
+                    <MudImage Src=@context.TokenTwo.Logo Height="24" Width="24" Alt="" Class="absolute left-[18px]" />
                 </div>
                 <MudText Typo="Typo.h6" Class="font-semibold text-[16px] ml-7">
-                    @context.TokenPair.Tokens.Token1.Name/@context.TokenPair.Tokens.Token2.Name
+                    @context.TokenOne.Name/@context.TokenTwo.Name
                 </MudText>
                 <MudTooltip Placement="Placement.Right">
                     <ChildContent>
@@ -92,22 +92,22 @@
                         <div class="flex items-center justify-between lg:justify-start lg:flex-col lg:items-start lg:gap-1">
                             <MudText Class="text-[var(--mud-palette-text-secondary)] text-[12px]">Price</MudText>
                             <div class="text-right lg:text-left">
-                                <MudText Class="text-[12px] lg:text-[14px] text-[var(--mud-palette-text-secondary)] font-semibold">1 @context.TokenPair.Tokens.Token1.Name = 0.19903 @context.TokenPair.Tokens.Token2.Name</MudText>
-                                <MudText Class="text-[12px] lg:text-[14px] text-[var(--mud-palette-text-secondary)] font-semibold">1 @context.TokenPair.Tokens.Token2.Name = 5.024 @context.TokenPair.Tokens.Token1.Name</MudText>
+                                <MudText Class="text-[12px] lg:text-[14px] text-[var(--mud-palette-text-secondary)] font-semibold">1 @context.TokenOne.Name = 0.19903 @context.TokenTwo.Name</MudText>
+                                <MudText Class="text-[12px] lg:text-[14px] text-[var(--mud-palette-text-secondary)] font-semibold">1 @context.TokenTwo.Name = 5.024 @context.TokenOne.Name</MudText>
                             </div>
                         </div>
                         <div class="flex items-center justify-between lg:justify-start lg:flex-col lg:items-start lg:gap-1">
                             <MudText Class="text-[var(--mud-palette-text-secondary)] text-[12px]">Total Liquidity</MudText>
                             <div class="text-right lg:text-left">
-                                <MudText Class="text-[12px] lg:text-[14px] text-[var(--mud-palette-text-secondary)] font-semibold">@context.TokenPair.Tokens.Token1.Name: 134,384,920</MudText>
-                                <MudText Class="text-[12px] lg:text-[14px] text-[var(--mud-palette-text-secondary)] font-semibold">@context.TokenPair.Tokens.Token2.Name: 26,747,918</MudText>
+                                <MudText Class="text-[12px] lg:text-[14px] text-[var(--mud-palette-text-secondary)] font-semibold">@context.TokenOne.Name: 134,384,920</MudText>
+                                <MudText Class="text-[12px] lg:text-[14px] text-[var(--mud-palette-text-secondary)] font-semibold">@context.TokenTwo.Name: 26,747,918</MudText>
                             </div>
                         </div>
                         <div class="flex items-center justify-between lg:justify-start lg:flex-col lg:items-start lg:gap-1">
                             <MudText Class="text-[var(--mud-palette-text-secondary)] text-[12px]">Your Liquidity</MudText>
                             <div class="text-right lg:text-left">
-                                <MudText Class="text-[12px] lg:text-[14px] text-[var(--mud-palette-text-secondary)] font-semibold">@context.TokenPair.Tokens.Token1.Name: 0</MudText>
-                                <MudText Class="text-[12px] lg:text-[14px] text-[var(--mud-palette-text-secondary)] font-semibold">@context.TokenPair.Tokens.Token2.Name: 0</MudText>
+                                <MudText Class="text-[12px] lg:text-[14px] text-[var(--mud-palette-text-secondary)] font-semibold">@context.TokenOne.Name: 0</MudText>
+                                <MudText Class="text-[12px] lg:text-[14px] text-[var(--mud-palette-text-secondary)] font-semibold">@context.TokenTwo.Name: 0</MudText>
                             </div>
                         </div>
                         <div class="flex items-center justify-between lg:justify-start lg:flex-col lg:items-start lg:gap-1">

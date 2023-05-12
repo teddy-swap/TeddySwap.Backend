@@ -10,6 +10,9 @@ public partial class UserLiquidityTable
     [Inject]
     IDialogService? DialogService { get; set; }
 
+    [Inject]
+    NavigationManager? NavigationManager { get; set; }
+
     [Parameter]
     public IEnumerable<UserLiquidityData>? UserLiquidityData { get; set; }
 
@@ -28,7 +31,6 @@ public partial class UserLiquidityTable
     {
         _searchValue = token.Name;
         _currentlySelectedToken = token;
-        StateHasChanged();
     }
 
     private void HandleSearchValueChanged(string newSearchValue)
@@ -36,6 +38,13 @@ public partial class UserLiquidityTable
         _searchValue = newSearchValue;
         if (_searchValue is not null && _searchValue != _currentlySelectedToken?.Name)
             _currentlySelectedToken = null;
+    }
+
+    private void HandleIncreaseLiquidityBtnClicked(int num)
+    {
+        ArgumentNullException.ThrowIfNull(NavigationManager);
+        UserLiquidityData selectedData = GetRowData(num);
+        NavigationManager.NavigateTo($"/liquidity/liquidity-center?tokenOne={JsonSerializer.Serialize(selectedData?.TokenOneInfo?.Token)}&tokenTwo={JsonSerializer.Serialize(selectedData?.TokenTwoInfo?.Token)}", true);
     }
 
     private void ExpandRow(int num)

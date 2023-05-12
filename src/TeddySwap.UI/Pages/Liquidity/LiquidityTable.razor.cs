@@ -47,14 +47,14 @@ public partial class LiquidityTable
     {
         ArgumentNullException.ThrowIfNull(NavigationManager);
         LiquidityData selectedData = GetRowData(num);
-        NavigationManager.NavigateTo($"/swap?tokenOne={JsonSerializer.Serialize(selectedData.TokenPair.Tokens.Token1)}&tokenTwo={JsonSerializer.Serialize(selectedData.TokenPair.Tokens.Token2)}");
+        NavigationManager.NavigateTo($"/swap?tokenOne={JsonSerializer.Serialize(selectedData.TokenOne)}&tokenTwo={JsonSerializer.Serialize(selectedData.TokenTwo)}");
     }
 
     private void HandleAddLiquidityBtnClicked(int num)
     {
         ArgumentNullException.ThrowIfNull(NavigationManager);
         LiquidityData selectedData = GetRowData(num);
-        NavigationManager.NavigateTo($"/liquidity/liquidity-center?tokenOne={JsonSerializer.Serialize(selectedData.TokenPair.Tokens.Token1)}&tokenTwo={JsonSerializer.Serialize(selectedData.TokenPair.Tokens.Token2)}");
+        NavigationManager.NavigateTo($"/liquidity/liquidity-center?tokenOne={JsonSerializer.Serialize(selectedData.TokenOne)}&tokenTwo={JsonSerializer.Serialize(selectedData.TokenTwo)}");
     }
 
     private LiquidityData GetRowData(int num)
@@ -67,7 +67,7 @@ public partial class LiquidityTable
         string.IsNullOrEmpty(_searchValue)
             ? LiquidityData
             : LiquidityData?.Where(
-                d => d.TokenPair.Tokens.Token1.Name.ToLower().Contains(_searchValue.ToLower()) || 
-                     d.TokenPair.Tokens.Token2.Name.ToLower().Contains(_searchValue.ToLower())
+                d => d.TokenOne.Name.ToLower().Contains(_searchValue.ToLower()) || 
+                     d.TokenTwo.Name.ToLower().Contains(_searchValue.ToLower())
             );
 }

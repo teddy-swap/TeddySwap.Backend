@@ -16,10 +16,19 @@ public partial class TokenChip
     public Token? CurrentlySelectedToken { get; set; }
 
     [Parameter]
+    public EventCallback<Token> CurrentlySelectedTokenChanged { get; set; }
+
+    [Parameter]
     public Action<Token>? OnSelectedToken { get; set; }
 
     [Parameter]
     public bool Disabled { get; set; } = false;
+
+    private async Task OnCurrentySelectedTokenChanged(Token token)
+    {   
+        OnSelectedToken?.Invoke(token);
+        await CurrentlySelectedTokenChanged.InvokeAsync(token);
+    }
     
     private void OpenTokenSelectionDialog()
     {

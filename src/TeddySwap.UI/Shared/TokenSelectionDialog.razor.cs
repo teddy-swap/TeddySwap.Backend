@@ -13,7 +13,7 @@ public partial class TokenSelectionDialog
     public IEnumerable<Token> Tokens { get; set; } = new List<Token>();
 
     [Parameter]
-    public Action<Token> OnSelectedTokenClicked { get; set; } = default!;
+    public Action<Token>? OnSelectedTokenClicked { get; set; }
     
     private string _searchValue { get; set; } = string.Empty;
 
