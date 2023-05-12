@@ -1192,6 +1192,10 @@ video {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.flex-row {
+  flex-direction: row;
+}
+
 .\!flex-col {
   flex-direction: column !important;
 }
@@ -1230,6 +1234,10 @@ video {
 
 .justify-between {
   justify-content: space-between;
+}
+
+.justify-around {
+  justify-content: space-around;
 }
 
 .gap-1 {
@@ -1626,6 +1634,10 @@ video {
 
 .text-\[38px\] {
   font-size: 38px;
+}
+
+.text-\[10px\] {
+  font-size: 10px;
 }
 
 .\!font-bold {
@@ -2085,6 +2097,10 @@ body:has(.mud-drawer--open) {
 
   .md\:text-\[19px\] {
     font-size: 19px;
+  }
+
+  .md\:text-\[12px\] {
+    font-size: 12px;
   }
 }
 

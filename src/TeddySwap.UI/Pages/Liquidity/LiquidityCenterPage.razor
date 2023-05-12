@@ -37,14 +37,14 @@
                                 <div class="relative flex items-center">
                                     <MudImage Src=@pool.Pair.Tokens.Token1.Logo Height="24" Width="24" Alt="@((@pool.Pair.Tokens.Token1.Name) + " logo")" />
                                     <MudImage Src=@pool.Pair.Tokens.Token2.Logo Height="24" Width="24" Alt="@((@pool.Pair.Tokens.Token2.Name) + " logo")" Class="absolute left-[18px]" />
-                                    <MudText Class="ml-[22px] font-semibold text-[12px] md:text-[16px]">@pool.Pair.Tokens.Token1.Name/@pool.Pair.Tokens.Token2.Name</MudText>
+                                    <MudText Class="ml-[22px] font-semibold text-[10px] md:text-[16px]">@pool.Pair.Tokens.Token1.Name/@pool.Pair.Tokens.Token2.Name</MudText>
                                 </div>
                                 <div class="ml-2 flex items-center gap-2">
-                                    <div class="text-[12px] flex items-center gap-1">
+                                    <div class="text-[10px] md:text-[12px] flex items-center gap-1">
                                         <div class="text-[var(--mud-palette-text-secondary)]">Fee:</div>
                                         <div class="font-semibold">@pool.Fee%</div>
                                     </div>
-                                    <div class="text-[12px] flex items-center gap-1">
+                                    <div class=" text-[10px] md:text-[12px] flex items-center gap-1">
                                         <div class="text-[var(--mud-palette-text-secondary)]">TVL:</div>
                                         <div class="font-semibold">@pool.Tvl.ToString()M ADA</div>
                                     </div>
@@ -75,9 +75,10 @@
             
             <div class="flex flex-col mt-5 gap-1.5">
                 <MudText Typo="Typo.h3" Class="@((_isTokenTwoSelected ? "text-white" : "text-[var(--mud-palette-text-secondary)]") + " text-[14px] font-semibold")">Fee</MudText>
-                <div class="flex items-center gap-4">
+                <div class="flex flex-col md:flex-row items-center gap-2 md:gap-4">
                     <MudNumericField
                         HideSpinButtons
+                        FullWidth
                         Disabled="!_isTokenTwoSelected"
                         Value="AppStateService.LiquidityFeePercentage"
                         ValueChanged="HandleFeeValueChanged"
