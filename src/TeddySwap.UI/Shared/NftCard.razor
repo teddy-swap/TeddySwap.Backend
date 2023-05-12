@@ -1,6 +1,3 @@
-@using TeddySwap.UI.Services
-@inject IconsService IconsService
-
 <MudCard Elevation="6" Class="!p-[22px]">
     <MudCardMedia Class="rounded-[inherit]" Image=@($"https://teddyswap.infura-ipfs.io/ipfs/{ExtraNftDetails?.Url}") />
     <MudCardContent Class="!p-0 !mt-[12px]">
@@ -31,7 +28,7 @@
                         <div>ESR</div>
                         <MudTooltip Placement="Placement.Right">
                             <ChildContent>
-                                <MudIcon Icon="@IconsService.OutlinedQuestionMark" Class="w-[13px] cursor-pointer"/>
+                                <MudIcon Icon="@IconsExtension.OutlinedQuestionMark" Class="w-[13px] cursor-pointer"/>
                             </ChildContent>
                             <TooltipContent>
                                 <p>Early Supporter Reward</p>

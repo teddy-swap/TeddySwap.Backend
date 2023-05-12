@@ -10,9 +10,6 @@ public partial class ConfirmSwapDialog
     public AppStateService? AppStateService { get; set; }
 
     [Inject]
-    public IconsService? IconsService { get; set; }
-
-    [Inject]
     IDialogService? DialogService { get; set; }
 
     [CascadingParameter]

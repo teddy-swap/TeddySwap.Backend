@@ -1,6 +1,4 @@
 @inherits TeddySwapBasePage
-@using TeddySwap.UI.Services
-@inject IconsService IconsService
 
 <MudDialog Class="swap-settings-dialog w-[92%] max-w-[500px] pb-2">
     <DialogContent>
@@ -16,7 +14,7 @@
                 <h5 class="font-bold">Slippage tolerance</h5>
                 <MudTooltip Placement="Placement.Right" Class="max-w-[200px] text-left">
                     <ChildContent>
-                        <MudIcon Icon="@IconsService.OutlinedQuestionMark" Class="w-[14px] cursor-pointer" />
+                        <MudIcon Icon="@IconsExtension.OutlinedQuestionMark" Class="w-[14px] cursor-pointer" />
                     </ChildContent>
                     <TooltipContent>
                         <MudText Typo="Typo.caption">

@@ -4,7 +4,6 @@
 @using TeddySwap.UI.Services
 @using System.Globalization
 @using TeddySwap.UI.Models
-@inject IconsService IconsService
 @inject TeddySwapCalculatorService SwapCalculatorService
 
 <PageTitle>TeddySwap | Cardano | Swap</PageTitle>
@@ -166,7 +165,7 @@
                                     <div>Protocol fee</div>
                                     <MudTooltip Placement="Placement.Right" Class="max-w-[200px] text-left">
                                         <ChildContent>
-                                            <MudIcon Class="w-[14px] cursor-pointer" Icon="@IconsService.OutlinedQuestionMark" Size="Size.Small" />
+                                            <MudIcon Class="w-[14px] cursor-pointer" Icon="@IconsExtension.OutlinedQuestionMark" Size="Size.Small" />
                                         </ChildContent>
                                         <TooltipContent>
                                             <MudText Typo="Typo.caption">
@@ -185,7 +184,7 @@
                                     <div>Execution fee</div>
                                     <MudTooltip Placement="Placement.Right" Class="max-w-[200px] text-left">
                                         <ChildContent>
-                                            <MudIcon Class="w-[14px] cursor-pointer" Icon="@IconsService.OutlinedQuestionMark" Size="Size.Small" />
+                                            <MudIcon Class="w-[14px] cursor-pointer" Icon="@IconsExtension.OutlinedQuestionMark" Size="Size.Small" />
                                         </ChildContent>
                                         <TooltipContent>
                                             <MudText Typo="Typo.caption">
@@ -204,7 +203,7 @@
                                     <div>Transaction fee</div>
                                     <MudTooltip Placement="Placement.Right" Class="max-w-[200px] text-left">
                                         <ChildContent>
-                                            <MudIcon Class="w-[14px] cursor-pointer" Icon="@IconsService.OutlinedQuestionMark" Size="Size.Small" />
+                                            <MudIcon Class="w-[14px] cursor-pointer" Icon="@IconsExtension.OutlinedQuestionMark" Size="Size.Small" />
                                         </ChildContent>
                                         <TooltipContent>
                                             <MudText Typo="Typo.caption">
@@ -223,7 +222,7 @@
                                     <div>Refundable deposit</div>
                                     <MudTooltip Placement="Placement.Right" Class="max-w-[200px] text-left">
                                         <ChildContent>
-                                            <MudIcon Class="w-[14px] cursor-pointer" Icon="@IconsService.OutlinedQuestionMark" Size="Size.Small" />
+                                            <MudIcon Class="w-[14px] cursor-pointer" Icon="@IconsExtension.OutlinedQuestionMark" Size="Size.Small" />
                                         </ChildContent>
                                         <TooltipContent>
                                             <MudText Typo="Typo.caption">

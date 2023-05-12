@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using TeddySwap.Common.Models;
 using TeddySwap.Common.Models.Response;
-using TeddySwap.UI.Models;
 using TeddySwap.UI.Services;
 
 namespace TeddySwap.UI.Shared;

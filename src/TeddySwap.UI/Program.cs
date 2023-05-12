@@ -26,10 +26,9 @@ builder.Services.AddSingleton<ConfigService>();
 builder.Services.AddSingleton<HeartBeatService>();
 builder.Services.AddSingleton<SinkService>();
 builder.Services.AddSingleton<QueryService>();
-builder.Services.AddScoped<AppStateService>();
 builder.Services.AddSingleton<NftService>();
 builder.Services.AddSingleton<RewardService>();
-builder.Services.AddScoped<IconsService>();
+builder.Services.AddScoped<AppStateService>();
 builder.Services.AddScoped<CardanoWalletService>();
 builder.Services.AddScoped<TeddySwapCalculatorService>();
 

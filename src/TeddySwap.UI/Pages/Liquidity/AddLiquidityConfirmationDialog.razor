@@ -1,6 +1,3 @@
-@using TeddySwap.UI.Services;
-@inject IconsService IconsService
-
 <MudDialog Class="w-[92%] max-w-[496px] pb-4" ClassContent="@((_isConfirmed ? "!hidden" : "!block"))">
      <TitleContent>
         <div class="flex items-center justify-between">
@@ -69,7 +66,7 @@
                             <div>Total Fees</div>
                             <MudTooltip Placement="Placement.Right" Class="max-w-[200px] text-left">
                                 <ChildContent>
-                                    <MudIcon Class="w-[14px] h-[14px] ml-1" Icon="@IconsService.OutlinedQuestionMark" Size="Size.Small" />
+                                    <MudIcon Class="w-[14px] h-[14px] ml-1" Icon="@IconsExtension.OutlinedQuestionMark" Size="Size.Small" />
                                 </ChildContent>
                                 <TooltipContent>
                                     <MudText Typo="Typo.caption">
