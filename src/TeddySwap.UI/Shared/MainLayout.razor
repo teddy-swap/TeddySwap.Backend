@@ -115,15 +115,15 @@
             Class="!font-bold text-[var(--mud-palette-text-secondary)]">Staking</MudNavLink>
 
          <MudMenu FullWidth Class="w-full burger-menu-dots" Icon="@Icons.Material.Filled.MoreHoriz" AnchorOrigin="Origin.BottomLeft">
-            <MudMenuItem Class="!p-0">
+            <MudMenuItem Class="!p-0" OnClick="@(() => IsDrawerOpen = false)">
                 <NavLink Href="/swap" class="font-bold text-[16px] pl-[16px] py-[8px] block w-full text-[var(--mud-palette-text-secondary)]"
                     ActiveClass="!text-[var(--mud-palette-text-primary)]">Swap</NavLink>
             </MudMenuItem>
-            <MudMenuItem Class="!p-0">
+            <MudMenuItem Class="!p-0" OnClick="@(() => IsDrawerOpen = false)"> 
                 <NavLink Href="/liquidity" class="font-bold text-[16px] pl-[16px] py-[8px] block w-full text-[var(--mud-palette-text-secondary)]"
                     ActiveClass="!text-[var(--mud-palette-text-primary)]">Liquidity</NavLink>
             </MudMenuItem>
-            <MudMenuItem Class="!p-0">
+            <MudMenuItem Class="!p-0" OnClick="@(() => IsDrawerOpen = false)">
                 <NavLink Href="/orders" class="font-bold text-[16px] pl-[16px] py-[8px] block w-full text-[var(--mud-palette-text-secondary)]"
                     ActiveClass="!text-[var(--mud-palette-text-primary)]">Orders</NavLink>
             </MudMenuItem>
