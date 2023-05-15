@@ -92,8 +92,8 @@
             <MudText Class="font-semibold !text-[16px] md:text-[20px]">Waiting for confirmation</MudText>
             <MudText Class="text-[12px] md:text-[14px] text-center">
                 Adding liquidity
-                <span>@AppStateService?.LiquidityTokenOneAmount @AppStateService?.LiquidityCurrentlySelectedTokenOne?.Name</span> and 
-                <span>@AppStateService?.LiquidityTokenTwoAmount @AppStateService?.LiquidityCurrentlySelectedTokenTwo?.Name</span>
+                <span>@AppStateService?.LiquidityTokenOneAmount.ToString("#,##0.00") @AppStateService?.LiquidityCurrentlySelectedTokenOne?.Name</span> and 
+                <span>@AppStateService?.LiquidityTokenTwoAmount.ToString("#,##0.00") @AppStateService?.LiquidityCurrentlySelectedTokenTwo?.Name</span>
             </MudText>
             <MudText Class="text-[12px] md:text-[14px] text-[var(--mud-palette-text-secondary)]">Confirm this transaction in your wallet.</MudText>
         </div>
