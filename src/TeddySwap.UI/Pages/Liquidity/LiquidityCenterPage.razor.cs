@@ -14,6 +14,9 @@ public partial class LiquidityCenterPage
     public AppStateService? AppStateService { get; set; }
 
     [Inject]
+    public TeddySwapCalculatorService? TeddySwapCalculatorService { get; set; }
+
+    [Inject]
     public IDialogService? DialogService { get; set; }
 
     [Inject]
@@ -111,6 +114,22 @@ public partial class LiquidityCenterPage
 
     private async void OnAppStatePropertyChanged(object? sender, PropertyChangedEventArgs e)
         => await InvokeAsync(StateHasChanged);
+
+    private void HandleTokenOneAmountChange(decimal amount)
+    {
+        ArgumentNullException.ThrowIfNull(AppStateService);
+        ArgumentNullException.ThrowIfNull(TeddySwapCalculatorService);
+        AppStateService.LiquidityTokenOneAmount = amount;
+        AppStateService.LiquidityTokenTwoAmount = TeddySwapCalculatorService.ConvertToTokenX(amount);
+    }
+
+    private void HandleTokenTwoAmountChange(decimal amount)
+    {
+        ArgumentNullException.ThrowIfNull(AppStateService);
+        ArgumentNullException.ThrowIfNull(TeddySwapCalculatorService);
+        AppStateService.LiquidityTokenTwoAmount = amount;
+        AppStateService.LiquidityTokenOneAmount = TeddySwapCalculatorService.ConvertToTokenY(amount);
+    }
 
     private void OnLiquidityBtnClicked(int value)
     {

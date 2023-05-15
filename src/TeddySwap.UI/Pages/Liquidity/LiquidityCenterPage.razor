@@ -115,13 +115,14 @@
                         HideSpinButtons
                         Immediate
                         Disabled="!_isTokenTwoSelected"
-                        @bind-Value="AppStateService.LiquidityTokenOneAmount"
+                        Value="AppStateService.LiquidityTokenOneAmount"
+                        ValueChanged="HandleTokenOneAmountChange"
                         Placeholder="0.0"
                         Variant="Variant.Outlined"
-                        Min="0.0"
+                        Min="0"
                         Class="add-liquidity-input"
                         Format="N2"
-                        T="double"
+                        T="decimal"
                     />
                     <div class="absolute right-[8px] top-[17px]">
                         <TokenChip
@@ -141,13 +142,14 @@
                         HideSpinButtons
                         Immediate
                         Disabled="!_isTokenTwoSelected"
-                        @bind-Value="AppStateService.LiquidityTokenTwoAmount"
+                        Value="AppStateService.LiquidityTokenTwoAmount"
+                        ValueChanged="HandleTokenTwoAmountChange"
                         Placeholder="0.0"
                         Variant="Variant.Outlined"
-                        Min="0.0"
+                        Min="0"
                         Class="add-liquidity-input"
                         Format="N2"
-                        T="double"
+                        T="decimal"
                     />
                     <div class="absolute right-[8px] top-[17px]">
                         <TokenChip

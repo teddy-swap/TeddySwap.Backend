@@ -54,9 +54,9 @@ public class AppStateService : INotifyPropertyChanged
         }
     }
 
-    private double _liquidityTokenOneAmount;
+    private decimal _liquidityTokenOneAmount;
 
-    public double LiquidityTokenOneAmount
+    public decimal LiquidityTokenOneAmount
     {
         get => _liquidityTokenOneAmount;
         set
@@ -66,9 +66,9 @@ public class AppStateService : INotifyPropertyChanged
         }
     }
 
-    private double _liquidityTokenTwoAmount;
+    private decimal _liquidityTokenTwoAmount;
 
-    public double LiquidityTokenTwoAmount
+    public decimal LiquidityTokenTwoAmount
     {
         get => _liquidityTokenTwoAmount;
         set
