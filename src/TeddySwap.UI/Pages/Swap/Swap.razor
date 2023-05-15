@@ -37,7 +37,8 @@
                                 HideSpinButtons
                                 Immediate
                                 Disabled="!_isTokenTwoSelected"
-                                @bind-Value="AppStateService.FromValue"
+                                Value="AppStateService.FromValue"
+                                ValueChanged="HandleFromValueChange"
                                 Placeholder="0.0"
                                 Label="@(_areInputsSwapped ? "To" : "From")"
                                 Variant="Variant.Outlined"
@@ -77,7 +78,8 @@
                                 HideSpinButtons
                                 Immediate
                                 Disabled="!_isTokenTwoSelected"
-                                @bind-Value="AppStateService.ToValue"
+                                Value="AppStateService.ToValue"
+                                ValueChanged="HandleToValueChange"
                                 Placeholder="0.0"
                                 Label="@(_areInputsSwapped ? "From" : "To")"
                                 Variant="Variant.Outlined"
@@ -130,7 +132,7 @@
             </MudCardActions>
             <MudCardContent Class="@((_isTokenTwoSelected ? "block" : "hidden") + " !bg-[var(--mud-palette-drawer-background)] pt-[20px] px-[12px] !pb-0 swap-summary")">
                 <MudText Class="font-semibold text-[12px]">
-                    1 @AppStateService?.FromCurrentlySelectedToken?.Name = @TeddySwapCalculatorService?.ConvertToTokenX(AppStateService.FromValue).ToString("N2") @AppStateService?.ToCurrentlySelectedToken?.Name
+                    1 @AppStateService?.FromCurrentlySelectedToken?.Name = 1.216220 @AppStateService?.ToCurrentlySelectedToken?.Name
                 </MudText>
                 <MudList DisableGutters>
                     <MudListItem Class="!pt-0 !pb-[4px]">

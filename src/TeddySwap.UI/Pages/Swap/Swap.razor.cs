@@ -81,6 +81,22 @@ public partial class Swap
         AppStateService.ToCurrentlySelectedToken = token;
         _isTokenTwoSelected = true;
     }
+
+    private void HandleFromValueChange(decimal amount)
+    {
+        ArgumentNullException.ThrowIfNull(AppStateService);
+        ArgumentNullException.ThrowIfNull(TeddySwapCalculatorService);
+        AppStateService.FromValue = amount;
+        AppStateService.ToValue = TeddySwapCalculatorService.ConvertToTokenX(amount);
+    }
+
+    private void HandleToValueChange(decimal amount)
+    {
+        ArgumentNullException.ThrowIfNull(AppStateService);
+        ArgumentNullException.ThrowIfNull(TeddySwapCalculatorService);
+        AppStateService.ToValue = amount;
+        AppStateService.FromValue = TeddySwapCalculatorService.ConvertToTokenY(amount);
+    }
     
     private void OpenSwapSettingsDialog()
     {
