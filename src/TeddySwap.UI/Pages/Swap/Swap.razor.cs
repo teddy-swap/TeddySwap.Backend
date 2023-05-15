@@ -109,7 +109,7 @@ public partial class Swap
     {
         ArgumentNullException.ThrowIfNull(DialogService);
         var options = new DialogOptions { CloseOnEscapeKey = true };
-        DialogService.Show<ConfirmSwapDialog>("Confirm swap", options);
+        DialogService.Show<SwapConfirmationDialog>("Confirm swap", options);
     }
 
     private void ToggleChart() => _isChartButtonClicked = !_isChartButtonClicked;
