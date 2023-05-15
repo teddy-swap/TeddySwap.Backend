@@ -16,13 +16,13 @@
             <MudText Typo="Typo.h3" Class="text-[14px] font-semibold">Assets</MudText>
             <div class="flex flex-col gap-2">
                 <MudPaper Class="flex justify-between items-center p-4 ">
-                    <div class="font-semibold text-[16px]">@AppStateService?.LiquidityTokenOneAmount</div>
+                    <div class="font-semibold text-[16px]">@AppStateService?.LiquidityTokenOneAmount.ToString("#,##0.00")</div>
                     <div class="confirm-swap-dialog-token-chip">
                         <TokenChip Disabled="true" CurrentlySelectedToken="AppStateService?.LiquidityCurrentlySelectedTokenOne" />
                     </div>
                 </MudPaper>
                 <MudPaper Class="flex justify-between items-center p-4 ">
-                    <div class="font-semibold text-[16px]">@AppStateService?.LiquidityTokenTwoAmount</div>
+                    <div class="font-semibold text-[16px]">@AppStateService?.LiquidityTokenTwoAmount.ToString("#,##0.00")</div>
                     <div class="confirm-swap-dialog-token-chip">
                         <TokenChip Disabled="true" CurrentlySelectedToken="AppStateService?.LiquidityCurrentlySelectedTokenTwo" />
                     </div>

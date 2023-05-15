@@ -4,7 +4,6 @@
 @using TeddySwap.UI.Services
 @using System.Globalization
 @using TeddySwap.UI.Models
-@inject TeddySwapCalculatorService SwapCalculatorService
 
 <PageTitle>TeddySwap | Cardano | Swap</PageTitle>
 
@@ -42,11 +41,11 @@
                                 Placeholder="0.0"
                                 Label="@(_areInputsSwapped ? "To" : "From")"
                                 Variant="Variant.Outlined"
-                                Min="0.0"
+                                Min="0"
                                 Class="swap-input"
                                 Format="N2"
                                 Culture=@CultureInfo.GetCultureInfo("en-US")
-                                T="double"
+                                T="decimal"
                             />
                             <div class="absolute right-[8px] top-[12px]">
                                 <TokenChip
@@ -56,7 +55,7 @@
                                 />
                             </div>
                             <div class="@((_isTokenTwoSelected ? "text-white" : "text-[var(--mud-palette-text-secondary)]") + " flex justify-between text-[12px] absolute w-full bottom-[13px] px-[14px]")">
-                                <span>~@SwapCalculatorService.ConvertToTokenX(AppStateService.FromValue).ToString("N2") ADA</span>
+                                <span>~@TeddySwapCalculatorService.ConvertToTokenX(AppStateService.FromValue).ToString("N2") ADA</span>
                                 <span>Balance: 17,228 <span class="@(_areInputsSwapped ? "hidden" : "inline")">(<MudLink Underline="Underline.None" Class="text-[12px] cursor-pointer">Max</MudLink>)</span></span>
                             </div>
                         </div>
@@ -82,11 +81,11 @@
                                 Placeholder="0.0"
                                 Label="@(_areInputsSwapped ? "From" : "To")"
                                 Variant="Variant.Outlined"
-                                Min="0.0"
+                                Min="0"
                                 Class="swap-input"
                                 Format="N2"
                                 Culture=@CultureInfo.GetCultureInfo("en-US")
-                                T="double"
+                                T="decimal"
                             />
                             <div class="absolute right-[8px] top-[12px]">
                                 <TokenChip
@@ -97,7 +96,7 @@
                             </div>
                         </div>
                         <div class="@((_isTokenTwoSelected ? "text-white" : "text-[var(--mud-palette-text-secondary)]") + " flex justify-between mt-2 text-[12px] absolute w-full bottom-[13px] px-[14px]")">
-                            <span>~@SwapCalculatorService.ConvertToTokenX(AppStateService.FromValue).ToString("N2") ADA</span>
+                            <span>~@TeddySwapCalculatorService.ConvertToTokenX(AppStateService.FromValue).ToString("N2") ADA</span>
                             <span>Balance: 9,456 <span class="@(_areInputsSwapped ? "inline" : "hidden")">(<MudLink Underline="Underline.None" Class="text-[12px] cursor-pointer">Max</MudLink>)</span></span>
                         </div>
                     </div>
@@ -131,7 +130,7 @@
             </MudCardActions>
             <MudCardContent Class="@((_isTokenTwoSelected ? "block" : "hidden") + " !bg-[var(--mud-palette-drawer-background)] pt-[20px] px-[12px] !pb-0 swap-summary")">
                 <MudText Class="font-semibold text-[12px]">
-                    1 @AppStateService?.FromCurrentlySelectedToken?.Name = @SwapCalculatorService.ConvertToTokenX(AppStateService.FromValue).ToString("N2") @AppStateService?.ToCurrentlySelectedToken?.Name
+                    1 @AppStateService?.FromCurrentlySelectedToken?.Name = @TeddySwapCalculatorService?.ConvertToTokenX(AppStateService.FromValue).ToString("N2") @AppStateService?.ToCurrentlySelectedToken?.Name
                 </MudText>
                 <MudList DisableGutters>
                     <MudListItem Class="!pt-0 !pb-[4px]">

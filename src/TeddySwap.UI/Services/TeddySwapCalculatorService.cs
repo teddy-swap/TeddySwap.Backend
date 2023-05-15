@@ -8,7 +8,7 @@ public class TeddySwapCalculatorService
 
     public double ConvertToAda(double tokenAmount) => tokenAmount * _adaValue;
 
-    public double CalculatePriceImpact(double tokenAmount) => tokenAmount / 50_000;
+    public decimal CalculatePriceImpact(decimal tokenAmount) => tokenAmount / 50_000M;
 
     public decimal ConvertToTokenX(decimal tokenAmount) => tokenAmount * _randomConversionRate;
 

@@ -4,7 +4,6 @@ using TeddySwap.UI.Services;
 using TeddySwap.UI.Models;
 using System.Text.Json;
 using System.ComponentModel;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.WebUtilities;
 
 namespace TeddySwap.UI.Pages.Swap;
@@ -18,19 +17,23 @@ public partial class Swap
     protected new AppStateService? AppStateService { get; set; }
 
     [Inject]
+    protected TeddySwapCalculatorService? TeddySwapCalculatorService { get; set; }
+
+    [Inject]
     protected CardanoWalletService? CardanoWalletService { get; set; }
 
     [Inject]
     private NavigationManager? NavigationManager { get; set; }
 
     private IEnumerable<Token>? Tokens { get; set; }
-    private double _priceImpactValue;
-    private double PriceImpactValue
+    private decimal _priceImpactValue;
+    private decimal PriceImpactValue
     {
         get
         {
             ArgumentNullException.ThrowIfNull(AppStateService);
-            return SwapCalculatorService.CalculatePriceImpact(AppStateService.FromValue);
+            ArgumentNullException.ThrowIfNull(TeddySwapCalculatorService);
+            return TeddySwapCalculatorService.CalculatePriceImpact(AppStateService.FromValue);
         }
         set =>  _priceImpactValue = value;
     }

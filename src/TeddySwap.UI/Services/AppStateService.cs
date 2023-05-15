@@ -30,9 +30,9 @@ public class AppStateService : INotifyPropertyChanged
         }
     }
 
-    private double _fromValue;
+    private decimal _fromValue;
 
-    public double FromValue
+    public decimal FromValue
     {
         get => _fromValue;
         set
@@ -42,9 +42,9 @@ public class AppStateService : INotifyPropertyChanged
         }
     }
 
-    private double _toValue;
+    private decimal _toValue;
 
-    public double ToValue
+    public decimal ToValue
     {
         get => _toValue;
         set
