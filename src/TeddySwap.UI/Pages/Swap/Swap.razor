@@ -16,6 +16,7 @@
                     <div class="font-bold text-[20px]">Swap</div>
                     <div>
                         <MudIconButton
+                            Disabled="!_isTokenTwoSelected"
                             OnClick="ToggleChart"
                             Icon="@Icons.Material.Filled.ShowChart"
                             aria-label="toggle chart"
@@ -36,6 +37,7 @@
                             <MudNumericField
                                 HideSpinButtons
                                 Immediate
+                                Disabled="!_isTokenTwoSelected"
                                 @bind-Value="AppStateService.FromValue"
                                 Placeholder="0.0"
                                 Label="@(_areInputsSwapped ? "To" : "From")"
@@ -53,7 +55,7 @@
                                     OnSelectedToken="@((Token token) => AppStateService.FromCurrentlySelectedToken = token)"
                                 />
                             </div>
-                            <div class="flex justify-between text-[12px] absolute w-full bottom-[13px] px-[14px]">
+                            <div class="@((_isTokenTwoSelected ? "text-white" : "text-[var(--mud-palette-text-secondary)]") + " flex justify-between text-[12px] absolute w-full bottom-[13px] px-[14px]")">
                                 <span>~@SwapCalculatorService.ConvertToTokenX(AppStateService.FromValue).ToString("N2") ADA</span>
                                 <span>Balance: 17,228 <span class="@(_areInputsSwapped ? "hidden" : "inline")">(<MudLink Underline="Underline.None" Class="text-[12px] cursor-pointer">Max</MudLink>)</span></span>
                             </div>
@@ -61,6 +63,7 @@
                     </div>
                     <MudIconButton
                         OnClick="SwapInputs"
+                        Disabled="!_isTokenTwoSelected"
                         Class="@((_areInputsSwapped ? "rotate-180" : "rotate-0") + " transition-transform duration-200 ease-in-out w-fit !rounded-full m-auto absolute translate-x-[-50%] translate-y-[-50%] left-[50%] top-[50%] z-[100]" )"
                         Icon="@Icons.Material.Filled.SwapVert"
                         aria-label="reverse"
@@ -74,6 +77,7 @@
                             <MudNumericField
                                 HideSpinButtons
                                 Immediate
+                                Disabled="!_isTokenTwoSelected"
                                 @bind-Value="AppStateService.ToValue"
                                 Placeholder="0.0"
                                 Label="@(_areInputsSwapped ? "From" : "To")"
@@ -88,11 +92,11 @@
                                 <TokenChip
                                     Tokens="Tokens"
                                     CurrentlySelectedToken="AppStateService.ToCurrentlySelectedToken"
-                                    OnSelectedToken="@((Token token) => AppStateService.ToCurrentlySelectedToken = token)"
+                                    OnSelectedToken="@((Token token) => HandleTokenTwoSelected(token))"
                                 />
                             </div>
                         </div>
-                        <div class="flex justify-between mt-2 text-[12px] absolute w-full bottom-[13px] px-[14px]">
+                        <div class="@((_isTokenTwoSelected ? "text-white" : "text-[var(--mud-palette-text-secondary)]") + " flex justify-between mt-2 text-[12px] absolute w-full bottom-[13px] px-[14px]")">
                             <span>~@SwapCalculatorService.ConvertToTokenX(AppStateService.FromValue).ToString("N2") ADA</span>
                             <span>Balance: 9,456 <span class="@(_areInputsSwapped ? "inline" : "hidden")">(<MudLink Underline="Underline.None" Class="text-[12px] cursor-pointer">Max</MudLink>)</span></span>
                         </div>
@@ -109,7 +113,7 @@
                         Class= "text-[20px] py-[6px] font-medium normal-case"
                         Variant="Variant.Filled"
                         >
-                            Enter an amount
+                           @(_isTokenTwoSelected ? "Enter an amount" : "Select a token")
                     </MudButton>
                 }
                 else
@@ -125,7 +129,7 @@
                     </MudButton>
                 }
             </MudCardActions>
-            <MudCardContent Class="!bg-[var(--mud-palette-drawer-background)] pt-[20px] px-[12px] !pb-0 swap-summary">
+            <MudCardContent Class="@((_isTokenTwoSelected ? "block" : "hidden") + " !bg-[var(--mud-palette-drawer-background)] pt-[20px] px-[12px] !pb-0 swap-summary")">
                 <MudText Class="font-semibold text-[12px]">
                     1 @AppStateService?.FromCurrentlySelectedToken?.Name = @SwapCalculatorService.ConvertToTokenX(AppStateService.FromValue).ToString("N2") @AppStateService?.ToCurrentlySelectedToken?.Name
                 </MudText>
@@ -257,6 +261,7 @@
 
         <MudButton
             FullWidth
+            Disabled="!_isTokenTwoSelected"
             OnClick="ToggleChart"
             Class= "!bg-[var(--mud-palette-surface)] !normal-case lg:hidden max-w-[448px] m-auto !text-[20px] relative z-[100]"
             StartIcon="@Icons.Material.Filled.BarChart"

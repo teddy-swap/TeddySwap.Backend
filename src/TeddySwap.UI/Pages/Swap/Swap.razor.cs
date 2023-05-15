@@ -37,6 +37,7 @@ public partial class Swap
     private bool _isPanelExpanded { get; set; } = false;
     private bool _areInputsSwapped { get; set; } = false;
     private bool _isChartButtonClicked { get; set; } = false;
+    private bool _isTokenTwoSelected { get; set; } = false;
     private Token _swapTokenOne { get; set; } = new();
     private Token _swapTokenTwo { get; set; } = new();
 
@@ -57,8 +58,7 @@ public partial class Swap
 
         if (string.IsNullOrEmpty(_swapTokenOne?.Name))
         {
-            AppStateService.FromCurrentlySelectedToken = Tokens?.ElementAt(0);
-            AppStateService.ToCurrentlySelectedToken = Tokens?.ElementAt(2);
+            AppStateService.FromCurrentlySelectedToken = Tokens?.ElementAt(1);
         }
         else
         {
@@ -71,6 +71,13 @@ public partial class Swap
 
     private async void OnAppStatePropertyChanged(object? sender, PropertyChangedEventArgs e)
         => await InvokeAsync(StateHasChanged);
+
+    private void HandleTokenTwoSelected(Token token)
+    {
+        ArgumentNullException.ThrowIfNull(AppStateService);
+        AppStateService.ToCurrentlySelectedToken = token;
+        _isTokenTwoSelected = true;
+    }
     
     private void OpenSwapSettingsDialog()
     {

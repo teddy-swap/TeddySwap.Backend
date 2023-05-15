@@ -31,6 +31,7 @@ public partial class UserLiquidityTable
     {
         _searchValue = token.Name;
         _currentlySelectedToken = token;
+        StateHasChanged();
     }
 
     private void HandleSearchValueChanged(string newSearchValue)

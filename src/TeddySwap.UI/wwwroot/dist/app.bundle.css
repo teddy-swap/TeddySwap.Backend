@@ -1192,10 +1192,6 @@ video {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.flex-row {
-  flex-direction: row;
-}
-
 .\!flex-col {
   flex-direction: column !important;
 }
@@ -1234,10 +1230,6 @@ video {
 
 .justify-between {
   justify-content: space-between;
-}
-
-.justify-around {
-  justify-content: space-around;
 }
 
 .gap-1 {
@@ -1564,6 +1556,10 @@ video {
   padding-left: 16px;
 }
 
+.pl-\[28px\] {
+  padding-left: 28px;
+}
+
 .pt-3 {
   padding-top: 0.75rem;
 }
@@ -1574,10 +1570,6 @@ video {
 
 .pt-\[4px\] {
   padding-top: 4px;
-}
-
-.pl-\[28px\] {
-  padding-left: 28px;
 }
 
 .text-left {
@@ -1606,6 +1598,10 @@ video {
 
 .\!text-\[20px\] {
   font-size: 20px !important;
+}
+
+.text-\[10px\] {
+  font-size: 10px;
 }
 
 .text-\[12px\] {
@@ -1638,10 +1634,6 @@ video {
 
 .text-\[38px\] {
   font-size: 38px;
-}
-
-.text-\[10px\] {
-  font-size: 10px;
 }
 
 .\!font-bold {
@@ -2091,6 +2083,14 @@ body:has(.mud-drawer--open) {
     gap: 1rem;
   }
 
+  .md\:\!text-\[20px\] {
+    font-size: 20px !important;
+  }
+
+  .md\:text-\[12px\] {
+    font-size: 12px;
+  }
+
   .md\:text-\[14px\] {
     font-size: 14px;
   }
@@ -2103,16 +2103,8 @@ body:has(.mud-drawer--open) {
     font-size: 19px;
   }
 
-  .md\:text-\[12px\] {
-    font-size: 12px;
-  }
-
   .md\:text-\[20px\] {
     font-size: 20px;
-  }
-
-  .md\:\!text-\[20px\] {
-    font-size: 20px !important;
   }
 }
 
