@@ -1,15 +1,23 @@
+using Microsoft.AspNetCore.Components;
 using TeddySwap.UI.Models;
+using TeddySwap.UI.Services;
 
 namespace TeddySwap.UI.Pages.Liquidity;
 
 public partial class Liquidity
-{
+{   
+    [Inject]
+    public AppStateService? AppStateService { get; set; }
+    
     private List<LiquidityData> _allLiquidityData { get; set; } = new();
-
     private List<UserLiquidityData> _userLiquidityData { get; set; } = new();
 
 	protected override void OnInitialized()
 	{
+        ArgumentNullException.ThrowIfNull(AppStateService);
+        AppStateService.ToCurrentlySelectedToken = null;
+        AppStateService.LiquidityCurrentlySelectedTokenTwo = null;
+        
         _allLiquidityData = new()
         {
             new()

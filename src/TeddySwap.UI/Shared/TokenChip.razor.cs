@@ -12,21 +12,20 @@ public partial class TokenChip
     [Parameter]
     public IEnumerable<Token> Tokens { get; set; } = new List<Token>();
 
-    [Parameter, EditorRequired]
+    [Parameter]
     public Token? CurrentlySelectedToken { get; set; }
 
     [Parameter]
     public EventCallback<Token> CurrentlySelectedTokenChanged { get; set; }
 
     [Parameter]
-    public Action<Token>? OnSelectedToken { get; set; }
+    public Action<Token>? OnSelectedTokenClicked { get; set; }
 
     [Parameter]
     public bool Disabled { get; set; } = false;
 
     private async Task OnCurrentySelectedTokenChanged(Token token)
     {   
-        OnSelectedToken?.Invoke(token);
         await CurrentlySelectedTokenChanged.InvokeAsync(token);
     }
     
@@ -35,7 +34,7 @@ public partial class TokenChip
         var options = new DialogOptions { CloseOnEscapeKey = true };
         var parameters = new DialogParameters();
         parameters.Add("Tokens", Tokens);
-        parameters.Add("OnSelectedTokenClicked", (Token token) => OnSelectedToken?.Invoke(token));
+        parameters.Add("OnSelectedTokenClicked", (Token token) => OnSelectedTokenClicked(token));
         DialogService?.Show<TokenSelectionDialog>("Select Token", parameters, options);
     }
 }

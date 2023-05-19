@@ -67,11 +67,12 @@ public partial class Swap
         {
             AppStateService.FromCurrentlySelectedToken = _swapTokenOne;
             AppStateService.ToCurrentlySelectedToken = _swapTokenTwo;
+            _isTokenTwoSelected = true;
         }
         
         AppStateService.PropertyChanged += OnAppStatePropertyChanged;
     }
-
+    
     private async void OnAppStatePropertyChanged(object? sender, PropertyChangedEventArgs e)
         => await InvokeAsync(StateHasChanged);
 

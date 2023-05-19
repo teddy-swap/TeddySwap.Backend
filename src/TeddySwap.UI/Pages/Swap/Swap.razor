@@ -52,7 +52,7 @@
                                 <TokenChip
                                     Tokens="Tokens"
                                     CurrentlySelectedToken="AppStateService.FromCurrentlySelectedToken"
-                                    OnSelectedToken="@((Token token) => AppStateService.FromCurrentlySelectedToken = token)"
+                                    OnSelectedTokenClicked="@((Token token) => AppStateService.FromCurrentlySelectedToken = token)"
                                 />
                             </div>
                             <div class="@((_isTokenTwoSelected ? "text-white" : "text-[var(--mud-palette-text-secondary)]") + " flex justify-between text-[12px] absolute w-full bottom-[13px] px-[14px]")">
@@ -93,13 +93,13 @@
                                 <TokenChip
                                     Tokens="Tokens"
                                     CurrentlySelectedToken="AppStateService.ToCurrentlySelectedToken"
-                                    OnSelectedToken="@((Token token) => HandleTokenTwoSelected(token))"
+                                    OnSelectedTokenClicked="@((Token token) => HandleTokenTwoSelected(token))"
                                 />
                             </div>
                         </div>
                         <div class="@((_isTokenTwoSelected ? "text-white" : "text-[var(--mud-palette-text-secondary)]") + " flex justify-between mt-2 text-[12px] absolute w-full bottom-[13px] px-[14px]")">
                             <span>~@TeddySwapCalculatorService.ConvertToTokenX(AppStateService.FromValue).ToString("N2") ADA</span>
-                            <span>Balance: 9,456 <span class="@(_areInputsSwapped ? "inline" : "hidden")">(<MudLink Underline="Underline.None" Class="text-[12px] cursor-pointer">Max</MudLink>)</span></span>
+                            <span>Balance: 0 <span class="@(_areInputsSwapped ? "inline" : "hidden")">(<MudLink Underline="Underline.None" Class="text-[12px] cursor-pointer">Max</MudLink>)</span></span>
                         </div>
                     </div>
                 </div>

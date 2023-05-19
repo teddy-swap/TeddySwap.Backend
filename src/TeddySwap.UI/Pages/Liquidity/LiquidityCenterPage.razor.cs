@@ -24,6 +24,7 @@ public partial class LiquidityCenterPage
 
     [CascadingParameter]
     MudDialogInstance? MudDialog { get; set; }
+    
     private IEnumerable<Token>? Tokens { get; set; }
     private IEnumerable<int>? _defaultLiquidityPercentages { get; set; }
     private IEnumerable<double>? _defaultFeePercentages { get; set; }

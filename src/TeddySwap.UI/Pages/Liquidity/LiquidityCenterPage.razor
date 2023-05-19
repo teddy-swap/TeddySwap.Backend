@@ -5,7 +5,7 @@
 
 <div class="max-w-[448px] m-auto">
     <div class="flex gap-1 items-center">
-        <MudIconButton OnClick="@(() => AppStateService.LiquidityCurrentlySelectedTokenTwo = null)" Href="/liquidity" Icon="@Icons.Material.Filled.ArrowBack" aria-label="back to liquidity page"></MudIconButton>
+        <MudIconButton Href="/liquidity" Icon="@Icons.Material.Filled.ArrowBack" aria-label="back to liquidity page"></MudIconButton>
         <MudText Typo="Typo.h1" Class="text-[20px] font-bold !outline-none">
             @(_createNewPool ? "Create" : "Add") Liquidity
         </MudText>
@@ -17,12 +17,12 @@
                 <TokenChip
                     Tokens="Tokens"
                     CurrentlySelectedToken="AppStateService?.LiquidityCurrentlySelectedTokenOne"
-                    OnSelectedToken="@((Token token) => AppStateService.LiquidityCurrentlySelectedTokenOne = token)"
+                    OnSelectedTokenClicked="@((Token token) => AppStateService.LiquidityCurrentlySelectedTokenOne = token)"
                 />
                 <TokenChip
                     Tokens="Tokens"
                     CurrentlySelectedToken="AppStateService?.LiquidityCurrentlySelectedTokenTwo"
-                    OnSelectedToken="@((Token token) => HandleTokenTwoSelected(token))"
+                    OnSelectedTokenClicked="@((Token token) => HandleTokenTwoSelected(token))"
                 />
             </div>
         </MudCardHeader>
@@ -129,7 +129,7 @@
                             Disabled="!_isTokenTwoSelected"
                             Tokens="Tokens"
                             CurrentlySelectedToken="AppStateService.LiquidityCurrentlySelectedTokenOne"
-                            OnSelectedToken="@((Token token) => AppStateService.LiquidityCurrentlySelectedTokenOne = token)"
+                            OnSelectedTokenClicked="@((Token token) => AppStateService.LiquidityCurrentlySelectedTokenOne = token)"
                         />
                     </div>
                     <div class="@((_isTokenTwoSelected ? "text-white" : "text-[var(--mud-palette-text-secondary)]") + " flex justify-between text-[12px] absolute w-full bottom-[13px] px-[14px]")">
@@ -156,7 +156,7 @@
                             Disabled="!_isTokenTwoSelected"
                             Tokens="Tokens"
                             CurrentlySelectedToken="AppStateService.LiquidityCurrentlySelectedTokenTwo"
-                            OnSelectedToken="@((Token token) => AppStateService.LiquidityCurrentlySelectedTokenTwo = token)"
+                            OnSelectedTokenClicked="@((Token token) => AppStateService.LiquidityCurrentlySelectedTokenTwo = token)"
                         />
                     </div>
                     <div class="@((_isTokenTwoSelected ? "text-white" : "text-[var(--mud-palette-text-secondary)]") + " flex justify-between text-[12px] absolute w-full bottom-[13px] px-[14px]")">
