@@ -2178,6 +2178,10 @@ body:has(.mud-drawer--open) {
     height: 100%;
   }
 
+  .lg\:h-\[150px\] {
+    height: 150px;
+  }
+
   .lg\:\!w-\[204px\] {
     width: 204px !important;
   }
@@ -2246,6 +2250,10 @@ body:has(.mud-drawer--open) {
 }
 
 @media (min-width: 1280px) {
+  .xl\:h-\[96px\] {
+    height: 96px;
+  }
+
   .xl\:grid-cols-4 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
