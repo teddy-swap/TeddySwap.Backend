@@ -1,0 +1,84 @@
+@page "/orders"
+@using TeddySwap.UI.Models
+
+<PageTitle>TeddySwap | Cardano | Orders</PageTitle>
+
+<MudCard>
+    <MudCardHeader>
+        <MudText Typo="Typo.h2" Class="text-[20px] font-bold">Transaction History</MudText>
+    </MudCardHeader>
+    <MudCardContent>
+        <MudTable Items=@_orders Class="bg-transparent" Elevation="0" HeaderClass="mt-3">
+            <ToolBarContent>
+                <div class="grid grid-cols-3 gap-4 w-full">
+                    <MudTextField
+                        FullWidth
+                        @bind-Value="_searchValue"
+                        Variant="Variant.Outlined"
+                        Placeholder="Search by token name or policy ID"
+                        Adornment="Adornment.Start"
+                        AdornmentIcon="@Icons.Material.Filled.Search"
+                        IconSize="Size.Medium"
+                        Label="Search by token"
+                        Class="mt-0 !grow orders-filter"
+                    >
+                    </MudTextField>
+                    <MudSelect FullWidth @bind-Value="ActionType" Label="Search by action" Variant="Variant.Outlined" Class="mt-0 orders-filter">
+                        @foreach (ActionType action in Enum.GetValues(typeof(ActionType)))
+                        {
+                            <MudSelectItem Value="@action">@action</MudSelectItem>
+                        }
+                    </MudSelect>
+                    <MudSelect FullWidth @bind-Value="Status" Label="Search by status" Variant="Variant.Outlined" Class="mt-0 orders-filter">
+                        @foreach (Status status in Enum.GetValues(typeof(Status)))
+                        {
+                            <MudSelectItem Value="@status">@status</MudSelectItem>
+                        }
+                    </MudSelect>
+                </div>
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh>Assets</MudTh>
+                <MudTh>Action</MudTh>
+                <MudTh>Date & Time</MudTh>
+                <MudTh>Status</MudTh>
+                <MudTh></MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Assets">
+                    <div class="flex items-center gap-1">
+                        <div class="flex items-center gap-2 bg-[var(--mud-palette-drawer-background)] py-1 px-4 rounded">
+                            <MudImage Height="24" Width="24" Src=@context?.TokenOne?.Logo Alt="" />
+                            <MudText Class="font-normal">@context?.TokenOneAmount</MudText>
+                            <MudText Class="font-normal">@context?.TokenOne?.Name</MudText>
+                        </div>
+                        <MudIcon Icon="@Icons.Material.Filled.ArrowForward" />
+                        <div class="flex items-center gap-2 bg-[var(--mud-palette-drawer-background)] py-1 px-4 rounded">
+                            <MudImage Height="24" Width="24" Src=@context?.TokenTwo?.Logo Alt="" />
+                            <MudText Class="font-normal">@context?.TokenTwoAmount</MudText>
+                            <MudText Class="font-normal">@context?.TokenTwo?.Name</MudText>
+                        </div>
+                    </div>
+                </MudTd>
+                <MudTd DataLabel="Action">
+                    <MudText Class="font-normal">@context?.ActionType</MudText>
+                </MudTd>
+                <MudTd DataLabel="Date & Time">
+                    <MudText Class="font-normal">@context?.DateTime</MudText>
+                </MudTd>
+                <MudTd DataLabel="Status">
+                    <MudText Class="flex items-center py-1 px-4 outline outline-1 outline-[var(--mud-palette-text-secondary)] rounded gap-1 w-fit font-normal">
+                        <div class="h-1 w-1 rounded-full bg-[var(--mud-palette-success)]"></div>
+                        @context?.Status
+                    </MudText>
+                </MudTd>
+                <MudTd DataLabel="">
+                    <MudIconButton Icon="@Icons.Material.Filled.MoreHoriz" />
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+        </MudTable>
+    </MudCardContent>
+</MudCard>

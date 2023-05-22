@@ -81,6 +81,11 @@ body:has(.mud-drawer--open) {
     background-color: var(--mud-palette-primary) !important;
 }
 
+.orders-filter label {
+    background-color: var(--mud-palette-drawer-background) !important;
+    border-radius: 4px;
+}
+
 .nft-rarity {
     height: 42px;
     width: 42px;
