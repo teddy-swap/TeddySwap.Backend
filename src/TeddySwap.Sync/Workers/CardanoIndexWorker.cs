@@ -5,19 +5,34 @@ using Microsoft.EntityFrameworkCore.Internal;
 using PallasDotnet;
 using PallasDotnet.Models;
 using TeddySwap.Data;
+using TeddySwap.Sync.Reducers;
 namespace TeddySwap.Sync.Workers;
 
-public class CardanoIndexWorker(IConfiguration configuration, ILogger<CardanoIndexWorker> logger, IDbContextFactory<TeddySwapDbContext> dbContextFactory) : BackgroundService
+public class CardanoIndexWorker(
+    IConfiguration configuration,
+    ILogger<CardanoIndexWorker> logger,
+    IDbContextFactory<TeddySwapDbContext> dbContextFactory,
+    IEnumerable<ICoreReducer> coreReducers,
+    IEnumerable<IReducer> reducers
+) : BackgroundService
 {
     private readonly NodeClient _nodeClient = new();
     private readonly IConfiguration _configuration = configuration;
     private readonly ILogger<CardanoIndexWorker> _logger = logger;
     private readonly IDbContextFactory<TeddySwapDbContext> _dbContextFactory = dbContextFactory;
+    private readonly IEnumerable<ICoreReducer> _coreReducers = coreReducers;
+    private readonly IEnumerable<IReducer> _reducers = reducers;
     private TeddySwapDbContext DbContext { get; set; } = null!;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         DbContext = _dbContextFactory.CreateDbContext();
+
+        DbContext.Blocks.OrderByDescending(b => b.Slot).Take(1).ToList().ForEach(block =>
+        {
+            _configuration["CardanoIndexStartSlot"] = block.Slot.ToString();
+            _configuration["CardanoIndexStartHash"] = block.Id;
+        });
 
         var tip = await _nodeClient.ConnectAsync(_configuration.GetValue<string>("CardanoNodeSocketPath")!, _configuration.GetValue<ulong>("CardanoNetworkMagic"));
         _logger.Log(LogLevel.Information, "Connected to Cardano Node: {Tip}", tip);
@@ -29,17 +44,22 @@ public class CardanoIndexWorker(IConfiguration configuration, ILogger<CardanoInd
 
         await foreach (var response in GetChainSyncResponsesAsync(stoppingToken))
         {
-            if (response.Action == NextResponseAction.RollForward)
+            _logger.Log(
+                LogLevel.Information, "New Chain Event {Action}: {Slot}",
+                response.Action,
+                response.Block.Slot
+            );
+
+            var actionMethodMap = new Dictionary<NextResponseAction, Func<IReducer, NextResponse, Task>>
             {
-                _logger.Log(
-                    LogLevel.Information, "New Chain Event {Action}: {BlockNumber} Slot: {Slot}",
-                    response.Action,
-                    response.Block.Number,
-                    response.Block.Slot
-                );
-                DbContext.Blocks.Add(new(response.Block.Hash.ToHex(), response.Block.Number, response.Block.Slot));
-                DbContext.SaveChanges();
-            }
+                { NextResponseAction.RollForward, (reducer, response) => reducer.RollForwardAsync(response) },
+                { NextResponseAction.RollBack, (reducer, response) => reducer.RollBackwardAsync(response) }
+            };
+
+            var reducerAction = actionMethodMap[response.Action];
+
+            await Task.WhenAll(_coreReducers.Select(reducer => reducerAction(reducer, response)));
+            await Task.WhenAll(_reducers.Select(reducer => reducerAction(reducer, response)));
         }
 
         await _nodeClient.DisconnectAsync();

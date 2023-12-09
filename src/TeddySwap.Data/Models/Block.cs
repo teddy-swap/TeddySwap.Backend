@@ -1,4 +1,4 @@
-﻿namespace TeddySwap.Data;
+﻿namespace TeddySwap.Data.Models;
 
 public record class Block (
     string Id,
