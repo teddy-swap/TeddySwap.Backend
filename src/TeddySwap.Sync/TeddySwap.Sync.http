@@ -1,0 +1,6 @@
+@TeddySwap.Sync_HostAddress = http://localhost:5162
+
+GET {{TeddySwap.Sync_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
