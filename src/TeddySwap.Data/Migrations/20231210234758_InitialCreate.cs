@@ -11,8 +11,12 @@ namespace TeddySwap.Data.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.EnsureSchema(
+                name: "teddyswap-mainnet-v2");
+
             migrationBuilder.CreateTable(
                 name: "Blocks",
+                schema: "teddyswap-mainnet-v2",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
@@ -26,6 +30,7 @@ namespace TeddySwap.Data.Migrations
 
             migrationBuilder.CreateTable(
                 name: "LiquidityByAddress",
+                schema: "teddyswap-mainnet-v2",
                 columns: table => new
                 {
                     Address = table.Column<string>(type: "text", nullable: false),
@@ -40,6 +45,7 @@ namespace TeddySwap.Data.Migrations
 
             migrationBuilder.CreateTable(
                 name: "LovelaceByAddress",
+                schema: "teddyswap-mainnet-v2",
                 columns: table => new
                 {
                     Address = table.Column<string>(type: "text", nullable: false),
@@ -54,6 +60,7 @@ namespace TeddySwap.Data.Migrations
 
             migrationBuilder.CreateTable(
                 name: "TransactionOutputs",
+                schema: "teddyswap-mainnet-v2",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
@@ -73,16 +80,20 @@ namespace TeddySwap.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Blocks");
+                name: "Blocks",
+                schema: "teddyswap-mainnet-v2");
 
             migrationBuilder.DropTable(
-                name: "LiquidityByAddress");
+                name: "LiquidityByAddress",
+                schema: "teddyswap-mainnet-v2");
 
             migrationBuilder.DropTable(
-                name: "LovelaceByAddress");
+                name: "LovelaceByAddress",
+                schema: "teddyswap-mainnet-v2");
 
             migrationBuilder.DropTable(
-                name: "TransactionOutputs");
+                name: "TransactionOutputs",
+                schema: "teddyswap-mainnet-v2");
         }
     }
 }

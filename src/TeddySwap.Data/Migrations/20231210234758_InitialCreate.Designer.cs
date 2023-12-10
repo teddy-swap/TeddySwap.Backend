@@ -12,7 +12,7 @@ using TeddySwap.Data;
 namespace TeddySwap.Data.Migrations
 {
     [DbContext(typeof(TeddySwapDbContext))]
-    [Migration("20231210201843_InitialCreate")]
+    [Migration("20231210234758_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -20,6 +20,7 @@ namespace TeddySwap.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasDefaultSchema("teddyswap-mainnet-v2")
                 .HasAnnotation("ProductVersion", "8.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -38,7 +39,7 @@ namespace TeddySwap.Data.Migrations
 
                     b.HasKey("Id", "Slot");
 
-                    b.ToTable("Blocks");
+                    b.ToTable("Blocks", "teddyswap-mainnet-v2");
                 });
 
             modelBuilder.Entity("TeddySwap.Data.Models.Reducers.LiquidityByAddressItem", b =>
@@ -57,7 +58,7 @@ namespace TeddySwap.Data.Migrations
 
                     b.HasKey("Address", "BlockNumber", "Slot");
 
-                    b.ToTable("LiquidityByAddress");
+                    b.ToTable("LiquidityByAddress", "teddyswap-mainnet-v2");
                 });
 
             modelBuilder.Entity("TeddySwap.Data.Models.Reducers.LovelaceByAddressItem", b =>
@@ -76,7 +77,7 @@ namespace TeddySwap.Data.Migrations
 
                     b.HasKey("Address", "BlockNumber", "Slot");
 
-                    b.ToTable("LovelaceByAddress");
+                    b.ToTable("LovelaceByAddress", "teddyswap-mainnet-v2");
                 });
 
             modelBuilder.Entity("TeddySwap.Data.Models.TransactionOutput", b =>
@@ -96,7 +97,7 @@ namespace TeddySwap.Data.Migrations
 
                     b.HasKey("Id", "Index");
 
-                    b.ToTable("TransactionOutputs");
+                    b.ToTable("TransactionOutputs", "teddyswap-mainnet-v2");
                 });
 
             modelBuilder.Entity("TeddySwap.Data.Models.TransactionOutput", b =>
@@ -117,7 +118,7 @@ namespace TeddySwap.Data.Migrations
 
                             b1.HasKey("TransactionOutputId", "TransactionOutputIndex");
 
-                            b1.ToTable("TransactionOutputs");
+                            b1.ToTable("TransactionOutputs", "teddyswap-mainnet-v2");
 
                             b1.WithOwner()
                                 .HasForeignKey("TransactionOutputId", "TransactionOutputIndex");

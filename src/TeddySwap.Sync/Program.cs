@@ -6,8 +6,20 @@ using TeddySwap.Sync.Workers;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContextFactory<TeddySwapDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("TeddySwapContext"), x => x.MigrationsHistoryTable("__EFMigrationsHistory", "public"))
-);
+{
+    options
+    .UseNpgsql(
+        builder.Configuration
+        .GetConnectionString("TeddySwapContext"),
+            x =>
+            {
+                x.MigrationsHistoryTable(
+                    "__EFMigrationsHistory",
+                    builder.Configuration.GetConnectionString("TeddySwapContextSchema")
+                );
+            }
+        );
+});
 
 builder.Services.AddSingleton<IBlockReducer, BlockReducer>();
 builder.Services.AddSingleton<ICoreReducer, TransactionOutputReducer>();
