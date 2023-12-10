@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System.Text.Json;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -24,6 +25,20 @@ namespace TeddySwap.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "LiquidityByAddress",
+                columns: table => new
+                {
+                    Address = table.Column<string>(type: "text", nullable: false),
+                    BlockNumber = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
+                    Slot = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
+                    AssetsJson = table.Column<JsonElement>(type: "jsonb", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LiquidityByAddress", x => new { x.Address, x.BlockNumber, x.Slot });
+                });
+
+            migrationBuilder.CreateTable(
                 name: "LovelaceByAddress",
                 columns: table => new
                 {
@@ -42,10 +57,10 @@ namespace TeddySwap.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
-                    Index = table.Column<int>(type: "integer", nullable: false),
+                    Index = table.Column<long>(type: "bigint", nullable: false),
                     Address = table.Column<string>(type: "text", nullable: false),
                     Amount_Coin = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
-                    Amount_MultiAssetJson = table.Column<string>(type: "text", nullable: false),
+                    Amount_MultiAssetJson = table.Column<JsonElement>(type: "jsonb", nullable: false),
                     Slot = table.Column<decimal>(type: "numeric(20,0)", nullable: false)
                 },
                 constraints: table =>
@@ -59,6 +74,9 @@ namespace TeddySwap.Data.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Blocks");
+
+            migrationBuilder.DropTable(
+                name: "LiquidityByAddress");
 
             migrationBuilder.DropTable(
                 name: "LovelaceByAddress");

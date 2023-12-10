@@ -1,4 +1,6 @@
+using System.Collections.Concurrent;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -44,12 +46,26 @@ public class CardanoIndexWorker(
             Hash.FromHex(_configuration.GetValue<string>("CardanoIndexStartHash")!)
         ));
 
-        await foreach (var response in GetChainSyncResponsesAsync(stoppingToken))
+        await GetChainSyncResponsesAsync(stoppingToken);
+        await _nodeClient.DisconnectAsync();
+    }
+
+
+    private async Task GetChainSyncResponsesAsync(CancellationToken stoppingToken)
+    {
+        var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
+
+        void Handler(object? sender, ChainSyncNextResponseEventArgs e)
         {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            var response = e.NextResponse;
             _logger.Log(
-                LogLevel.Information, "New Chain Event {Action}: {Slot}",
+                LogLevel.Information, "New Chain Event {Action}: {Slot} Block: {Block}",
                 response.Action,
-                response.Block.Slot
+                response.Block.Slot,
+                response.Block.Number
             );
 
             var actionMethodMap = new Dictionary<NextResponseAction, Func<IReducer, NextResponse, Task>>
@@ -60,23 +76,20 @@ public class CardanoIndexWorker(
 
             var reducerAction = actionMethodMap[response.Action];
 
-            await Task.WhenAll(_coreReducers.Select(reducer => reducerAction(reducer, response)));
-            await Task.WhenAll(_reducers.Select(reducer => reducerAction(reducer, response)));
-            await reducerAction(_blockReducer, response);
-        }
+            Task.WhenAll(_coreReducers.Select(reducer => reducerAction(reducer, response))).Wait(stoppingToken);
+            Task.WhenAll(_reducers.Select(reducer => reducerAction(reducer, response))).Wait(stoppingToken);
+            reducerAction(_blockReducer, response).Wait(stoppingToken);
 
-        await _nodeClient.DisconnectAsync();
-    }
+            stopwatch.Stop();
 
-
-    private async IAsyncEnumerable<NextResponse> GetChainSyncResponsesAsync([EnumeratorCancellation] CancellationToken stoppingToken)
-    {
-        var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
-        var responseReady = new TaskCompletionSource<NextResponse>();
-
-        void Handler(object? sender, ChainSyncNextResponseEventArgs e)
-        {
-            responseReady.TrySetResult(e.NextResponse);
+            _logger.Log(
+                LogLevel.Information,
+                "Processed Chain Event {Action}: {Slot} Block: {Block} in {ElapsedMilliseconds} ms",
+                response.Action,
+                response.Block.Slot,
+                response.Block.Number,
+                stopwatch.ElapsedMilliseconds
+            );
         }
 
         void DisconnectedHandler(object? sender, EventArgs e)
@@ -91,8 +104,7 @@ public class CardanoIndexWorker(
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                yield return await responseReady.Task.WaitAsync(stoppingToken);
-                responseReady = new TaskCompletionSource<NextResponse>();
+                await Task.Delay(100, stoppingToken);
             }
         }
         finally

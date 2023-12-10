@@ -10,9 +10,24 @@ public record Value
     [NotMapped]
     public Dictionary<string, Dictionary<string, ulong>> MultiAsset { get; set; } = default!;
 
-    public string MultiAssetJson
+    public JsonElement MultiAssetJson
     {
-        get => JsonSerializer.Serialize(MultiAsset);
-        set => MultiAsset = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, ulong>>>(value) ?? [];
+        get
+        {
+            var jsonString = JsonSerializer.Serialize(MultiAsset);
+            return JsonDocument.Parse(jsonString).RootElement;
+        }
+
+        set
+        {
+            if (value.ValueKind == JsonValueKind.Undefined || value.ValueKind == JsonValueKind.Null)
+            {
+                MultiAsset = [];
+            }
+            else
+            {
+                MultiAsset = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, ulong>>>(value.GetRawText()) ?? [];
+            }
+        }
     }
 }
