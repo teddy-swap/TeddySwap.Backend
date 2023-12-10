@@ -4,10 +4,10 @@ using TeddySwap.Data;
 using BlockEntity = TeddySwap.Data.Models.Block;
 namespace TeddySwap.Sync.Reducers;
 
-public class BlockReducer(IDbContextFactory<TeddySwapDbContext> dbContextFactory, ILogger<LovelaceByAddressReducer> logger) : ICoreReducer
+public class BlockReducer(IDbContextFactory<TeddySwapDbContext> dbContextFactory, ILogger<BlockReducer> logger) : IBlockReducer
 {
     private readonly TeddySwapDbContext _dbContext = dbContextFactory.CreateDbContext();
-    private readonly ILogger<LovelaceByAddressReducer> _logger = logger;
+    private readonly ILogger<BlockReducer> _logger = logger;
 
     public async Task RollBackwardAsync(NextResponse response)
     {

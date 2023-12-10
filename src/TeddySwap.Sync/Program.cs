@@ -9,7 +9,7 @@ builder.Services.AddDbContextFactory<TeddySwapDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("TeddySwapContext"), x => x.MigrationsHistoryTable("__EFMigrationsHistory", "public"))
 );
 
-builder.Services.AddSingleton<ICoreReducer, BlockReducer>();
+builder.Services.AddSingleton<IBlockReducer, BlockReducer>();
 builder.Services.AddSingleton<ICoreReducer, TransactionOutputReducer>();
 builder.Services.AddSingleton<IReducer, LovelaceByAddressReducer>();
 

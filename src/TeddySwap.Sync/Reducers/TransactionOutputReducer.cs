@@ -6,10 +6,10 @@ using ValueEntity = TeddySwap.Data.Models.Value;
 
 namespace TeddySwap.Sync.Reducers;
 
-public class TransactionOutputReducer(IDbContextFactory<TeddySwapDbContext> dbContextFactory, ILogger<LovelaceByAddressReducer> logger) : ICoreReducer
+public class TransactionOutputReducer(IDbContextFactory<TeddySwapDbContext> dbContextFactory, ILogger<TransactionOutputReducer> logger) : ICoreReducer
 {
     private readonly TeddySwapDbContext _dbContext = dbContextFactory.CreateDbContext();
-    private readonly ILogger<LovelaceByAddressReducer> _logger = logger;
+    private readonly ILogger<TransactionOutputReducer> _logger = logger;
 
     public async Task RollForwardAsync(NextResponse response)
     {

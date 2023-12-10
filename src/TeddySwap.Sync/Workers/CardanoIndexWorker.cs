@@ -12,6 +12,7 @@ public class CardanoIndexWorker(
     IConfiguration configuration,
     ILogger<CardanoIndexWorker> logger,
     IDbContextFactory<TeddySwapDbContext> dbContextFactory,
+    IBlockReducer blockReducer,
     IEnumerable<ICoreReducer> coreReducers,
     IEnumerable<IReducer> reducers
 ) : BackgroundService
@@ -20,6 +21,7 @@ public class CardanoIndexWorker(
     private readonly IConfiguration _configuration = configuration;
     private readonly ILogger<CardanoIndexWorker> _logger = logger;
     private readonly IDbContextFactory<TeddySwapDbContext> _dbContextFactory = dbContextFactory;
+    private readonly IBlockReducer _blockReducer = blockReducer;
     private readonly IEnumerable<ICoreReducer> _coreReducers = coreReducers;
     private readonly IEnumerable<IReducer> _reducers = reducers;
     private TeddySwapDbContext DbContext { get; set; } = null!;
@@ -60,6 +62,7 @@ public class CardanoIndexWorker(
 
             await Task.WhenAll(_coreReducers.Select(reducer => reducerAction(reducer, response)));
             await Task.WhenAll(_reducers.Select(reducer => reducerAction(reducer, response)));
+            await reducerAction(_blockReducer, response);
         }
 
         await _nodeClient.DisconnectAsync();
