@@ -44,23 +44,27 @@ public class TeddyYieldFarmingReducer(IDbContextFactory<TeddySwapDbContext> dbCo
         {"3f241feae5f5cea28c3ea3b6746d7cdf76e4bae822c01e0b25ad2e38.OPTIM_ADA_POOL_IDENTITY", 0.02m}
     };
 
-    private readonly TeddySwapDbContext _dbContext = dbContextFactory.CreateDbContext();
+    private TeddySwapDbContext _dbContext = default!;
     private readonly ILogger<TeddyYieldFarmingReducer> _logger = logger;
 
     public async Task RollForwardAsync(NextResponse response)
     {
+        _dbContext = dbContextFactory.CreateDbContext();
         foreach (var tx in response.Block.TransactionBodies)
         {
             await ProcessInputAsync(response.Block.Slot, response.Block.Number, tx.Inputs);
             await ProcessOutputsAsync(response.Block.Slot, response.Block.Number, tx.Outputs);
         }
+        _dbContext.Dispose();
     }
 
     public async Task RollBackwardAsync(NextResponse response)
     {
+        _dbContext = dbContextFactory.CreateDbContext();
         var rollbackSlot = response.Block.Slot;
         _dbContext.LiquidityByAddress.RemoveRange(_dbContext.LiquidityByAddress.Where(lba => lba.Slot > rollbackSlot));
         await _dbContext.SaveChangesAsync();
+        _dbContext.Dispose();
     }
 
     private async Task ProcessInputAsync(ulong slot, ulong blockNumber, IEnumerable<TransactionInput> inputs)

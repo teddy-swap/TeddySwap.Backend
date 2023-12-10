@@ -14,7 +14,7 @@ public class CardanoIndexWorker(
     IConfiguration configuration,
     ILogger<CardanoIndexWorker> logger,
     IDbContextFactory<TeddySwapDbContext> dbContextFactory,
-    IBlockReducer blockReducer,
+    IEnumerable<IBlockReducer> blockReducers,
     IEnumerable<ICoreReducer> coreReducers,
     IEnumerable<IReducer> reducers
 ) : BackgroundService
@@ -23,7 +23,7 @@ public class CardanoIndexWorker(
     private readonly IConfiguration _configuration = configuration;
     private readonly ILogger<CardanoIndexWorker> _logger = logger;
     private readonly IDbContextFactory<TeddySwapDbContext> _dbContextFactory = dbContextFactory;
-    private readonly IBlockReducer _blockReducer = blockReducer;
+    private readonly IEnumerable<IBlockReducer> _blockReducer = blockReducers;
     private readonly IEnumerable<ICoreReducer> _coreReducers = coreReducers;
     private readonly IEnumerable<IReducer> _reducers = reducers;
     private TeddySwapDbContext DbContext { get; set; } = null!;
@@ -78,17 +78,18 @@ public class CardanoIndexWorker(
 
             Task.WhenAll(_coreReducers.Select(reducer => reducerAction(reducer, response))).Wait(stoppingToken);
             Task.WhenAll(_reducers.Select(reducer => reducerAction(reducer, response))).Wait(stoppingToken);
-            reducerAction(_blockReducer, response).Wait(stoppingToken);
+            Task.WhenAll(_blockReducer.Select(reducer => reducerAction(reducer, response))).Wait(stoppingToken);
 
             stopwatch.Stop();
 
             _logger.Log(
                 LogLevel.Information,
-                "Processed Chain Event {Action}: {Slot} Block: {Block} in {ElapsedMilliseconds} ms",
+                "Processed Chain Event {Action}: {Slot} Block: {Block} in {ElapsedMilliseconds} ms, Mem: {MemoryUsage} MB",
                 response.Action,
                 response.Block.Slot,
                 response.Block.Number,
-                stopwatch.ElapsedMilliseconds
+                stopwatch.ElapsedMilliseconds,
+                Math.Round(GetCurrentMemoryUsageInMB(), 2)
             );
         }
 
@@ -112,5 +113,18 @@ public class CardanoIndexWorker(
             _nodeClient.ChainSyncNextResponse -= Handler;
             _nodeClient.Disconnected -= DisconnectedHandler;
         }
+    }
+
+    public static double GetCurrentMemoryUsageInMB()
+    {
+        Process currentProcess = Process.GetCurrentProcess();
+
+        // Getting the physical memory usage of the current process in bytes
+        long memoryUsed = currentProcess.WorkingSet64;
+
+        // Convert to megabytes for easier reading
+        double memoryUsedMb = memoryUsed / 1024.0 / 1024.0;
+
+        return memoryUsedMb;
     }
 }

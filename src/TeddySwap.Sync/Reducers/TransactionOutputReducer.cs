@@ -8,11 +8,12 @@ namespace TeddySwap.Sync.Reducers;
 
 public class TransactionOutputReducer(IDbContextFactory<TeddySwapDbContext> dbContextFactory, ILogger<TransactionOutputReducer> logger) : ICoreReducer
 {
-    private readonly TeddySwapDbContext _dbContext = dbContextFactory.CreateDbContext();
+    private TeddySwapDbContext _dbContext = default!;
     private readonly ILogger<TransactionOutputReducer> _logger = logger;
 
     public async Task RollForwardAsync(NextResponse response)
     {
+        _dbContext = dbContextFactory.CreateDbContext();
         response.Block.TransactionBodies.ToList().ForEach(txBody =>
         {
             txBody.Outputs.ToList().ForEach(output =>
@@ -22,13 +23,16 @@ public class TransactionOutputReducer(IDbContextFactory<TeddySwapDbContext> dbCo
         });
 
         await _dbContext.SaveChangesAsync();
+        _dbContext.Dispose();
     }
 
     public async Task RollBackwardAsync(NextResponse response)
     {
+        _dbContext = dbContextFactory.CreateDbContext();
         var rollbackSlot = response.Block.Slot;
         _dbContext.TransactionOutputs.RemoveRange(_dbContext.TransactionOutputs.Where(tx => tx.Slot > rollbackSlot));
         await _dbContext.SaveChangesAsync();
+        _dbContext.Dispose();
     }
 
     private static TransactionOutputEntity MapTransactionOutput(string TransactionId, ulong slot, TransactionOutput output)
