@@ -52,7 +52,7 @@ public class TeddyYieldFarmingReducer(IDbContextFactory<TeddySwapDbContext> dbCo
         _dbContext = dbContextFactory.CreateDbContext();
         foreach (var tx in response.Block.TransactionBodies)
         {
-            await ProcessInputAsync(response.Block.Slot, response.Block.Number, tx.Inputs);
+            await ProcessInputsAsync(response.Block.Slot, response.Block.Number, tx.Inputs);
             await ProcessOutputsAsync(response.Block.Slot, response.Block.Number, tx.Outputs);
         }
         _dbContext.Dispose();
@@ -67,7 +67,7 @@ public class TeddyYieldFarmingReducer(IDbContextFactory<TeddySwapDbContext> dbCo
         _dbContext.Dispose();
     }
 
-    private async Task ProcessInputAsync(ulong slot, ulong blockNumber, IEnumerable<TransactionInput> inputs)
+    private async Task ProcessInputsAsync(ulong slot, ulong blockNumber, IEnumerable<TransactionInput> inputs)
     {
         foreach (var input in inputs)
         {
