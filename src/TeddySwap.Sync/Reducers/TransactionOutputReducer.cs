@@ -32,7 +32,7 @@ public class TransactionOutputReducer(IDbContextFactory<TeddySwapDbContext> dbCo
         var rollbackSlot = response.Block.Slot;
         _dbContext.TransactionOutputs.RemoveRange(_dbContext.TransactionOutputs.Where(tx => tx.Slot > rollbackSlot));
         await _dbContext.SaveChangesAsync();
-        _dbContext.Dispose();
+        
     }
 
     private static TransactionOutputEntity MapTransactionOutput(string TransactionId, ulong slot, TransactionOutput output)

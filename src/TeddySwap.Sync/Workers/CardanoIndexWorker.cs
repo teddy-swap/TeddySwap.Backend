@@ -57,6 +57,8 @@ public class CardanoIndexWorker(
 
         void Handler(object? sender, ChainSyncNextResponseEventArgs e)
         {
+            if(e.NextResponse.Action == NextResponseAction.Await) return;
+
             var stopwatch = new Stopwatch();
             stopwatch.Start();
 
