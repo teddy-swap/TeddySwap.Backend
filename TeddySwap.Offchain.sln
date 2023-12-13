@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeddySwap.Data", "src\Teddy
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeddySwap.Sync", "src\TeddySwap.Sync\TeddySwap.Sync.csproj", "{D571BD30-42C7-432B-8022-4F1EC1C669E0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeddySwap.Tests", "src\TeddySwap.Tests\TeddySwap.Tests.csproj", "{42F793BD-4A2B-47F3-855D-3C824A325E42}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,6 +31,10 @@ Global
 		{D571BD30-42C7-432B-8022-4F1EC1C669E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D571BD30-42C7-432B-8022-4F1EC1C669E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D571BD30-42C7-432B-8022-4F1EC1C669E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42F793BD-4A2B-47F3-855D-3C824A325E42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42F793BD-4A2B-47F3-855D-3C824A325E42}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42F793BD-4A2B-47F3-855D-3C824A325E42}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42F793BD-4A2B-47F3-855D-3C824A325E42}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -37,6 +43,7 @@ Global
 		{0B92FB65-2D61-4748-AFC0-08337A0F6FC3} = {F74374E8-1E19-469A-9E79-462AB912C0CE}
 		{3482C0A6-87ED-48A7-AB1A-A8CD6FC68466} = {F74374E8-1E19-469A-9E79-462AB912C0CE}
 		{D571BD30-42C7-432B-8022-4F1EC1C669E0} = {F74374E8-1E19-469A-9E79-462AB912C0CE}
+		{42F793BD-4A2B-47F3-855D-3C824A325E42} = {F74374E8-1E19-469A-9E79-462AB912C0CE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {783C49DB-DA80-450B-B2D4-F15F9402B97B}

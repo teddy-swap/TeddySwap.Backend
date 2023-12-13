@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TeddySwap.Data;
+using TeddySwap.Data.Services;
 using TeddySwap.Sync.Reducers;
 using TeddySwap.Sync.Workers;
 
@@ -21,9 +22,15 @@ builder.Services.AddDbContextFactory<TeddySwapDbContext>(options =>
         );
 });
 
+
+// Reducers
 builder.Services.AddSingleton<IBlockReducer, BlockReducer>();
 builder.Services.AddSingleton<ICoreReducer, TransactionOutputReducer>();
 builder.Services.AddSingleton<IReducer, TeddyYieldFarmingReducer>();
+
+// Services
+builder.Services.AddSingleton<BlockDataService>();
+builder.Services.AddSingleton<YieldFarmingDataService>();
 
 builder.Services.AddHostedService<CardanoIndexWorker>();
 
@@ -61,20 +68,8 @@ app.MapGet("/lp_states/latest", async (IDbContextFactory<TeddySwapDbContext> dbC
 {
     await using var dbContext = dbContextFactory.CreateDbContext();
 
-    // Query the latest block
-    var latestBlock = await dbContext.Blocks
-        .OrderByDescending(b => b.Number)
-        .FirstOrDefaultAsync();
-
-    if (latestBlock == null)
-    {
-        // No blocks found, return an appropriate response
-        return Results.NotFound("No blocks found.");
-    }
-
     // Query the latest LiquidityByAddressItem record for each address up to the latest block's slot
     var latestLiquidityStates = await dbContext.LiquidityByAddress
-        .Where(item => item.Slot <= latestBlock.Slot)
         .GroupBy(item => item.Address)
         .Select(group => group.OrderByDescending(item => item.Slot).FirstOrDefault())
         .ToListAsync();

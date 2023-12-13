@@ -10,6 +10,8 @@ public record LiquidityByAddressItem
     public ulong BlockNumber { get; init; }
     
     public ulong Slot { get; init; }
+
+    public ulong Lovelace { get; set; }
     
     [NotMapped]
     public Dictionary<string, Dictionary<string, ulong>> Assets { get; set; } = default!;
