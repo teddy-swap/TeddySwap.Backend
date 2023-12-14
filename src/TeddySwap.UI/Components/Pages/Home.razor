@@ -1,7 +1,42 @@
 ﻿@page "/"
+@rendermode InteractiveServer
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<section class="flex justify-center items-center min-h-screen">
+    <!-- Main content container -->
+    <div class="w-full max-w-4xl p-8 space-y-4">
+        <!-- Yield Farming Rewards Section -->
+        <MudCard>
+            <MudCardContent>
+                <h2 class="text-2xl font-bold">Yield Farming Rewards</h2>
+                <MudChart ChartType="ChartType.Bar" ChartSeries="@Series" @bind-SelectedIndex="Index" XAxisLabels="@XAxisLabels" Width="100%" Height="350px"></MudChart>
+            </MudCardContent>
+        </MudCard>
 
-Welcome to your new app.
+        <!-- INO (Initial NFT Offering) Rewards Section -->
+        <MudCard>
+            <MudCardContent>
+                <h2 class="text-2xl font-bold">INO (Initial NFT Offering) Rewards</h2>
+                <p>Content coming soon...</p>
+            </MudCardContent>
+        </MudCard>
+
+        <!-- ITN (Incentivized Testnet) Rewards Section -->
+        <MudCard>
+            <MudCardContent>
+                <h2 class="text-2xl font-bold">ITN (Incentivized Testnet) Rewards</h2>
+                <p>Content coming soon...</p>
+            </MudCardContent>
+        </MudCard>
+
+        <!-- FISO (Fair Initial Stake Pool Offering) Rewards Section -->
+        <MudCard>
+            <MudCardContent>
+                <h2 class="text-2xl font-bold">FISO (Fair Initial Stake Pool Offering) Rewards</h2>
+                <p>Content coming soon...</p>
+            </MudCardContent>
+        </MudCard>
+    </div>
+</section>
+

@@ -298,11 +298,9 @@ public class TeddyYieldFarmingReducer(
                 bool hasUpdate = false;
                 var address = resolvedInputOutput.Address;
 
-                var lastLiquidityState = await _dbContext.LiquidityByAddress
-                    .Where(lba => lba.Slot < slot && lba.Address == address)
-                    .OrderByDescending(lba => lba.Slot)
-                    .Take(1)
-                    .FirstOrDefaultAsync();
+                var lastLiquidityState =
+                     _dbContext.LiquidityByAddress.Local.Where(lba => lba.Slot < slot && lba.Address == address).OrderByDescending(lba => lba.Slot).Take(1).FirstOrDefault() ??
+                    await _dbContext.LiquidityByAddress.Where(lba => lba.Slot < slot && lba.Address == address).OrderByDescending(lba => lba.Slot).Take(1).FirstOrDefaultAsync();
 
                 var assets = new Dictionary<string, Dictionary<string, ulong>>();
                 var coins = 0UL;
@@ -362,7 +360,7 @@ public class TeddyYieldFarmingReducer(
                     }
                     else
                     {
-                        thisBlockLiquidityState = new() { Address = address, Slot = slot, BlockNumber = blockNumber, Assets = [], Lovelace = coins - resolvedInputOutput.Amount.Coin };
+                        thisBlockLiquidityState = new() { Address = address, Slot = slot, BlockNumber = blockNumber, Assets = assets, Lovelace = coins - resolvedInputOutput.Amount.Coin };
                         _dbContext.LiquidityByAddress.Add(thisBlockLiquidityState);
                     }
                 }
@@ -449,7 +447,7 @@ public class TeddyYieldFarmingReducer(
                 }
                 else
                 {
-                    thisBlockLiquidityState = new() { Address = address, Slot = slot, BlockNumber = blockNumber, Assets = [], Lovelace = coins + utxo.Amount.Coin };
+                    thisBlockLiquidityState = new() { Address = address, Slot = slot, BlockNumber = blockNumber, Assets = assets, Lovelace = coins + utxo.Amount.Coin };
                     _dbContext.LiquidityByAddress.Add(thisBlockLiquidityState);
                 }
             }

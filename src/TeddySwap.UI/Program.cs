@@ -1,10 +1,41 @@
+using Microsoft.EntityFrameworkCore;
+using MudBlazor.Services;
+using TeddySwap.Data;
+using TeddySwap.Data.Services;
 using TeddySwap.UI.Components;
+using TeddySwap.UI.Services;
+using TeddySwap.UI.Workers;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContextFactory<TeddySwapDbContext>(options =>
+{
+    options
+    .UseNpgsql(
+        builder.Configuration
+        .GetConnectionString("TeddySwapContext"),
+            x =>
+            {
+                x.MigrationsHistoryTable(
+                    "__EFMigrationsHistory",
+                    builder.Configuration.GetConnectionString("TeddySwapContextSchema")
+                );
+            }
+        );
+});
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddSingleton<CardanoDataService>();
+builder.Services.AddSingleton<BlockDataService>();
+
+// Workers
+builder.Services.AddHostedService<CardanoWorker>();
+
+// MudBlazor
+builder.Services.AddMudServices();
 
 var app = builder.Build();
 
