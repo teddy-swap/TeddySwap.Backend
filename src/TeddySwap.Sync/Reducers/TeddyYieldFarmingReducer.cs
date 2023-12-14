@@ -229,12 +229,19 @@ public class TeddyYieldFarmingReducer(
         var rollbackSlot = response.Block.Slot;
         _dbContext.LiquidityByAddress.RemoveRange(_dbContext.LiquidityByAddress.Where(lba => lba.Slot > rollbackSlot));
         await _dbContext.SaveChangesAsync();
+
+        await RollBackwardYieldFarmingRewardAsync(response);
+
         _dbContext.Dispose();
     }
 
     public async Task RollForwardYieldFarmingRewardAsync(NextResponse response)
     {
-        if (response.Block.Slot >= YF_START_SLOT + YF_SECONDS_IN_DAY)
+        var lastDistribution = await _dbContext.YieldRewardByAddress.OrderByDescending(yr => yr.Slot).FirstOrDefaultAsync();
+        var lastDistributionSlot = lastDistribution?.Slot ?? YF_START_SLOT;
+        var lastDistributionTimestamp = lastDistribution?.Timestamp ?? DateTimeOffset.FromUnixTimeSeconds(YF_START_TIME);
+
+        if (response.Block.Slot >= lastDistributionSlot + YF_SECONDS_IN_DAY)
         {
             var yfMonth = GetMonthFromSlot(response.Block.Slot, YF_START_SLOT);
             var dailyRewardAmount = GetDailyRewardAmount(yfMonth);
@@ -297,12 +304,12 @@ public class TeddyYieldFarmingReducer(
                             key,
                             (ulong)(userReward * 1000000),
                             lpAmount,
-                            share,
+                            userShare[key].Share,
                             false,
                             null,
                             response.Block.Number,
                             response.Block.Slot,
-                            DateTimeOffset.FromUnixTimeSeconds(YF_START_TIME + YF_SECONDS_IN_DAY)
+                            lastDistributionTimestamp.AddSeconds(YF_SECONDS_IN_DAY)
                         );
                         return yieldReward;
                     }
@@ -311,8 +318,20 @@ public class TeddyYieldFarmingReducer(
                 return userRewards;
             }).ToList();
 
-            Console.WriteLine(rewards.Where(r => r is not null).Sum(r => (decimal)r!.Amount) / 1000000);
+            var totalRewards = rewards.Where(r => r is not null).Sum(r => (decimal)r!.Amount);
+            if (totalRewards <= dailyRewardAmount)
+            {
+                _dbContext.AddRange(rewards.Where(r => r is not null).Select(r => r!));
+                await _dbContext.SaveChangesAsync();
+            }
+            throw new Exception("Total rewards exceeds daily reward amount");
         }
+    }
+
+    public async Task RollBackwardYieldFarmingRewardAsync(NextResponse response)
+    {
+        _dbContext.RemoveRange(_dbContext.YieldRewardByAddress.Where(yr => yr.Slot > response.Block.Slot));
+        await _dbContext.SaveChangesAsync();
     }
 
     private async Task ProcessInputsAsync(ulong slot, ulong blockNumber, IEnumerable<TransactionInput> inputs)

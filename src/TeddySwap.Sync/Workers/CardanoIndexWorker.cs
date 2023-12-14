@@ -57,7 +57,7 @@ public class CardanoIndexWorker(
 
         void Handler(object? sender, ChainSyncNextResponseEventArgs e)
         {
-            if(e.NextResponse.Action == NextResponseAction.Await) return;
+            if (e.NextResponse.Action == NextResponseAction.Await) return;
 
             var stopwatch = new Stopwatch();
             stopwatch.Start();
@@ -72,8 +72,33 @@ public class CardanoIndexWorker(
 
             var actionMethodMap = new Dictionary<NextResponseAction, Func<IReducer, NextResponse, Task>>
             {
-                { NextResponseAction.RollForward, (reducer, response) => reducer.RollForwardAsync(response) },
-                { NextResponseAction.RollBack, (reducer, response) => reducer.RollBackwardAsync(response) }
+                { NextResponseAction.RollForward, async (reducer, response) =>
+                    {
+                        try
+                        {
+                            await reducer.RollForwardAsync(response);
+                        }
+                        catch(Exception ex)
+                        {
+                            _logger.Log(LogLevel.Error, ex, "Error in RollForwardAsync");
+                            Environment.Exit(1);
+                        }
+                    }
+                },
+                {
+                    NextResponseAction.RollBack, async (reducer, response) =>
+                    {
+                        try
+                        {
+                            await reducer.RollBackwardAsync(response);
+                        }
+                        catch(Exception ex)
+                        {
+                            _logger.Log(LogLevel.Error, ex, "Error in RollBackwardAsync");
+                            Environment.Exit(1);
+                        }
+                    }
+                }
             };
 
             var reducerAction = actionMethodMap[response.Action];

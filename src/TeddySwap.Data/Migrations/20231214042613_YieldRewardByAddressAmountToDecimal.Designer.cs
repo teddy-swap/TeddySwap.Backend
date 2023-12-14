@@ -3,6 +3,7 @@ using System;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TeddySwap.Data;
@@ -12,9 +13,11 @@ using TeddySwap.Data;
 namespace TeddySwap.Data.Migrations
 {
     [DbContext(typeof(TeddySwapDbContext))]
-    partial class TeddySwapDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231214042613_YieldRewardByAddressAmountToDecimal")]
+    partial class YieldRewardByAddressAmountToDecimal
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -96,7 +99,7 @@ namespace TeddySwap.Data.Migrations
                         .HasColumnType("text");
 
                     b.Property<decimal>("Amount")
-                        .HasColumnType("numeric(20,0)");
+                        .HasColumnType("numeric");
 
                     b.Property<string>("ClaimTxId")
                         .HasColumnType("text");
