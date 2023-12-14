@@ -1,42 +1,66 @@
 ﻿@page "/"
 @rendermode InteractiveServer
 
-<PageTitle>Home</PageTitle>
+<PageTitle>TeddySwap · Rewards</PageTitle>
 
 <section class="flex justify-center min-h-screen">
     <!-- Main content container -->
-    <div class="w-full max-w-4xl p-8 space-y-4">
-        <!-- Yield Farming Rewards Section -->
-        <MudCard>
-            <MudCardContent>
-                <h2 class="text-2xl font-bold">Yield Farming Rewards</h2>
-                <MudChart ChartType="ChartType.Bar" ChartSeries="@Series" @bind-SelectedIndex="Index" XAxisLabels="@XAxisLabels" Width="100%" Height="350px"></MudChart>
-            </MudCardContent>
-        </MudCard>
+    <div class="w-full max-w-4xl p-8">
+        <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+            <!-- Yield Farming Rewards Tab -->
+            <MudTabPanel Text="Yield Farming Rewards">
+                <MudCard>
+                    <MudCardContent>
+                        <h2 class="text-2xl font-bold">Yield Farming Rewards</h2>
 
-        <!-- INO (Initial NFT Offering) Rewards Section -->
-        <MudCard>
-            <MudCardContent>
-                <h2 class="text-2xl font-bold">INO (Initial NFT Offering) Rewards</h2>
-                <p>Coming soon...</p>
-            </MudCardContent>
-        </MudCard>
+                        <!-- Chart 1 -->
+                        <div class="my-4">
+                            <h3 class="text-xl font-semibold">Historical Rewards</h3>
+                            <MudChart ChartType="ChartType.Bar" ChartSeries="@Series" @bind-SelectedIndex="Index"
+                                XAxisLabels="@XAxisLabels" Width="100%" Height="350px"></MudChart>
+                        </div>
 
-        <!-- ITN (Incentivized Testnet) Rewards Section -->
-        <MudCard>
-            <MudCardContent>
-                <h2 class="text-2xl font-bold">ITN (Incentivized Testnet) Rewards</h2>
-                <p>Coming soon...</p>
-            </MudCardContent>
-        </MudCard>
+                        <!-- Chart 2 -->
+                        <div class="my-4">
+                            <h3 class="text-xl font-semibold">Distribution</h3>
+                            <MudChart ChartType="ChartType.Line" ChartSeries="@Series" @bind-SelectedIndex="Index"
+                                XAxisLabels="@XAxisLabels" Width="100%" Height="350px"></MudChart>
+                        </div>
 
-        <!-- FISO (Fair Initial Stake Pool Offering) Rewards Section -->
-        <MudCard>
-            <MudCardContent>
-                <h2 class="text-2xl font-bold">FISO (Fair Initial Stake Pool Offering) Rewards</h2>
-                <p>Coming soon...</p>
-            </MudCardContent>
-        </MudCard>
+                        <!-- Additional charts can be added here in a similar manner -->
+                    </MudCardContent>
+                </MudCard>
+            </MudTabPanel>
+
+            <!-- INO (Initial NFT Offering) Rewards Tab -->
+            <MudTabPanel Text="INO Rewards">
+                <MudCard>
+                    <MudCardContent>
+                        <h2 class="text-2xl font-bold">INO (Initial NFT Offering) Rewards</h2>
+                        <p>Coming soon...</p>
+                    </MudCardContent>
+                </MudCard>
+            </MudTabPanel>
+
+            <!-- ITN (Incentivized Testnet) Rewards Tab -->
+            <MudTabPanel Text="ITN Rewards">
+                <MudCard>
+                    <MudCardContent>
+                        <h2 class="text-2xl font-bold">ITN (Incentivized Testnet) Rewards</h2>
+                        <p>Coming soon...</p>
+                    </MudCardContent>
+                </MudCard>
+            </MudTabPanel>
+
+            <!-- FISO (Fair Initial Stake Pool Offering) Rewards Tab -->
+            <MudTabPanel Text="FISO Rewards">
+                <MudCard>
+                    <MudCardContent>
+                        <h2 class="text-2xl font-bold">FISO (Fair Initial Stake Pool Offering) Rewards</h2>
+                        <p>Coming soon...</p>
+                    </MudCardContent>
+                </MudCard>
+            </MudTabPanel>
+        </MudTabs>
     </div>
 </section>
-

@@ -45,22 +45,47 @@ public class TeddyYieldFarmingReducer(
         "3f241feae5f5cea28c3ea3b6746d7cdf76e4bae822c01e0b25ad2e38.ADA_OPTIM_LP"
     ];
 
-    private readonly Dictionary<string, decimal> _shareMap = new()
+    private readonly Dictionary<ulong, Dictionary<string, decimal>> _shareMap = new()
     {
-        {"1c0ad45d50bd0a8c9bb851a9c59c3cb3e1ab2e2a29bd4d61b0e967ca.TEDY_ADA_POOL_IDENTITY", 0.6m},
-        {"18a44dde2d51a57964fedacc77182c45df88f86512c51e8f7eba0eb6.iBTC_ADA_POOL_IDENTITY", 0.055m},
-        {"ed8cc5ae2e5a68d78ecf333e86c466068242bbab2f8fca983a2f53e1.cBTC_ADA_POOL_IDENTITY", 0.055m},
-        {"44de9976b4ef013ec683d49175f6edae92d1feeb2314fa18f060ea39.iUSD_ADA_POOL_IDENTITY", 0.055m},
-        {"672b7b2e1caa394f16d9efb23fb24b892fa5eab8156679da197d8c1c.CHRY_ADA_POOL_IDENTITY", 0.055m},
-        {"03a666d6ad004932bdd9d7e0d5a374262454cd84602bd494c9cd48d6.DJED_ADA_POOL_IDENTITY", 0.02m},
-        {"1f164eea5c242f53cb2df2150fa5ab7ba126350e904ddbcc65226e18.cNETA_ADA_POOL_IDENTITY", 0.02m},
-        {"0cd54b77ac0d70942895c7f1ebc8bdb06ec2fffbe1da6e26209675d2.FACT_ADA_POOL_IDENTITY", 0.02m},
-        {"c30d7086eeb68050a5b01efc219c5d4b5d5fd38e2e62fd6d7f01ac4d.AADA_ADA_POOL_IDENTITY", 0.02m},
-        {"5d137c35eb5cba295aae2c44e0d9a82ca9f3d362caf3d681ffc9328b.ENCS_ADA_POOL_IDENTITY", 0.02m},
-        {"8d17d7a368cf5d1a3fe4468735050fdb8d2ae2bb2666aca05edd6969.SNEK_ADA_POOL_IDENTITY", 0.02m},
-        {"98de80cd7add6f1b9dacd076de508fc2cfad37d05b4dc6fbb8a510fa.iETH_ADA_POOL_IDENTITY", 0.02m},
-        {"ed3ea3cc3efda14d48d969e57ec22e2b3e5803ed4887c1152c48637c.INDY_ADA_POOL_IDENTITY", 0.02m},
-        {"3f241feae5f5cea28c3ea3b6746d7cdf76e4bae822c01e0b25ad2e38.OPTIM_ADA_POOL_IDENTITY", 0.02m}
+        {
+            109812631,
+            new()
+            {
+                {"1c0ad45d50bd0a8c9bb851a9c59c3cb3e1ab2e2a29bd4d61b0e967ca.TEDY_ADA_POOL_IDENTITY", 0.6m},
+                {"18a44dde2d51a57964fedacc77182c45df88f86512c51e8f7eba0eb6.iBTC_ADA_POOL_IDENTITY", 0.055m},
+                {"ed8cc5ae2e5a68d78ecf333e86c466068242bbab2f8fca983a2f53e1.cBTC_ADA_POOL_IDENTITY", 0.055m},
+                {"44de9976b4ef013ec683d49175f6edae92d1feeb2314fa18f060ea39.iUSD_ADA_POOL_IDENTITY", 0.055m},
+                {"672b7b2e1caa394f16d9efb23fb24b892fa5eab8156679da197d8c1c.CHRY_ADA_POOL_IDENTITY", 0.055m},
+                {"03a666d6ad004932bdd9d7e0d5a374262454cd84602bd494c9cd48d6.DJED_ADA_POOL_IDENTITY", 0.0225m},
+                {"1f164eea5c242f53cb2df2150fa5ab7ba126350e904ddbcc65226e18.cNETA_ADA_POOL_IDENTITY", 0.0225m},
+                {"0cd54b77ac0d70942895c7f1ebc8bdb06ec2fffbe1da6e26209675d2.FACT_ADA_POOL_IDENTITY", 0.0225m},
+                {"c30d7086eeb68050a5b01efc219c5d4b5d5fd38e2e62fd6d7f01ac4d.AADA_ADA_POOL_IDENTITY",0.0225m},
+                {"5d137c35eb5cba295aae2c44e0d9a82ca9f3d362caf3d681ffc9328b.ENCS_ADA_POOL_IDENTITY", 0.0225m},
+                {"8d17d7a368cf5d1a3fe4468735050fdb8d2ae2bb2666aca05edd6969.SNEK_ADA_POOL_IDENTITY",0.0225m},
+                {"98de80cd7add6f1b9dacd076de508fc2cfad37d05b4dc6fbb8a510fa.iETH_ADA_POOL_IDENTITY", 0.0225m},
+                {"ed3ea3cc3efda14d48d969e57ec22e2b3e5803ed4887c1152c48637c.INDY_ADA_POOL_IDENTITY",0.0225m}
+            }
+        },
+        {
+            110393777,
+            new()
+            {
+                {"1c0ad45d50bd0a8c9bb851a9c59c3cb3e1ab2e2a29bd4d61b0e967ca.TEDY_ADA_POOL_IDENTITY", 0.6m},
+                {"18a44dde2d51a57964fedacc77182c45df88f86512c51e8f7eba0eb6.iBTC_ADA_POOL_IDENTITY", 0.055m},
+                {"ed8cc5ae2e5a68d78ecf333e86c466068242bbab2f8fca983a2f53e1.cBTC_ADA_POOL_IDENTITY", 0.055m},
+                {"44de9976b4ef013ec683d49175f6edae92d1feeb2314fa18f060ea39.iUSD_ADA_POOL_IDENTITY", 0.055m},
+                {"672b7b2e1caa394f16d9efb23fb24b892fa5eab8156679da197d8c1c.CHRY_ADA_POOL_IDENTITY", 0.055m},
+                {"03a666d6ad004932bdd9d7e0d5a374262454cd84602bd494c9cd48d6.DJED_ADA_POOL_IDENTITY", 0.02m},
+                {"1f164eea5c242f53cb2df2150fa5ab7ba126350e904ddbcc65226e18.cNETA_ADA_POOL_IDENTITY", 0.02m},
+                {"0cd54b77ac0d70942895c7f1ebc8bdb06ec2fffbe1da6e26209675d2.FACT_ADA_POOL_IDENTITY", 0.02m},
+                {"c30d7086eeb68050a5b01efc219c5d4b5d5fd38e2e62fd6d7f01ac4d.AADA_ADA_POOL_IDENTITY", 0.02m},
+                {"5d137c35eb5cba295aae2c44e0d9a82ca9f3d362caf3d681ffc9328b.ENCS_ADA_POOL_IDENTITY", 0.02m},
+                {"8d17d7a368cf5d1a3fe4468735050fdb8d2ae2bb2666aca05edd6969.SNEK_ADA_POOL_IDENTITY", 0.02m},
+                {"98de80cd7add6f1b9dacd076de508fc2cfad37d05b4dc6fbb8a510fa.iETH_ADA_POOL_IDENTITY", 0.02m},
+                {"ed3ea3cc3efda14d48d969e57ec22e2b3e5803ed4887c1152c48637c.INDY_ADA_POOL_IDENTITY", 0.02m},
+                {"3f241feae5f5cea28c3ea3b6746d7cdf76e4bae822c01e0b25ad2e38.OPTIM_ADA_POOL_IDENTITY", 0.02m}
+            }
+        }
     };
 
     private readonly Dictionary<string, string> _addressByPoolId = new()
@@ -139,7 +164,7 @@ public class TeddyYieldFarmingReducer(
         },
         {
             "44de9976b4ef013ec683d49175f6edae92d1feeb2314fa18f060ea39.iUSD_ADA_POOL_IDENTITY",
-            "44de9976b4ef013ec683d49175f6edae92d1feeb2314fa18f060ea39.ADA_iUSD_LP"
+            "b647e0f287bc8b664a55cea708af0064091447f2388dc508e3676a33.ADA_iUSD_LP"
         },
         {
             "672b7b2e1caa394f16d9efb23fb24b892fa5eab8156679da197d8c1c.CHRY_ADA_POOL_IDENTITY",
@@ -147,7 +172,7 @@ public class TeddyYieldFarmingReducer(
         },
         {
             "03a666d6ad004932bdd9d7e0d5a374262454cd84602bd494c9cd48d6.DJED_ADA_POOL_IDENTITY",
-            "03a666d6ad004932bdd9d7e0d5a374262454cd84602bd494c9cd48d6.ADA_DJED_LP"
+            "06aba05978dc7ef9a309ad6d55665cf4572ebd111dae22d1b241acaa.ADA_DJED_LP"
         },
         {
             "1f164eea5c242f53cb2df2150fa5ab7ba126350e904ddbcc65226e18.cNETA_ADA_POOL_IDENTITY",
@@ -167,7 +192,7 @@ public class TeddyYieldFarmingReducer(
         },
         {
             "8d17d7a368cf5d1a3fe4468735050fdb8d2ae2bb2666aca05edd6969.SNEK_ADA_POOL_IDENTITY",
-            "8d17d7a368cf5d1a3fe4468735050fdb8d2ae2bb2666aca05edd6969.ADA_SNEK_LP"
+            "77e25ddcf2382e036d9d9416d894e15f0600886a4cfbac1b26ff7e03.ADA_SNEK_LP"
         },
         {
             "98de80cd7add6f1b9dacd076de508fc2cfad37d05b4dc6fbb8a510fa.iETH_ADA_POOL_IDENTITY",
@@ -221,7 +246,7 @@ public class TeddyYieldFarmingReducer(
                     pool => pool.Key,
                     pool =>
                     {
-                        var assets = liquidity
+                        var assets = poolLiquidity
                         .Where(l => l.Address == pool.Value)
                         .FirstOrDefault()?
                         .Assets;
@@ -236,7 +261,7 @@ public class TeddyYieldFarmingReducer(
                     }
                 );
 
-            userLiquidity.Select((ul) =>
+            var rewards = userLiquidity.SelectMany((ul) =>
             {
                 var assets = ul.Assets;
                 var userShare = _poolLpByPoolId.ToDictionary(
@@ -258,17 +283,19 @@ public class TeddyYieldFarmingReducer(
                     }
                 );
 
-                userShare.Keys.Select(key =>
+                var userRewards = userShare.Where(us => us.Value.Share > 0).Select(kvp =>
                 {
-                    if (_shareMap.TryGetValue(key, out decimal share))
+                    var key = kvp.Key;
+                    var shareMap = _shareMap.Where(sm => response.Block.Slot >= sm.Key).OrderByDescending(sm => sm.Key).FirstOrDefault().Value;
+                    if (shareMap.TryGetValue(key, out decimal share))
                     {
                         var poolReward = dailyRewardAmount * share;
-                        var userReward = Math.Round(poolReward * userShare[key].Share);
+                        var userReward = poolReward * userShare[key].Share;
                         var lpAmount = userShare[key].LPAmount;
                         var yieldReward = new YieldRewardByAddress(
                             ul.Address,
                             key,
-                            (ulong)userReward,
+                            (ulong)(userReward * 1000000),
                             lpAmount,
                             share,
                             false,
@@ -277,11 +304,14 @@ public class TeddyYieldFarmingReducer(
                             response.Block.Slot,
                             DateTimeOffset.FromUnixTimeSeconds(YF_START_TIME + YF_SECONDS_IN_DAY)
                         );
+                        return yieldReward;
                     }
-                    return 0;
+                    return null;
                 });
-                return 0;
+                return userRewards;
             }).ToList();
+
+            Console.WriteLine(rewards.Where(r => r is not null).Sum(r => (decimal)r!.Amount) / 1000000);
         }
     }
 
