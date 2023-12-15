@@ -15,7 +15,14 @@
             <MudTabPanel Text="Yield Farming Rewards">
                 <MudCard>
                     <MudCardContent>
-                        <h2 class="text-2xl font-bold">Yield Farming Rewards</h2>
+                        <div class="flex justify-between items-center flex-grow">
+                            <div>
+                                <h2 class="text-2xl font-bold">Yield Farming Rewards</h2>
+                                <MudText Typo="Typo.subtitle1" Color="MudColor.Tertiary">@UnclaimedRewards $TEDY</MudText>
+                            </div>
+                            <MudButton Color="MudColor.Secondary" Variant="Variant.Filled">Harvest Honey 🍯</MudButton>
+                        </div>
+
 
                         <!-- Chart 1 -->
                         <div class="my-4">
@@ -65,9 +72,9 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @if (Rewards is not null)
+                                    @if (PaginatedRewards is not null)
                                     {
-                                        @foreach (var reward in Rewards)
+                                        @foreach (var reward in PaginatedRewards)
                                         {
                                             <tr>
                                                 <td>
@@ -114,6 +121,9 @@
                                     }
                                 </tbody>
                             </MudSimpleTable>
+                            <div class="mt-3 flex justify-center">
+                                <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.More" OnClick="LoadMoreRewardsAsync" Disabled="IsLoading">Load More</MudButton>
+                            </div>
                         </div>
                     </MudCardContent>
                 </MudCard>

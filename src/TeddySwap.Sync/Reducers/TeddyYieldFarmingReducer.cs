@@ -296,6 +296,7 @@ public class TeddyYieldFarmingReducer(
                             key,
                             (ulong)(userReward * 1000000),
                             lpAmount,
+                            0,
                             userShare[key].Share,
                             false,
                             null,

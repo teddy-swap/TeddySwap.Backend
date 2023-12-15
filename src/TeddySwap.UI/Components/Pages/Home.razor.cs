@@ -16,8 +16,14 @@ public partial class Home
     [Inject]
     protected YieldFarmingDataService YieldFarmingDataService { get; set; } = default!;
 
+    [Parameter]
+    public string? Address { get; set; } = "addr1qxhwefhsv6xn2s4sn8a92f9m29lwj67aykn4plr9xal4r48del5pz2hf795j5wxzhzf405g377jmw7a92k9z2enhd6pqlal6jy";
+
+    protected decimal UnclaimedRewards { get; set; }
+    protected bool IsLoading { get; set; }
     protected ulong CurrentBlockNumber => CardanoDataService.CurrentBlockNumber;
     protected IEnumerable<YieldRewardByAddress> Rewards { get; set; } = default!;
+    protected List<YieldRewardByAddress> PaginatedRewards { get; set; } = [];
     protected IEnumerable<YieldFarmingDistribution> Distribution { get; set; } = default!;
     protected IEnumerable<YieldFarmingDistribution> ProjectedDistribution => Distribution is null ? [] : Distribution.Select(d =>
     {
@@ -132,15 +138,6 @@ public partial class Home
     private async void OnHeartbeat(object? sender, HeartbeatEventArgs e)
     {
         await RefreshAsync();
-        
-        if (yieldRewardSeries is not null)
-            await yieldRewardSeries.Chart.UpdateSeriesAsync(true);
-        
-        if (distributionSeries is not null)
-            await distributionSeries.Chart.UpdateSeriesAsync(true);
-        
-        if (projectedDistributionSeries is not null)
-            await projectedDistributionSeries.Chart.UpdateSeriesAsync(true);
 
         await InvokeAsync(() => StateHasChanged());
     }
@@ -153,9 +150,47 @@ public partial class Home
 
     protected async Task RefreshAsync()
     {
-        var address = "addr1qxhwefhsv6xn2s4sn8a92f9m29lwj67aykn4plr9xal4r48del5pz2hf795j5wxzhzf405g377jmw7a92k9z2enhd6pqlal6jy";
-        Rewards = await YieldFarmingDataService.YieldRewardByAddressAsync(address);
-        Distribution = await YieldFarmingDataService.YieldRewardDistributionAsync();
+        if (Address is null) return;
+
+        Rewards = await YieldFarmingDataService.YieldRewardByAddressSinceDaysAgoAsync(Address, 30);
+        Distribution = await YieldFarmingDataService.YieldRewardDistributionSinceDaysAgoAsync(30);
+        UnclaimedRewards = (await YieldFarmingDataService.TotalUnclaimedRewardsAsync(Address)) / (decimal)1000000;
+
+        if (PaginatedRewards.Count > 0)
+            PaginatedRewards = [.. await YieldFarmingDataService.YieldRewardByAddressAsync(Address, PaginatedRewards.First().Slot), .. PaginatedRewards];
+
+        if (yieldRewardSeries is not null)
+            await yieldRewardSeries.Chart.UpdateSeriesAsync(true);
+
+        if (distributionSeries is not null)
+            await distributionSeries.Chart.UpdateSeriesAsync(true);
+
+        if (projectedDistributionSeries is not null)
+            await projectedDistributionSeries.Chart.UpdateSeriesAsync(true);
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadMoreRewardsAsync();
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    protected async Task LoadMoreRewardsAsync()
+    {
+        if (Address is null) return;
+
+        IsLoading = true;
+        await InvokeAsync(StateHasChanged);
+
+        PaginatedRewards.AddRange(await YieldFarmingDataService.YieldRewardByAddressAsync(Address, 10, PaginatedRewards.Count));
+
+        IsLoading = false;
         await InvokeAsync(StateHasChanged);
     }
 

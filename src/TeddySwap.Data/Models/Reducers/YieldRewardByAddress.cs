@@ -4,6 +4,7 @@ public record YieldRewardByAddress (
     string PoolId,
     ulong Amount,
     ulong LPAmount,
+    ulong Bonus,
     decimal PoolShare,
     bool IsClaimed,
     string? ClaimTxId,

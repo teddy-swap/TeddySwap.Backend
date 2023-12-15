@@ -37,6 +37,49 @@ public class YieldFarmingDataService(IDbContextFactory<TeddySwapDbContext> dbCon
         ) as IEnumerable<YieldRewardByAddress> ?? [];
     }
 
+    public async Task<IEnumerable<YieldRewardByAddress>> YieldRewardByAddressSinceDaysAgoAsync(string address, int daysAgo)
+    {
+        var sinceDate = DateTimeOffset.UtcNow.AddDays(-daysAgo);
+
+        await using var dbContext = _dbContextFactory.CreateDbContext();
+        return (await dbContext.YieldRewardByAddress
+            .Where(l => l.Address == address && l.Timestamp >= sinceDate)
+            .OrderByDescending(l => l.Slot)
+            .ToListAsync()
+        ) as IEnumerable<YieldRewardByAddress> ?? Array.Empty<YieldRewardByAddress>();
+    }
+
+
+    public async Task<IEnumerable<YieldRewardByAddress>> YieldRewardByAddressAsync(string address, int limit, int offset)
+    {
+        await using var dbContext = _dbContextFactory.CreateDbContext();
+        return (await dbContext.YieldRewardByAddress
+            .Where(l => l.Address == address)
+            .OrderByDescending(l => l.Slot)
+            .Skip(offset)
+            .Take(limit)
+            .ToListAsync()
+        ) as IEnumerable<YieldRewardByAddress> ?? [];
+    }
+
+    public async Task<IEnumerable<YieldRewardByAddress>> YieldRewardByAddressAsync(string address, ulong sinceSlot)
+    {
+        await using var dbContext = _dbContextFactory.CreateDbContext();
+        return (await dbContext.YieldRewardByAddress
+            .Where(l => l.Address == address && l.Slot > sinceSlot)
+            .OrderByDescending(l => l.Slot)
+            .ToListAsync()
+        ) as IEnumerable<YieldRewardByAddress> ?? [];
+    }
+
+    public async Task<ulong> TotalUnclaimedRewardsAsync(string address)
+    {
+        await using var dbContext = _dbContextFactory.CreateDbContext();
+        return (ulong)(await dbContext.YieldRewardByAddress
+            .Where(l => l.Address == address && l.IsClaimed == false)
+            .SumAsync(l => (double)l.Amount));
+    }
+
     public async Task<IEnumerable<YieldFarmingDistribution>> YieldRewardDistributionAsync()
     {
         await using var dbContext = _dbContextFactory.CreateDbContext();
@@ -49,4 +92,21 @@ public class YieldFarmingDataService(IDbContextFactory<TeddySwapDbContext> dbCon
                 Slot = group.Max(item => item.Slot)
             }).ToListAsync();
     }
+
+    public async Task<IEnumerable<YieldFarmingDistribution>> YieldRewardDistributionSinceDaysAgoAsync(int daysAgo)
+    {
+        var sinceDate = DateTime.UtcNow.AddDays(-daysAgo);
+
+        await using var dbContext = _dbContextFactory.CreateDbContext();
+        return await dbContext.YieldRewardByAddress
+            .Where(item => item.Timestamp >= sinceDate)
+            .GroupBy(item => item.BlockNumber)
+            .Select(group => new YieldFarmingDistribution
+            {
+                BlockNumber = group.Key,
+                Amount = (ulong)group.Sum(item => (decimal)item.Amount),
+                Slot = group.Max(item => item.Slot)
+            }).ToListAsync();
+    }
+
 }
