@@ -6,6 +6,7 @@ public record YieldRewardByAddress (
     ulong LPAmount,
     ulong Bonus,
     decimal PoolShare,
+    string[] TBCs,
     bool IsClaimed,
     string? ClaimTxId,
     ulong BlockNumber,

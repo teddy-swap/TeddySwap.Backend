@@ -21,6 +21,7 @@ public class TeddySwapDbContext(DbContextOptions<TeddySwapDbContext> options, IC
         modelBuilder.Entity<LovelaceByAddressItem>().HasKey(item => new { item.Address, item.BlockNumber, item.Slot });
         modelBuilder.Entity<LiquidityByAddressItem>().HasKey(item => new { item.Address, item.BlockNumber, item.Slot });
         modelBuilder.Entity<YieldRewardByAddress>().HasKey(item => new { item.Address, item.BlockNumber, item.Slot, item.PoolId });
+        modelBuilder.Entity<YieldRewardByAddress>().HasOne(item => item.TBCs);
         modelBuilder.Entity<TransactionOutput>().HasKey(item => new { item.Id, item.Index });
         modelBuilder.Entity<TransactionOutput>().OwnsOne(item => item.Amount);
         modelBuilder.Entity<Block>().HasKey(item => new { item.Id, item.Slot });

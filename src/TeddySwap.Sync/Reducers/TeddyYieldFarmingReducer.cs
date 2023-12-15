@@ -298,6 +298,7 @@ public class TeddyYieldFarmingReducer(
                             lpAmount,
                             0,
                             userShare[key].Share,
+                            [],
                             false,
                             null,
                             response.Block.Number,
