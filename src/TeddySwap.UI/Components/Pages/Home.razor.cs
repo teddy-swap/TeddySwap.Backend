@@ -158,4 +158,10 @@ public partial class Home
         Distribution = await YieldFarmingDataService.YieldRewardDistributionAsync();
         await InvokeAsync(StateHasChanged);
     }
+
+    protected string PoolIdToPair(string poolId)
+    {
+        var pair = poolId.Split(".")[1].Split('_')[0..2];
+        return $"{pair[0]}/{pair[1]}";
+    }
 }
