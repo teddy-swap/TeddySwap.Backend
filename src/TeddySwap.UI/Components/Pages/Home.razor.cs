@@ -1,5 +1,9 @@
+using ApexCharts;
 using Microsoft.AspNetCore.Components;
-using MudBlazor;
+using TeddySwap.Data.Models;
+using TeddySwap.Data.Models.Reducers;
+using TeddySwap.Data.Services;
+using TeddySwap.Data.Utils;
 using TeddySwap.UI.Services;
 
 namespace TeddySwap.UI.Components.Pages;
@@ -8,21 +12,116 @@ public partial class Home
 {
     [Inject]
     protected CardanoDataService CardanoDataService { get; set; } = default!;
+
+    [Inject]
+    protected YieldFarmingDataService YieldFarmingDataService { get; set; } = default!;
+
     protected ulong CurrentBlockNumber => CardanoDataService.CurrentBlockNumber;
+    protected IEnumerable<YieldRewardByAddress> Rewards { get; set; } = default!;
+    protected IEnumerable<YieldFarmingDistribution> Distribution { get; set; } = default!;
+    protected IEnumerable<YieldFarmingDistribution> ProjectedDistribution => Distribution is null ? [] : Distribution.Select(d =>
+    {
+        var month = YieldFarmingUtils.GetMonthFromSlot(d.Slot, YieldFarmingUtils.YF_START_SLOT);
+        var dailyRewardAmount = YieldFarmingUtils.GetDailyRewardAmount(month);
+        return new YieldFarmingDistribution
+        {
+            BlockNumber = d.BlockNumber,
+            Amount = (ulong)(dailyRewardAmount * 1_000_000),
+            Slot = d.Slot
+        };
+    });
 
+    protected ApexPointSeries<YieldRewardByAddress>? yieldRewardSeries = default;
+    protected ApexPointSeries<YieldFarmingDistribution>? distributionSeries = default;
+    protected ApexPointSeries<YieldFarmingDistribution>? projectedDistributionSeries = default;
 
-    #region Example
-    private int Index = -1; //default value cannot be 0 -> first selectedindex is 0.
+    private readonly ApexChartOptions<YieldRewardByAddress> YieldRewardOptions = new()
+    {
+        Chart = new Chart
+        {
+            Stacked = true,
+            Background = "transparent"
+        },
+        PlotOptions = new PlotOptions
+        {
+            Bar = new PlotOptionsBar
+            {
+                DataLabels = new PlotOptionsBarDataLabels
+                {
+                    Total = new BarTotalDataLabels
+                    {
+                        Style = new BarDataLabelsStyle
+                        {
+                            FontWeight = "800"
+                        }
+                    }
+                }
+            }
+        },
+        Theme = new Theme
+        {
+            Mode = Mode.Dark,
+            Palette = PaletteType.Palette1
+        },
+        Xaxis = new XAxis
+        {
+            Labels = new XAxisLabels
+            {
+                Formatter = "(value) => new Date(value).toLocaleDateString('en-US',{month: 'short',day: 'numeric'})"
+            }
+        },
+        Markers = new Markers { Shape = ShapeEnum.Circle, Size = 5, FillOpacity = new Opacity(0.8d) },
+        Yaxis = [
+            new YAxis
+            {
+                Labels = new YAxisLabels
+                {
+                    Formatter = "(value) => value + ' $TEDY'"
+                }
+            }
+        ],
+    };
 
-    public List<ChartSeries> Series =
-    [
-        new ChartSeries() { Name = "Base Reward", Data = [40, 20, 25, 27, 46, 60, 48, 80, 15] },
-        new ChartSeries() { Name = "Bonus Reward", Data = [19, 24, 35, 13, 28, 15, 13, 16, 31] },
-        new ChartSeries() { Name = "Total Reward", Data = [8, 6, 11, 13, 4, 16, 10, 16, 18] },
-    ];
-    public string[] XAxisLabels = ["Dec 1", "Dec 2", "Dec 3", "Dec 4", "Dec 5", "Dec 6", "Dec 7", "Dec 8", "Dec 9"];
-    #endregion
-
+    private readonly ApexChartOptions<YieldFarmingDistribution> DistributionOptions = new()
+    {
+        Chart = new Chart
+        {
+            Stacked = true,
+            StackType = StackType.Normal,
+            Background = "transparent",
+        },
+        Theme = new Theme
+        {
+            Mode = Mode.Dark,
+            Palette = PaletteType.Palette1
+        },
+        Markers = new Markers { Shape = ShapeEnum.Circle, Size = 5, FillOpacity = new Opacity(0.8d) },
+        Xaxis = new XAxis
+        {
+            Labels = new XAxisLabels
+            {
+                Formatter = "(value) => value"
+            }
+        },
+        Yaxis = [
+            new YAxis
+            {
+                Labels = new YAxisLabels
+                {
+                    Formatter = "(value) => value + ' $TEDY'"
+                }
+            },
+            new YAxis
+            {
+                Opposite = true,
+                Labels= new YAxisLabels
+                {
+                    Formatter = "(value) => value + ' $TEDY'",
+                    Show = false
+                },
+            }
+        ],
+    };
 
     protected override void OnInitialized()
     {
@@ -30,8 +129,33 @@ public partial class Home
         base.OnInitialized();
     }
 
-    private void OnHeartbeat(object? sender, HeartbeatEventArgs e)
+    private async void OnHeartbeat(object? sender, HeartbeatEventArgs e)
     {
-        InvokeAsync(() => StateHasChanged());
+        await RefreshAsync();
+        
+        if (yieldRewardSeries is not null)
+            await yieldRewardSeries.Chart.UpdateSeriesAsync(true);
+        
+        if (distributionSeries is not null)
+            await distributionSeries.Chart.UpdateSeriesAsync(true);
+        
+        if (projectedDistributionSeries is not null)
+            await projectedDistributionSeries.Chart.UpdateSeriesAsync(true);
+
+        await InvokeAsync(() => StateHasChanged());
+    }
+
+    protected async override Task OnInitializedAsync()
+    {
+        await RefreshAsync();
+        await base.OnInitializedAsync();
+    }
+
+    protected async Task RefreshAsync()
+    {
+        var address = "addr1qxhwefhsv6xn2s4sn8a92f9m29lwj67aykn4plr9xal4r48del5pz2hf795j5wxzhzf405g377jmw7a92k9z2enhd6pqlal6jy";
+        Rewards = await YieldFarmingDataService.YieldRewardByAddressAsync(address);
+        Distribution = await YieldFarmingDataService.YieldRewardDistributionAsync();
+        await InvokeAsync(StateHasChanged);
     }
 }

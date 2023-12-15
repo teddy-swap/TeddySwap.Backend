@@ -1,5 +1,8 @@
 ﻿@page "/"
 @rendermode InteractiveServer
+@using ApexChartType = ApexCharts.ChartType
+@using TeddySwap.Data.Models.Reducers
+@using TeddySwap.Data.Models
 
 <PageTitle>TeddySwap · Rewards</PageTitle>
 
@@ -15,16 +18,23 @@
 
                         <!-- Chart 1 -->
                         <div class="my-4">
-                            <h3 class="text-xl font-semibold">Historical Rewards</h3>
-                            <MudChart ChartType="ChartType.Bar" ChartSeries="@Series" @bind-SelectedIndex="Index"
-                                XAxisLabels="@XAxisLabels" Width="100%" Height="350px"></MudChart>
+                            <ApexChart TItem="YieldRewardByAddress" Title="Historical Rewards ($TEDY)" Options="YieldRewardOptions">
+                                <ApexPointSeries @ref="yieldRewardSeries" TItem="YieldRewardByAddress" Items="Rewards" Name="Base Reward"
+                                    SeriesType="SeriesType.Line" XValue="@(e => e.Timestamp)"
+                                    YAggregate="@(e => e.Sum(e => (decimal)e.Amount / 1_000_000))" OrderBy="e=>e.X"/>
+                            </ApexChart>
                         </div>
-
+                        <MudDivider />
                         <!-- Chart 2 -->
                         <div class="my-4">
-                            <h3 class="text-xl font-semibold">Distribution</h3>
-                            <MudChart ChartType="ChartType.Line" ChartSeries="@Series" @bind-SelectedIndex="Index"
-                                XAxisLabels="@XAxisLabels" Width="100%" Height="350px"></MudChart>
+                            <ApexChart TItem="YieldFarmingDistribution" Title="Distribution ($TEDY) on Block" Options="DistributionOptions">
+                                <ApexPointSeries @ref="distributionSeries" TItem="YieldFarmingDistribution" Items="Distribution" Name="OnChain Distribution"
+                                    SeriesType="SeriesType.Line" XValue="@(e => e.BlockNumber.ToString())"
+                                    YValue="@(e => (decimal)e.Amount / 1_000_000)" OrderBy="e=>e.X"/>
+                                <ApexPointSeries @ref="projectedDistributionSeries" TItem="YieldFarmingDistribution" Items="ProjectedDistribution" Name="Projected Distribution"
+                                    SeriesType="SeriesType.Line" XValue="@(e => e.BlockNumber.ToString())"
+                                    YValue="@(e => (decimal)e.Amount / 1_000_000)" OrderBy="e=>e.X"/>
+                            </ApexChart>
                         </div>
 
                         <!-- Additional charts can be added here in a similar manner -->

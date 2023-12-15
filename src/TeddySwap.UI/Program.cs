@@ -30,6 +30,7 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddSingleton<CardanoDataService>();
 builder.Services.AddSingleton<BlockDataService>();
+builder.Services.AddSingleton<YieldFarmingDataService>();
 
 // Workers
 builder.Services.AddHostedService<CardanoWorker>();

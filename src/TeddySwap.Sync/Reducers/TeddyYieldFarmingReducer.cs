@@ -1,9 +1,10 @@
-using System.Numerics;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using PallasDotnet.Models;
 using TeddySwap.Data;
 using TeddySwap.Data.Models.Reducers;
+using TeddySwap.Data.Services;
+using TeddySwap.Data.Utils;
 
 namespace TeddySwap.Sync.Reducers;
 
@@ -17,15 +18,6 @@ public class TeddyYieldFarmingReducer(
     private TeddySwapDbContext _dbContext = default!;
     private readonly ILogger<TeddyYieldFarmingReducer> _logger = logger;
     private readonly YieldFarmingDataService _yieldFarmingDataService = yieldFarmingDataService;
-
-    const ulong YF_START_REWARD_AMOUNT = 178217820000;
-    const ulong YF_MONTHLY_DECREASE = 3753950000;
-    const int YF_TOTAL_MONTHS = 48;
-    const ulong YF_SECONDS_IN_MONTH = 2592000;
-    const long YF_SECONDS_IN_DAY = 86400;
-    const ulong YF_START_SLOT = 109812631; // 1701378922 unix timestamp, 12/01/2023 5:15:22 AM UTC
-    const long YF_START_TIME = 1701378922;
-    const ulong MAX_LP_TOKENS = 9223372036854775807;
 
     private readonly string[] _lpTokens =
     [
@@ -238,13 +230,13 @@ public class TeddyYieldFarmingReducer(
     public async Task RollForwardYieldFarmingRewardAsync(NextResponse response)
     {
         var lastDistribution = await _dbContext.YieldRewardByAddress.OrderByDescending(yr => yr.Slot).FirstOrDefaultAsync();
-        var lastDistributionSlot = lastDistribution?.Slot ?? YF_START_SLOT;
-        var lastDistributionTimestamp = lastDistribution?.Timestamp ?? DateTimeOffset.FromUnixTimeSeconds(YF_START_TIME);
+        var lastDistributionSlot = lastDistribution?.Slot ?? YieldFarmingUtils.YF_START_SLOT;
+        var lastDistributionTimestamp = lastDistribution?.Timestamp ?? DateTimeOffset.FromUnixTimeSeconds(YieldFarmingUtils.YF_START_TIME);
 
-        if (response.Block.Slot >= lastDistributionSlot + YF_SECONDS_IN_DAY)
+        if (response.Block.Slot >= lastDistributionSlot + YieldFarmingUtils.YF_SECONDS_IN_DAY)
         {
-            var yfMonth = GetMonthFromSlot(response.Block.Slot, YF_START_SLOT);
-            var dailyRewardAmount = GetDailyRewardAmount(yfMonth);
+            var yfMonth = YieldFarmingUtils.GetMonthFromSlot(response.Block.Slot, YieldFarmingUtils.YF_START_SLOT);
+            var dailyRewardAmount = YieldFarmingUtils.GetDailyRewardAmount(yfMonth);
             var liquidity = await _yieldFarmingDataService.GetAllLiquidityAsync();
             var poolLiquidity = liquidity.Where(l => _addressByPoolId.ContainsValue(l.Address)).ToList();
             var userLiquidity = liquidity.Where(l => !_addressByPoolId.ContainsValue(l.Address)).ToList();
@@ -262,7 +254,7 @@ public class TeddyYieldFarmingReducer(
                         {
                             var remainingLp = value[AsciiToHexString(lpUnit[1])];
 
-                            return MAX_LP_TOKENS - remainingLp;
+                            return YieldFarmingUtils.MAX_LP_TOKENS - remainingLp;
                         }
                         return 0UL;
                     }
@@ -309,7 +301,7 @@ public class TeddyYieldFarmingReducer(
                             null,
                             response.Block.Number,
                             response.Block.Slot,
-                            lastDistributionTimestamp.AddSeconds(YF_SECONDS_IN_DAY)
+                            lastDistributionTimestamp.AddSeconds(YieldFarmingUtils.YF_SECONDS_IN_DAY)
                         );
                         return yieldReward;
                     }
@@ -319,12 +311,15 @@ public class TeddyYieldFarmingReducer(
             }).ToList();
 
             var totalRewards = rewards.Where(r => r is not null).Sum(r => (decimal)r!.Amount);
-            if (totalRewards <= dailyRewardAmount)
+            
+            if (totalRewards / 1000000 <= dailyRewardAmount)
             {
                 _dbContext.AddRange(rewards.Where(r => r is not null).Select(r => r!));
                 await _dbContext.SaveChangesAsync();
+                return;
             }
-            throw new Exception("Total rewards exceeds daily reward amount");
+
+            throw new Exception($"Total rewards exceeds daily reward amount: {totalRewards / 1000000} / {dailyRewardAmount}");
         }
     }
 
@@ -503,49 +498,6 @@ public class TeddyYieldFarmingReducer(
         }
 
         await _dbContext.SaveChangesAsync();
-    }
-
-    public static (int Month, decimal MonthlyDistribution, decimal CumulativeDistribution) GetMonthlyRewards(int month)
-    {
-        if (month < 1 || month > YF_TOTAL_MONTHS)
-        {
-            throw new ArgumentOutOfRangeException(nameof(month), "Month must be between 1 and " + YF_TOTAL_MONTHS);
-        }
-
-        ulong monthlyReward = YF_START_REWARD_AMOUNT - YF_MONTHLY_DECREASE * (ulong)(month - 1);
-        ulong cumulativeReward = 0;
-
-        for (int i = 1; i <= month; i++)
-        {
-            cumulativeReward += YF_START_REWARD_AMOUNT - YF_MONTHLY_DECREASE * (ulong)(i - 1);
-        }
-
-        return (
-            month,
-            monthlyReward / (decimal)1000000,
-            cumulativeReward / (decimal)1000000
-        );
-    }
-
-    public static int GetMonthFromSlot(ulong slot, ulong startSlot)
-    {
-        // Calculate the time difference in slots
-        ulong timeDifference = slot - startSlot;
-
-        // Convert to seconds
-        ulong timeDifferenceInSeconds = timeDifference * YF_SECONDS_IN_DAY;
-
-        // Calculate the elapsed days
-        int elapsedDays = Convert.ToInt32(timeDifferenceInSeconds / YF_SECONDS_IN_DAY);
-
-        // Determine the month
-        return (int)Math.Ceiling((decimal)elapsedDays / YF_SECONDS_IN_MONTH);
-    }
-
-    private decimal GetDailyRewardAmount(int month)
-    {
-        var (_, MonthlyDistribution, _) = GetMonthlyRewards(month);
-        return MonthlyDistribution / 30;
     }
 
     private static string HexStringToAscii(string hexString)
