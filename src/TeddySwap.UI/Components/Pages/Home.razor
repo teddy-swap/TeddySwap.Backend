@@ -8,157 +8,155 @@
 
 <PageTitle>TeddySwap · Rewards</PageTitle>
 
-<section class="flex justify-center min-h-screen">
-    <!-- Main content container -->
-    <div class="w-full max-w-4xl p-8">
-        <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
-            <!-- Yield Farming Rewards Tab -->
-            <MudTabPanel Text="Yield Farming Rewards">
-                <MudCard>
-                    <MudCardContent>
-                        <div class="flex justify-between items-center flex-grow">
-                            <div>
-                                <h2 class="text-2xl font-bold">Yield Farming Rewards</h2>
-                                <MudText Typo="Typo.subtitle1" Color="MudColor.Tertiary">@UnclaimedRewards $TEDY</MudText>
-                            </div>
-                            <MudButton Color="MudColor.Secondary" Variant="Variant.Filled">Harvest Honey 🍯</MudButton>
+<!-- Main content container -->
+<div class="w-full lg:max-w-screen-md lg:mx-auto">
+    <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="w-full pt-4">
+        <!-- Yield Farming Rewards Tab -->
+        <MudTabPanel Text="Yield Farming Rewards">
+            <MudCard>
+                <MudCardContent>
+                    <div class="flex justify-between items-center flex-grow">
+                        <div>
+                            <h2 class="text-2xl font-bold">Yield Farming Rewards</h2>
+                            <MudText Typo="Typo.subtitle1" Color="MudColor.Tertiary">@UnclaimedRewards $TEDY</MudText>
                         </div>
+                        <MudButton Variant="Variant.Outlined">Harvest Honey 🍯</MudButton>
+                    </div>
 
 
-                        <!-- Chart 1 -->
-                        <div class="my-4">
-                            <ApexChart TItem="YieldRewardByAddress" Title="Historical Rewards ($TEDY)" Options="YieldRewardOptions">
-                                <ApexPointSeries @ref="yieldRewardSeries" TItem="YieldRewardByAddress" Items="Rewards" Name="Base Reward"
-                                    SeriesType="SeriesType.Line" XValue="@(e => e.Timestamp)"
-                                    YAggregate="@(e => e.Sum(e => (decimal)e.Amount / 1_000_000))" OrderBy="e=>e.X"/>
-                            </ApexChart>
-                        </div>
-                        <MudDivider />
-                        <!-- Chart 2 -->
-                        <div class="my-4">
-                            <ApexChart TItem="YieldFarmingDistribution" Title="Distribution ($TEDY) per Block" Options="DistributionOptions">
-                                <ApexPointSeries @ref="distributionSeries" TItem="YieldFarmingDistribution" Items="Distribution" Name="OnChain Distribution"
-                                    SeriesType="SeriesType.Line" XValue="@(e => e.BlockNumber.ToString())"
-                                    YValue="@(e => (decimal)e.Amount / 1_000_000)" OrderBy="e=>e.X"/>
-                                <ApexPointSeries @ref="projectedDistributionSeries" TItem="YieldFarmingDistribution" Items="ProjectedDistribution" Name="Projected Distribution"
-                                    SeriesType="SeriesType.Line" XValue="@(e => e.BlockNumber.ToString())"
-                                    YValue="@(e => (decimal)e.Amount / 1_000_000)" OrderBy="e=>e.X"/>
-                            </ApexChart>
-                        </div>
-                        <MudDivider />
-                        <!-- Chart 3 -->
-                        <h2 class="text-2xl font-bold mt-4">Reward Logs</h2>
-                        <div class="my-4">
-                            <MudSimpleTable Dense="true" Bordered="true" Striped="true" Style="overflow-x: auto;">
-                                <thead>
-                                    <tr>
-                                        <th>
-                                            <MudText Typo="Typo.subtitle2">Pool</MudText>
-                                        </th>
-                                        <th>
-                                            <MudText Typo="Typo.subtitle2">Base Reward</MudText>
-                                        </th>
-                                        <th>
-                                            <MudText Typo="Typo.subtitle2">Bonus Reward</MudText>
-                                        </th>
-                                        <th>
-                                            <MudText Typo="Typo.subtitle2">Date</MudText>
-                                        </th>
-                                        <th>
-                                            <MudText Typo="Typo.subtitle2">Status</MudText>
-                                        </th>
-                                        <th>
-                                            <MudText Typo="Typo.subtitle2">Claim Tx</MudText>
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @if (PaginatedRewards is not null)
+                    <!-- Chart 1 -->
+                    <div class="my-4">
+                        <ApexChart TItem="YieldRewardByAddress" Title="Historical Rewards ($TEDY)" Options="YieldRewardOptions">
+                            <ApexPointSeries @ref="yieldRewardSeries" TItem="YieldRewardByAddress" Items="Rewards" Name="Base Reward"
+                                SeriesType="SeriesType.Line" XValue="@(e => e.Timestamp)"
+                                YAggregate="@(e => e.Sum(e => (decimal)e.Amount / 1_000_000))" OrderBy="e=>e.X"/>
+                        </ApexChart>
+                    </div>
+                    <MudDivider />
+                    <!-- Chart 2 -->
+                    <div class="my-4">
+                        <ApexChart TItem="YieldFarmingDistribution" Title="Distribution ($TEDY) per Block" Options="DistributionOptions">
+                            <ApexPointSeries @ref="distributionSeries" TItem="YieldFarmingDistribution" Items="Distribution" Name="OnChain Distribution"
+                                SeriesType="SeriesType.Line" XValue="@(e => e.BlockNumber.ToString())"
+                                YValue="@(e => (decimal)e.Amount / 1_000_000)" OrderBy="e=>e.X"/>
+                            <ApexPointSeries @ref="projectedDistributionSeries" TItem="YieldFarmingDistribution" Items="ProjectedDistribution" Name="Projected Distribution"
+                                SeriesType="SeriesType.Line" XValue="@(e => e.BlockNumber.ToString())"
+                                YValue="@(e => (decimal)e.Amount / 1_000_000)" OrderBy="e=>e.X"/>
+                        </ApexChart>
+                    </div>
+                    <MudDivider />
+                    <!-- Chart 3 -->
+                    <h2 class="text-2xl font-bold mt-4">Reward Logs</h2>
+                    <div class="my-4">
+                        <MudSimpleTable Dense="true" Bordered="true" Striped="true" Style="overflow-x: auto;">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <MudText Typo="Typo.subtitle2">Pool</MudText>
+                                    </th>
+                                    <th>
+                                        <MudText Typo="Typo.subtitle2">Base Reward</MudText>
+                                    </th>
+                                    <th>
+                                        <MudText Typo="Typo.subtitle2">Bonus Reward</MudText>
+                                    </th>
+                                    <th>
+                                        <MudText Typo="Typo.subtitle2">Date</MudText>
+                                    </th>
+                                    <th>
+                                        <MudText Typo="Typo.subtitle2">Status</MudText>
+                                    </th>
+                                    <th>
+                                        <MudText Typo="Typo.subtitle2">Claim Tx</MudText>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (PaginatedRewards is not null)
+                                {
+                                    @foreach (var reward in PaginatedRewards)
                                     {
-                                        @foreach (var reward in PaginatedRewards)
-                                        {
-                                            <tr>
-                                                <td>
-                                                    <MudText Color="MudColor.Default" Typo="Typo.subtitle2">
-                                                        @(PoolIdToPair(reward.PoolId))
-                                                    </MudText>
-                                                </td>
-                                                <td>
+                                        <tr>
+                                            <td>
+                                                <MudText Color="MudColor.Default" Typo="Typo.subtitle2">
+                                                    @(PoolIdToPair(reward.PoolId))
+                                                </MudText>
+                                            </td>
+                                            <td>
+                                                <MudText Color="MudColor.Tertiary" Typo="Typo.subtitle2">
+                                                    @((decimal)reward.Amount / 1_000_000) $TEDY
+                                                </MudText>
+                                            </td>
+                                            <td>
+                                                <MudText Color="MudColor.Tertiary" Typo="Typo.subtitle2">
+                                                    0 $TEDY
+                                                </MudText>
+                                            </td>
+                                            <td>
+                                                <MudText Color="MudColor.Default" Typo="Typo.subtitle2">
+                                                    @reward.Timestamp.ToLocalTime().ToString("dd/MM/yyyy")
+                                                </MudText>
+                                            </td>
+                                            <td>
+                                                @if (reward.IsClaimed)
+                                                {
                                                     <MudText Color="MudColor.Success" Typo="Typo.subtitle2">
-                                                        @((decimal)reward.Amount / 1_000_000) $TEDY
+                                                            Claimed
                                                     </MudText>
-                                                </td>
-                                                <td>
-                                                    <MudText Color="MudColor.Success" Typo="Typo.subtitle2">
-                                                        0 $TEDY
+                                                }
+                                                else
+                                                {
+                                                    <MudText Color="MudColor.Tertiary" Typo="Typo.subtitle2">
+                                                            Pending
                                                     </MudText>
-                                                </td>
-                                                <td>
-                                                    <MudText Color="MudColor.Default" Typo="Typo.subtitle2">
-                                                        @reward.Timestamp.ToLocalTime().ToString("dd/MM/yyyy")
-                                                    </MudText>
-                                                </td>
-                                                <td>
-                                                    @if (reward.IsClaimed)
-                                                    {
-                                                        <MudText Color="MudColor.Success" Typo="Typo.subtitle2">
-                                                             Claimed
-                                                        </MudText>
-                                                    }
-                                                    else
-                                                    {
-                                                        <MudText Color="MudColor.Tertiary" Typo="Typo.subtitle2">
-                                                             Pending
-                                                        </MudText>
-                                                    }
-                                                </td>
-                                                <td>
-                                                    <MudText Color="MudColor.Default" Typo="Typo.subtitle2">
-                                                        @reward.ClaimTxId
-                                                    </MudText>
-                                                </td>
-                                            </tr>
-                                        }
+                                                }
+                                            </td>
+                                            <td>
+                                                <MudText Color="MudColor.Default" Typo="Typo.subtitle2">
+                                                    @reward.ClaimTxId
+                                                </MudText>
+                                            </td>
+                                        </tr>
                                     }
-                                </tbody>
-                            </MudSimpleTable>
-                            <div class="mt-3 flex justify-center">
-                                <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.More" OnClick="LoadMoreRewardsAsync" Disabled="IsLoading">Load More</MudButton>
-                            </div>
+                                }
+                            </tbody>
+                        </MudSimpleTable>
+                        <div class="mt-3 flex justify-center">
+                            <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.More" OnClick="LoadMoreRewardsAsync" Disabled="IsLoading">Load More</MudButton>
                         </div>
-                    </MudCardContent>
-                </MudCard>
-            </MudTabPanel>
+                    </div>
+                </MudCardContent>
+            </MudCard>
+        </MudTabPanel>
 
-            <!-- INO (Initial NFT Offering) Rewards Tab -->
-            <MudTabPanel Text="INO Rewards">
-                <MudCard>
-                    <MudCardContent>
-                        <h2 class="text-2xl font-bold">INO (Initial NFT Offering) Rewards</h2>
-                        <p>Coming soon...</p>
-                    </MudCardContent>
-                </MudCard>
-            </MudTabPanel>
+        <!-- INO (Initial NFT Offering) Rewards Tab -->
+        <MudTabPanel Text="INO Rewards">
+            <MudCard>
+                <MudCardContent>
+                    <h2 class="text-2xl font-bold">INO (Initial NFT Offering) Rewards</h2>
+                    <p>Coming soon...</p>
+                </MudCardContent>
+            </MudCard>
+        </MudTabPanel>
 
-            <!-- ITN (Incentivized Testnet) Rewards Tab -->
-            <MudTabPanel Text="ITN Rewards">
-                <MudCard>
-                    <MudCardContent>
-                        <h2 class="text-2xl font-bold">ITN (Incentivized Testnet) Rewards</h2>
-                        <p>Coming soon...</p>
-                    </MudCardContent>
-                </MudCard>
-            </MudTabPanel>
+        <!-- ITN (Incentivized Testnet) Rewards Tab -->
+        <MudTabPanel Text="ITN Rewards">
+            <MudCard>
+                <MudCardContent>
+                    <h2 class="text-2xl font-bold">ITN (Incentivized Testnet) Rewards</h2>
+                    <p>Coming soon...</p>
+                </MudCardContent>
+            </MudCard>
+        </MudTabPanel>
 
-            <!-- FISO (Fair Initial Stake Pool Offering) Rewards Tab -->
-            <MudTabPanel Text="FISO Rewards">
-                <MudCard>
-                    <MudCardContent>
-                        <h2 class="text-2xl font-bold">FISO (Fair Initial Stake Pool Offering) Rewards</h2>
-                        <p>Coming soon...</p>
-                    </MudCardContent>
-                </MudCard>
-            </MudTabPanel>
-        </MudTabs>
-    </div>
-</section>
+        <!-- FISO (Fair Initial Stake Pool Offering) Rewards Tab -->
+        <MudTabPanel Text="FISO Rewards">
+            <MudCard>
+                <MudCardContent>
+                    <h2 class="text-2xl font-bold">FISO (Fair Initial Stake Pool Offering) Rewards</h2>
+                    <p>Coming soon...</p>
+                </MudCardContent>
+            </MudCard>
+        </MudTabPanel>
+    </MudTabs>
+</div>

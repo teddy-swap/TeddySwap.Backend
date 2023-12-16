@@ -1,10 +1,10 @@
 ﻿@inherits LayoutComponentBase
 
-<MudThemeProvider IsDarkMode="true"/>
+<MudThemeProvider IsDarkMode="true" Theme="_theme"/>
 <MudDialogProvider/>
 <MudSnackbarProvider/>
 
-<section class="flex justify-center items-center min-h-screen">
+<section class="flex justify-center min-h-screen px-2 lg:px-0">
     @Body
 </section>
 
@@ -13,3 +13,22 @@
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
+
+@code {
+    protected MudTheme _theme = new MudTheme()
+    {
+        Typography = new Typography()
+        {
+            Default = new Default()
+            {
+                FontFamily = ["Montserrat"],
+            }
+        },
+        PaletteDark = new PaletteDark()
+        {
+            Primary = new MudBlazor.Utilities.MudColor("#FFFFFF"),
+            Surface = new MudBlazor.Utilities.MudColor(69, 78, 96, 0.63),
+            Secondary = new MudBlazor.Utilities.MudColor("#181E29")
+        }
+    };
+}
