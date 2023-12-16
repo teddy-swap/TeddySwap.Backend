@@ -17,7 +17,7 @@ public partial class Home
     protected YieldFarmingDataService YieldFarmingDataService { get; set; } = default!;
 
     [Parameter]
-    public string? Address { get; set; } = "addr1qxhwefhsv6xn2s4sn8a92f9m29lwj67aykn4plr9xal4r48del5pz2hf795j5wxzhzf405g377jmw7a92k9z2enhd6pqlal6jy";
+    public string? Address { get; set; }
 
     protected decimal UnclaimedRewards { get; set; }
     protected bool IsLoading { get; set; }

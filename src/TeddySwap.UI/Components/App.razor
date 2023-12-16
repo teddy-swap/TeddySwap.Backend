@@ -17,6 +17,23 @@
     <Routes />
     <script src="_framework/blazor.web.js"></script>
     <script src="_content/MudBlazor/MudBlazor.min.js"></script>
+    <script>
+        window.onload = () => {
+            let intId = setInterval(() => {
+                try {
+                    if(Blazor.defaultReconnectionHandler !== null) {
+                        Blazor.defaultReconnectionHandler._reconnectCallback = function (d) {
+                            document.location.reload(); 
+                        }
+                        clearInterval(intId);
+                    }
+                }
+                catch (e) {
+                    console.log(e);
+                }
+            }, 1000);
+        };
+    </script>
 </body>
 
 </html>
