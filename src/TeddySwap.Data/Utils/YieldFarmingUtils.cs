@@ -2,7 +2,6 @@ namespace TeddySwap.Data.Utils;
 
 public static class YieldFarmingUtils
 {
-
     public const ulong YF_START_REWARD_AMOUNT = 178217820000;
     public const ulong YF_MONTHLY_DECREASE = 3753950000;
     public const int YF_TOTAL_MONTHS = 48;

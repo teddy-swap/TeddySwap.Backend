@@ -35,7 +35,7 @@ public class TransactionOutputReducer(IDbContextFactory<TeddySwapDbContext> dbCo
         
     }
 
-    private static TransactionOutputEntity MapTransactionOutput(string TransactionId, ulong slot, TransactionOutput output)
+    public static TransactionOutputEntity MapTransactionOutput(string TransactionId, ulong slot, TransactionOutput output)
     {
         return new TransactionOutputEntity
         {
