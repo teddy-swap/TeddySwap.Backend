@@ -27,7 +27,9 @@ builder.Services.AddDbContextFactory<TeddySwapDbContext>(options =>
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+builder.Services.AddMemoryCache();
 
+builder.Services.AddSingleton<CacheService>();
 builder.Services.AddSingleton<CardanoDataService>();
 builder.Services.AddSingleton<BlockDataService>();
 builder.Services.AddSingleton<YieldFarmingDataService>();

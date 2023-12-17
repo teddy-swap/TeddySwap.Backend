@@ -1,5 +1,6 @@
 using ApexCharts;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.JSInterop;
 using TeddySwap.Data.Models;
 using TeddySwap.Data.Models.Reducers;
@@ -19,6 +20,9 @@ public partial class Home
 
     [Inject]
     protected IJSRuntime JSRuntime { get; set; } = default!;
+
+    [Inject]
+    protected CacheService CacheService { get; set; } = default!;
 
     [Parameter]
     public string? Address { get; set; }
@@ -156,9 +160,17 @@ public partial class Home
     {
         if (Address is null) return;
 
-        Rewards = await YieldFarmingDataService.YieldRewardByAddressSinceDaysAgoAsync(Address, 30);
-        Distribution = await YieldFarmingDataService.YieldRewardDistributionSinceDaysAgoAsync(30);
-        UnclaimedRewards = (await YieldFarmingDataService.TotalUnclaimedRewardsAsync(Address)) / (decimal)1000000;
+        Rewards = await CacheService.GetOrCreateAsync($"YieldRewardByAddressSinceDaysAgoAsync_{Address}_30",
+            async entry => await YieldFarmingDataService.YieldRewardByAddressSinceDaysAgoAsync(Address, 30)
+        ) ?? [];
+
+        Distribution = await CacheService.GetOrCreateAsync($"YieldRewardDistributionSinceDaysAgoAsync_30",
+            async entry => await YieldFarmingDataService.YieldRewardDistributionSinceDaysAgoAsync(30)
+        ) ?? [];
+
+        UnclaimedRewards = await CacheService.GetOrCreateAsync($"TotalUnclaimedRewardsAsync_{Address}",
+            async entry => await YieldFarmingDataService.TotalUnclaimedRewardsAsync(Address)
+        ) / (decimal)1000000;
 
         if (PaginatedRewards.Count > 0)
             PaginatedRewards = [.. await YieldFarmingDataService.YieldRewardByAddressAsync(Address, PaginatedRewards.First().Slot), .. PaginatedRewards];
