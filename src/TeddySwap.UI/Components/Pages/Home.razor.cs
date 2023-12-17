@@ -1,5 +1,6 @@
 using ApexCharts;
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using TeddySwap.Data.Models;
 using TeddySwap.Data.Models.Reducers;
 using TeddySwap.Data.Services;
@@ -15,6 +16,9 @@ public partial class Home
 
     [Inject]
     protected YieldFarmingDataService YieldFarmingDataService { get; set; } = default!;
+
+    [Inject]
+    protected IJSRuntime JSRuntime { get; set; } = default!;
 
     [Parameter]
     public string? Address { get; set; }
@@ -198,5 +202,10 @@ public partial class Home
     {
         var pair = poolId.Split(".")[1].Split('_')[0..2];
         return $"{pair[0]}/{pair[1]}";
+    }
+
+    protected async void OnHarvestClicked()
+    {
+        await JSRuntime.InvokeVoidAsync("window.harvest");
     }
 }

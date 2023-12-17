@@ -1,1 +1,3 @@
-console.log("Hello via Bun!");
+window.harvest = () => {
+    window.parent.postMessage({ harvest: true }, '*');
+};
