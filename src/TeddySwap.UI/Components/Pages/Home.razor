@@ -112,11 +112,20 @@
                                                 }
                                             </td>
                                             <td class="!text-center">
-                                                <MudText Color="MudColor.Default" Typo="Typo.subtitle2">
-                                                    <a href="https://cardanoscan.io/transaction/@reward.ClaimTxId" target="_blank">
-                                                        <MudIcon Icon="@Icons.Material.Filled.Link" Title="Link" />
-                                                    </a>
-                                                </MudText>
+                                                @if(string.IsNullOrEmpty(reward.ClaimTxId))
+                                                {
+                                                    <MudText Color="MudColor.Default" Typo="Typo.subtitle2">
+                                                        -
+                                                    </MudText>
+                                                }
+                                                else
+                                                {
+                                                    <MudText Color="MudColor.Default" Typo="Typo.subtitle2">
+                                                        <a href="https://cardanoscan.io/transaction/@reward.ClaimTxId" target="_blank">
+                                                            <MudIcon Icon="@Icons.Material.Filled.Link" Title="Link" />
+                                                        </a>
+                                                    </MudText>
+                                                }
                                             </td>
                                         </tr>
                                     }

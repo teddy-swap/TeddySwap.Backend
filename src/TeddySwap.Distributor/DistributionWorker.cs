@@ -104,7 +104,7 @@ public class DistributionWorker(
                 while (claimRequestsAsQueue.TryDequeue(out var claimRequest))
                 {
                     var claimRequestAddress = claimRequest.Address;
-                    var yieldRewardsByAddress = await yieldFarmingDataService.YieldRewardByAddressAsync(claimRequestAddress);
+                    var yieldRewardsByAddress = await yieldFarmingDataService.UnclaimedYieldRewardByAddressAsync(claimRequestAddress);
                     var totalReward = (ulong)yieldRewardsByAddress.Sum(r => (decimal)r.Amount);
                     var returnAda = claimRequest.TBCs.Length != 0 ? 4_700_000ul : 1_700_000ul;
 
@@ -117,9 +117,11 @@ public class DistributionWorker(
                     yieldRewardsByAddress.ToList().ForEach(r => r.Bonus = (ulong)(r.Amount * totalBonusPercent));
                     processedYieldRewards.AddRange(yieldRewardsByAddress);
 
-                    var rewardAssets = new Dictionary<byte[], NativeAsset>()
+                    var rewardAssets = new Dictionary<byte[], NativeAsset>() { };
+
+                    if (totalRewardPlusBonus > 0)
                     {
-                        {
+                        rewardAssets.Add(
                             Convert.FromHexString(tedyUnitSplit[0]),
                             new()
                             {
@@ -128,8 +130,8 @@ public class DistributionWorker(
                                     { Convert.FromHexString(tedyUnitSplit[1]), (long)totalRewardPlusBonus }
                                 }
                             }
-                        }
-                    };
+                        );
+                    }
 
                     if (claimRequest.TBCs.Length > 0)
                     {
@@ -162,7 +164,7 @@ public class DistributionWorker(
                         Value = new()
                         {
                             Coin = returnAda,
-                            MultiAsset = rewardAssets
+                            MultiAsset = rewardAssets.Count > 0 ? rewardAssets : []
                         }
                     });
 
@@ -261,7 +263,7 @@ public class DistributionWorker(
                     logger.LogInformation("Successfully submitted transaction {TxHash}", txHash);
                     await yieldFarmingDataService.SetYieldRewardByAddressClaimedAsync(processedYieldRewards, txHash);
                     await yieldFarmingDataService.SetYieldClaimRequestsProcessedAsync(processedClaimRequests, txHash, currentBlock.Number, currentBlock.Slot);
-                    if (await WaitTxConfirmationsWithTimeoutAsync(txHash, 10, 250))
+                    if (await WaitTxConfirmationsWithTimeoutAsync(txHash, 1, 250))
                     {
                         logger.LogInformation("Successfully confirmed transaction {TxHash}", txHash);
                     }

@@ -37,6 +37,16 @@ public class YieldFarmingDataService(IDbContextFactory<TeddySwapDbContext> dbCon
         ) as IEnumerable<YieldRewardByAddress> ?? [];
     }
 
+    public async Task<IEnumerable<YieldRewardByAddress>> UnclaimedYieldRewardByAddressAsync(string address)
+    {
+        await using var dbContext = _dbContextFactory.CreateDbContext();
+        return (await dbContext.YieldRewardByAddress
+            .Where(l => l.Address == address && l.IsClaimed == false)
+            .OrderByDescending(l => l.Slot)
+            .ToListAsync()
+        ) as IEnumerable<YieldRewardByAddress> ?? [];
+    }
+
     public async Task<IEnumerable<YieldRewardByAddress>> YieldRewardByAddressSinceDaysAgoAsync(string address, int daysAgo)
     {
         var sinceDate = DateTimeOffset.UtcNow.AddDays(-daysAgo);
