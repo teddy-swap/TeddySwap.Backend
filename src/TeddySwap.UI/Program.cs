@@ -56,4 +56,16 @@ app.UseAntiforgery();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
+app.Use((context, next) =>
+{
+    // Remove the X-Frame-Options header
+    context.Response.Headers.Remove("X-Frame-Options");
+
+    // Set Content-Security-Policy for frame-ancestors to allow all domains ('*')
+    // Note: Adjust the policy as needed for your security requirements
+    context.Response.Headers.Append("Content-Security-Policy", "frame-ancestors *");
+
+    return next.Invoke();
+});
+
 app.Run();
