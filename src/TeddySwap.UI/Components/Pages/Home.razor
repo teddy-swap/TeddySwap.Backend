@@ -103,7 +103,7 @@
                                             </td>
                                             <td>
                                                 <MudText Color="MudColor.Default" Typo="Typo.subtitle2">
-                                                    @reward.Timestamp.ToLocalTime().ToString("dd/MM/yyyy")
+                                                    <BlazorTime.ToLocal DateTime="@reward.Timestamp.ToLocalTime().DateTime" Format="dd/mm/yyyy" />
                                                 </MudText>
                                             </td>
                                             <td>
