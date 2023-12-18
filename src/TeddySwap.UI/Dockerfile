@@ -9,7 +9,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
 # Copy csproj and restore any dependencies (via NuGet)
-COPY ["/src/TeddySwap.Sync/TeddySwap.UI.csproj", "./"]
+COPY ["/src/TeddySwap.UI/TeddySwap.UI.csproj", "./"]
 RUN dotnet restore "TeddySwap.UI.csproj"
 
 # Copy the project files and build the application
