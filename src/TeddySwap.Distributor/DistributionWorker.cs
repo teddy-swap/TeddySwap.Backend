@@ -106,7 +106,7 @@ public class DistributionWorker(
                     var claimRequestAddress = claimRequest.Address;
                     var yieldRewardsByAddress = await yieldFarmingDataService.UnclaimedYieldRewardByAddressAsync(claimRequestAddress);
                     var totalReward = (ulong)yieldRewardsByAddress.Sum(r => (decimal)r.Amount);
-                    var returnAda = claimRequest.TBCs.Length != 0 ? 4_700_000ul : 1_700_000ul;
+                    var returnAda = claimRequest.TBCs.Length != 0 ? 4_200_000ul : 1_700_000ul;
 
                     var totalBonusPercent =
                         claimRequest.TBCs.Where(tbc => tbc.StartsWith(_tbcPolicies[0])).Count() * tbcOneBonus +
@@ -190,7 +190,7 @@ public class DistributionWorker(
 
                 // Add change output
 
-                var fee = claimRequests.Any() ? 800_000ul : 300_000ul;
+                var fee = claimRequests.Where(cr => cr.TBCs.Length != 0).Any() ? 800_000ul : 300_000ul;
                 totalLovelace -= fee;
 
                 var changeAssets = assets
@@ -283,16 +283,21 @@ public class DistributionWorker(
 
     private async Task<bool> WaitTxConfirmationsWithTimeoutAsync(string txHash, ulong confirmationsNeeded, int timeoutSeconds)
     {
-        var confirmations = 0UL;
         var start = DateTime.UtcNow;
 
-        while (confirmations < confirmationsNeeded && DateTime.UtcNow.Subtract(start).TotalSeconds < timeoutSeconds)
+        while (DateTime.UtcNow.Subtract(start).TotalSeconds < timeoutSeconds)
         {
-            confirmations = await transactionDataService.GetTransactionIdConfirmationsAsync(txHash);
+            ulong confirmations = await transactionDataService.GetTransactionIdConfirmationsAsync(txHash);
+
+            if (confirmations >= confirmationsNeeded)
+            {
+                return true;
+            }
+
             await Task.Delay(1000 * 20);
         }
 
-        return confirmations >= confirmationsNeeded;
+        return false;
     }
 
     private async Task<string?> SubmitTxAsync(byte[] txBytes)
@@ -300,7 +305,7 @@ public class DistributionWorker(
         using var httpClient = httpClientFactory.CreateClient();
         var content = new ByteArrayContent(txBytes);
         content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/cbor");
-
+        content.Headers.Add("project_id", configuration["BlockfrostApiKey"]);
         var response = await httpClient.PostAsync(configuration["TxSubmitEndpoint"], content);
 
         if (response.IsSuccessStatusCode)
