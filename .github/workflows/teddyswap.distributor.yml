@@ -22,7 +22,7 @@ jobs:
         with:
           push: true
           file: ./src/TeddySwap.Distributor/Dockerfile
-          tags: clarkteddyswap/teddy-ui:${{ github.sha }}
+          tags: clarkteddyswap/teddy-distributor:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: git_commit_id=${{ github.sha }}
