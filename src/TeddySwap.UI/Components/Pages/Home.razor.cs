@@ -33,11 +33,11 @@ public partial class Home
     protected decimal UnclaimedRewards { get; set; }
     protected bool IsLoading { get; set; }
     protected ulong CurrentBlockNumber => CardanoDataService.CurrentBlockNumber;
-    protected IEnumerable<YieldRewardByAddress> Rewards { get; set; } = default!;
+    protected IEnumerable<YieldRewardByAddress> Rewards { get; set; } = [];
     protected IEnumerable<YieldRewardByAddress> ClaimedRewards => Rewards is null ? [] : Rewards.Where(r => r.IsClaimed);
     protected List<YieldRewardByAddress> PaginatedRewards { get; set; } = [];
-    protected IEnumerable<YieldFarmingDistribution> Distribution { get; set; } = default!;
-    protected IEnumerable<YieldFarmingDistribution> ClaimedDistribution { get; set; } = default!;
+    protected IEnumerable<YieldFarmingDistribution> Distribution { get; set; } = [];
+    protected IEnumerable<YieldFarmingDistribution> ClaimedDistribution { get; set; } = [];
     protected IEnumerable<YieldFarmingDistribution> ProjectedDistribution => Distribution is null ? [] : Distribution.Select(d =>
     {
         var month = YieldFarmingUtils.GetMonthFromSlot(d.Slot, YieldFarmingUtils.YF_START_SLOT);
@@ -162,11 +162,11 @@ public partial class Home
             if (Address is null) return;
 
             Rewards = await CacheService.GetOrCreateAsync($"YieldRewardByAddressSinceDaysAgoAsync_{Address}_30",
-                async entry => await YieldFarmingDataService.YieldRewardByAddressSinceDaysAgoAsync(Address, 30)
+                async entry => await YieldFarmingDataService.YieldRewardByAddressSinceDaysAgoAsync(Address, 30) ?? []
             ) ?? [];
 
             Distribution = await CacheService.GetOrCreateAsync($"YieldRewardDistributionSinceDaysAgoAsync_30",
-                async entry => await YieldFarmingDataService.YieldRewardDistributionSinceDaysAgoAsync(30)
+                async entry => await YieldFarmingDataService.YieldRewardDistributionSinceDaysAgoAsync(30) ?? []
             ) ?? [];
 
             UnclaimedRewards = await CacheService.GetOrCreateAsync($"TotalUnclaimedRewardsAsync_{Address}",
@@ -174,7 +174,7 @@ public partial class Home
             ) / (decimal)1000000;
 
             ClaimedDistribution = await CacheService.GetOrCreateAsync($"ClaimedYieldRewardDistributionSinceDaysAgoAsync_30",
-                async entry => await YieldFarmingDataService.ClaimedYieldRewardDistributionSinceDaysAgoAsync(30)
+                async entry => await YieldFarmingDataService.ClaimedYieldRewardDistributionSinceDaysAgoAsync(30) ?? []
             ) ?? [];
 
             if (PaginatedRewards.Count > 0)
