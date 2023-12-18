@@ -133,6 +133,19 @@ public class YieldFarmingDataService(IDbContextFactory<TeddySwapDbContext> dbCon
             .Select(g => g.First());
     }
 
+    public async Task<IEnumerable<string>> GetClaimedTbcLastDayAsync(ulong currentSlot)
+    {
+        await using var dbContext = _dbContextFactory.CreateDbContext();
+        var dayInSecs = (ulong)(24 * 60 * 60);
+        var lastDayInSlot = currentSlot - dayInSecs;
+
+        return (await dbContext.YieldClaimRequests
+            .Where(r => r.Slot > lastDayInSlot && r.ProcessTxHash != null)
+            .ToListAsync())
+            .SelectMany(r => r.TBCs)
+            .Distinct();
+    }
+
     public async Task SetYieldRewardByAddressClaimedAsync(IEnumerable<YieldRewardByAddress> yieldRewardByAddresses, string txHash)
     {
         await using var dbContext = _dbContextFactory.CreateDbContext();

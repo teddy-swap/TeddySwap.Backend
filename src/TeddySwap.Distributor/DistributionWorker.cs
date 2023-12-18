@@ -72,12 +72,19 @@ public class DistributionWorker(
     private async Task ProcessClaimRequestsAsync(Block currentBlock)
     {
         var ledgerState = await ledgerStateDataService.LedgerStateByAddressAsync(DistributionAddress.ToString());
-        var claimRequests = await yieldFarmingDataService.GetPendingYieldClaimRequestsAsync();
+        var pendingClaimRequests = await yieldFarmingDataService.GetPendingYieldClaimRequestsAsync();
+        var claimRequests = pendingClaimRequests.Where(cr => currentBlock.Number - cr.BlockNumber >= 10);
+
+        logger.LogInformation(
+            "[{blockNumber}]: Total ClaimRequests [{pendingClaims}], Confirmed [{confirmedClaims}]", 
+            currentBlock.Number, pendingClaimRequests.Count(), claimRequests.Count()
+        );
 
         if (claimRequests is not null && claimRequests.Any())
         {
             if (ledgerState is not null && ledgerState.Outputs.Count > 0)
             {
+                var recentTbcs = await yieldFarmingDataService.GetClaimedTbcLastDayAsync(currentBlock.Slot);
                 var transactionBody = TransactionBodyBuilder.Create;
                 var totalLovelace = (ulong)ledgerState.Outputs.Sum(o => (decimal)o.Amount.Coin);
                 var assets = ledgerState.Outputs.SelectMany(o => o.Amount.MultiAsset).ToList();
@@ -109,12 +116,15 @@ public class DistributionWorker(
                     var returnAda = claimRequest.TBCs.Length != 0 ? 4_200_000ul : 1_700_000ul;
 
                     var totalBonusPercent =
-                        claimRequest.TBCs.Where(tbc => tbc.StartsWith(_tbcPolicies[0])).Count() * tbcOneBonus +
-                        claimRequest.TBCs.Where(tbc => tbc.StartsWith(_tbcPolicies[1])).Count() * tbcTwoBonus;
+                        claimRequest.TBCs.Where(tbc => tbc.StartsWith(_tbcPolicies[0]) && !recentTbcs.Contains(tbc)).Count() * tbcOneBonus +
+                        claimRequest.TBCs.Where(tbc => tbc.StartsWith(_tbcPolicies[1]) && !recentTbcs.Contains(tbc)).Count() * tbcTwoBonus;
 
                     var totalBonus = (ulong)(totalReward * totalBonusPercent);
                     var totalRewardPlusBonus = totalReward + totalBonus;
-                    yieldRewardsByAddress.ToList().ForEach(r => r.Bonus = (ulong)(r.Amount * totalBonusPercent));
+                    yieldRewardsByAddress.ToList().ForEach(r => {
+                        r.Bonus = (ulong)(r.Amount * totalBonusPercent);
+                        r.TBCs = claimRequest.TBCs;
+                    });
                     processedYieldRewards.AddRange(yieldRewardsByAddress);
 
                     var rewardAssets = new Dictionary<byte[], NativeAsset>() { };

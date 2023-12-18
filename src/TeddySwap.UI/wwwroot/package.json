@@ -11,6 +11,6 @@
   },
   "scripts": {
     "watch": "tailwindcss -i ./app.css -o ./app.bundle.css --watch",
-    "build": "tailwindcss -i ./app.css -o ./app.bundle.css && bun build app.ts > ./dist/app.bundle.js"
+    "build": "mkdir -p ./dist && tailwindcss -i ./app.css -o ./app.bundle.css && bun build app.ts > ./dist/app.bundle.js"
   }
 }
