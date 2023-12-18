@@ -89,7 +89,7 @@
                                             </td>
                                             <td>
                                                 <MudText Color="MudColor.Tertiary" Typo="Typo.subtitle2">
-                                                    0 $TEDY
+                                                    @((decimal)reward.Bonus / 1_000_000) $TEDY
                                                 </MudText>
                                             </td>
                                             <td>
@@ -111,9 +111,11 @@
                                                     </MudText>
                                                 }
                                             </td>
-                                            <td>
+                                            <td class="!text-center">
                                                 <MudText Color="MudColor.Default" Typo="Typo.subtitle2">
-                                                    @reward.ClaimTxId
+                                                    <a href="https://cardanoscan.io/transaction/@reward.ClaimTxId" target="_blank">
+                                                        <MudIcon Icon="@Icons.Material.Filled.Link" Title="Link" />
+                                                    </a>
                                                 </MudText>
                                             </td>
                                         </tr>

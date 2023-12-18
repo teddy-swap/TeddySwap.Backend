@@ -15,6 +15,7 @@ public class TeddySwapDbContext(DbContextOptions<TeddySwapDbContext> options, IC
     public DbSet<LiquidityByAddressItem> LiquidityByAddress { get; set; }
     public DbSet<YieldRewardByAddress> YieldRewardByAddress { get; set; }
     public DbSet<LedgerStateByAddress> LedgerStateByAddress { get; set; }
+    public DbSet<YieldClaimRequest> YieldClaimRequests { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -25,6 +26,7 @@ public class TeddySwapDbContext(DbContextOptions<TeddySwapDbContext> options, IC
         modelBuilder.Entity<LedgerStateByAddress>().HasKey(item => new { item.Address, item.BlockNumber, item.Slot });
         modelBuilder.Entity<TransactionOutput>().HasKey(item => new { item.Id, item.Index });
         modelBuilder.Entity<TransactionOutput>().OwnsOne(item => item.Amount);
+        modelBuilder.Entity<YieldClaimRequest>().HasKey(item => new { item.Address, item.BlockNumber, item.Slot, item.TxHash, item.TxIndex });
         modelBuilder.Entity<Block>().HasKey(item => new { item.Id, item.Slot });
     }
 }

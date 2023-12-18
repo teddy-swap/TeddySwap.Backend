@@ -41,6 +41,24 @@
             "console": "integratedTerminal"
         },
         {
+            // Use IntelliSense to find out which attributes exist for C# debugging
+            // Use hover for the description of the existing attributes
+            // For further information visit https://github.com/dotnet/vscode-csharp/blob/main/debugger-launchjson.md.
+            "name": "TeddySwap.Distributor",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            // If you have changed target frameworks, make sure to update the program path.
+            "program": "${workspaceFolder}/src/TeddySwap.Distributor/bin/Debug/net8.0/TeddySwap.Distributor.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/TeddySwap.Distributor",
+            "stopAtEntry": false,
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "console": "integratedTerminal"
+        },
+        {
             "name": ".NET Core Attach",
             "type": "coreclr",
             "request": "attach"

@@ -109,4 +109,57 @@ public class YieldFarmingDataService(IDbContextFactory<TeddySwapDbContext> dbCon
             }).ToListAsync();
     }
 
+    public async Task<IEnumerable<YieldClaimRequest>> GetPendingYieldClaimRequestsAsync()
+    {
+        await using var dbContext = _dbContextFactory.CreateDbContext();
+        var requests = await dbContext.YieldClaimRequests
+            .Where(r => r.ProcessTxHash == null)
+            .ToListAsync();
+
+        // Return Unique requests by Address
+        return requests
+            .OrderBy(r => r.Slot)
+            .GroupBy(r => r.Address)
+            .Select(g => g.First());
+    }
+
+    public async Task SetYieldRewardByAddressClaimedAsync(IEnumerable<YieldRewardByAddress> yieldRewardByAddresses, string txHash)
+    {
+        await using var dbContext = _dbContextFactory.CreateDbContext();
+
+        foreach (var yieldRewardByAddress in yieldRewardByAddresses)
+        {
+            yieldRewardByAddress.IsClaimed = true;
+            yieldRewardByAddress.ClaimTxId = txHash;
+
+            // Attach the entity to the DbContext if it's not already tracked
+            dbContext.YieldRewardByAddress.Attach(yieldRewardByAddress);
+
+            // Explicitly mark the entity as modified
+            dbContext.Entry(yieldRewardByAddress).State = EntityState.Modified;
+        }
+
+        await dbContext.SaveChangesAsync();
+    }
+
+    public async Task SetYieldClaimRequestsProcessedAsync(IEnumerable<YieldClaimRequest> yieldClaimRequests, string txHash, ulong blockNumber, ulong Slot)
+    {
+        await using var dbContext = _dbContextFactory.CreateDbContext();
+
+        foreach (var yieldClaimRequest in yieldClaimRequests)
+        {
+            yieldClaimRequest.ProcessTxHash = txHash;
+            yieldClaimRequest.ProcessBlockNumber = blockNumber;
+            yieldClaimRequest.ProcessSlot = Slot;
+
+            // Attach the entity to the DbContext if it's not already tracked
+            dbContext.YieldClaimRequests.Attach(yieldClaimRequest);
+
+            // Explicitly mark the entity as modified
+            dbContext.Entry(yieldClaimRequest).State = EntityState.Modified;
+        }
+
+        await dbContext.SaveChangesAsync();
+    }
+
 }

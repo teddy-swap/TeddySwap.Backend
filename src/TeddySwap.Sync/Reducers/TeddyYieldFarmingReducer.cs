@@ -300,7 +300,6 @@ public class TeddyYieldFarmingReducer(
                             userShare[key].Share,
                             [],
                             false,
-                            null,
                             response.Block.Number,
                             response.Block.Slot,
                             lastDistributionTimestamp.AddSeconds(YieldFarmingUtils.YF_SECONDS_IN_DAY)

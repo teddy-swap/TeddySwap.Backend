@@ -28,6 +28,7 @@ builder.Services.AddSingleton<IBlockReducer, BlockReducer>();
 builder.Services.AddSingleton<ICoreReducer, TransactionOutputReducer>();
 builder.Services.AddSingleton<IReducer, TeddyYieldFarmingReducer>();
 builder.Services.AddSingleton<IReducer, LedgerStateByAddressReducer>();
+builder.Services.AddSingleton<IReducer, TeddyRewardClaimReqReducer>();
 
 // Services
 builder.Services.AddSingleton<BlockDataService>();

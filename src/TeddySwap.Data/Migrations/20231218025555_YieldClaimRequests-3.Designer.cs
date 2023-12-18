@@ -3,6 +3,7 @@ using System;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TeddySwap.Data;
@@ -12,9 +13,11 @@ using TeddySwap.Data;
 namespace TeddySwap.Data.Migrations
 {
     [DbContext(typeof(TeddySwapDbContext))]
-    partial class TeddySwapDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231218025555_YieldClaimRequests-3")]
+    partial class YieldClaimRequests3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -154,9 +157,6 @@ namespace TeddySwap.Data.Migrations
 
                     b.Property<decimal>("Bonus")
                         .HasColumnType("numeric(20,0)");
-
-                    b.Property<string>("ClaimTxId")
-                        .HasColumnType("text");
 
                     b.Property<bool>("IsClaimed")
                         .HasColumnType("boolean");
