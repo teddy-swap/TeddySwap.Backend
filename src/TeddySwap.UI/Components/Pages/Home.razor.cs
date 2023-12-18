@@ -98,7 +98,7 @@ public partial class Home
             {
                 Labels = new YAxisLabels
                 {
-                    Formatter = "(value) => value + ' $TEDY'"
+                    Formatter = "(value) => value === undefined ? '0 $TEDY' : value.toFixed(6) + ' $TEDY'"
                 }
             }
         ],
@@ -130,7 +130,7 @@ public partial class Home
             {
                 Labels = new YAxisLabels
                 {
-                    Formatter = "(value) => value + ' $TEDY'"
+                    Formatter = "(value) => value === undefined ? '0 $TEDY' : value.toFixed(6) + ' $TEDY'"
                 }
             }
         ],
