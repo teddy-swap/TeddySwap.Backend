@@ -61,7 +61,7 @@ public partial class Home
     {
         Chart = new Chart
         {
-            Stacked = true,
+            Stacked = false,
             Background = "transparent"
         },
         PlotOptions = new PlotOptions
