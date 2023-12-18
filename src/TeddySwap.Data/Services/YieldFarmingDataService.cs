@@ -115,6 +115,25 @@ public class YieldFarmingDataService(IDbContextFactory<TeddySwapDbContext> dbCon
             {
                 BlockNumber = group.Key,
                 Amount = (ulong)group.Sum(item => (decimal)item.Amount),
+                Bonus = (ulong)group.Sum(item => (decimal)item.Bonus),
+                Slot = group.Max(item => item.Slot)
+            }).ToListAsync();
+    }
+
+    public async Task<IEnumerable<YieldFarmingDistribution>> ClaimedYieldRewardDistributionSinceDaysAgoAsync(int daysAgo)
+    {
+        var sinceDate = DateTime.UtcNow.AddDays(-daysAgo);
+
+        await using var dbContext = _dbContextFactory.CreateDbContext();
+        return await dbContext.YieldRewardByAddress
+            .Where(item => item.Timestamp >= sinceDate)
+            .Where(item => item.IsClaimed == true)
+            .GroupBy(item => item.BlockNumber)
+            .Select(group => new YieldFarmingDistribution
+            {
+                BlockNumber = group.Key,
+                Amount = (ulong)group.Sum(item => (decimal)item.Amount),
+                Bonus = (ulong)group.Sum(item => (decimal)item.Bonus),
                 Slot = group.Max(item => item.Slot)
             }).ToListAsync();
     }

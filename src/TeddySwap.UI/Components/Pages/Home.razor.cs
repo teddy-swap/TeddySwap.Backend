@@ -34,8 +34,10 @@ public partial class Home
     protected bool IsLoading { get; set; }
     protected ulong CurrentBlockNumber => CardanoDataService.CurrentBlockNumber;
     protected IEnumerable<YieldRewardByAddress> Rewards { get; set; } = default!;
+    protected IEnumerable<YieldRewardByAddress> ClaimedRewards => Rewards is null ? [] : Rewards.Where(r => r.IsClaimed);
     protected List<YieldRewardByAddress> PaginatedRewards { get; set; } = [];
     protected IEnumerable<YieldFarmingDistribution> Distribution { get; set; } = default!;
+    protected IEnumerable<YieldFarmingDistribution> ClaimedDistribution { get; set; } = default!;
     protected IEnumerable<YieldFarmingDistribution> ProjectedDistribution => Distribution is null ? [] : Distribution.Select(d =>
     {
         var month = YieldFarmingUtils.GetMonthFromSlot(d.Slot, YieldFarmingUtils.YF_START_SLOT);
@@ -49,8 +51,11 @@ public partial class Home
     });
 
     protected ApexPointSeries<YieldRewardByAddress>? yieldRewardSeries = default;
+    protected ApexPointSeries<YieldRewardByAddress>? claimedYieldRewardSeries = default;
     protected ApexPointSeries<YieldFarmingDistribution>? distributionSeries = default;
+    protected ApexPointSeries<YieldFarmingDistribution>? distributionWithBonusSeries = default;
     protected ApexPointSeries<YieldFarmingDistribution>? projectedDistributionSeries = default;
+    protected ApexPointSeries<YieldFarmingDistribution>? claimedDistributionSeries = default;
 
     private readonly ApexChartOptions<YieldRewardByAddress> YieldRewardOptions = new()
     {
@@ -103,7 +108,7 @@ public partial class Home
     {
         Chart = new Chart
         {
-            Stacked = true,
+            Stacked = false,
             StackType = StackType.Normal,
             Background = "transparent",
         },
@@ -127,15 +132,6 @@ public partial class Home
                 {
                     Formatter = "(value) => value + ' $TEDY'"
                 }
-            },
-            new YAxis
-            {
-                Opposite = true,
-                Labels= new YAxisLabels
-                {
-                    Formatter = "(value) => value + ' $TEDY'",
-                    Show = false
-                },
             }
         ],
     };
@@ -177,6 +173,10 @@ public partial class Home
                 async entry => await YieldFarmingDataService.TotalUnclaimedRewardsAsync(Address)
             ) / (decimal)1000000;
 
+            ClaimedDistribution = await CacheService.GetOrCreateAsync($"ClaimedYieldRewardDistributionSinceDaysAgoAsync_30",
+                async entry => await YieldFarmingDataService.ClaimedYieldRewardDistributionSinceDaysAgoAsync(30)
+            ) ?? [];
+
             if (PaginatedRewards.Count > 0)
                 PaginatedRewards = [.. await YieldFarmingDataService.YieldRewardByAddressAsync(Address, PaginatedRewards.First().Slot), .. PaginatedRewards];
 
@@ -189,9 +189,18 @@ public partial class Home
             if (projectedDistributionSeries is not null)
                 await projectedDistributionSeries.Chart.UpdateSeriesAsync(true);
 
+            if (distributionWithBonusSeries is not null)
+                await distributionWithBonusSeries.Chart.UpdateSeriesAsync(true);
+
+            if (claimedDistributionSeries is not null)
+                await claimedDistributionSeries.Chart.UpdateSeriesAsync(true);
+
+            if (claimedYieldRewardSeries is not null)
+                await claimedYieldRewardSeries.Chart.UpdateSeriesAsync(true);
+
             await InvokeAsync(StateHasChanged);
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             Logger.LogError(ex, "Error while refreshing data");
         }

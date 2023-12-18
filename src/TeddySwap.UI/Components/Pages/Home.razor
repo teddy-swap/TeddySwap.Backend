@@ -30,18 +30,27 @@
                             <ApexPointSeries @ref="yieldRewardSeries" TItem="YieldRewardByAddress" Items="Rewards" Name="Base Reward"
                                 SeriesType="SeriesType.Line" XValue="@(e => e.Timestamp)"
                                 YAggregate="@(e => e.Sum(e => (decimal)e.Amount / 1_000_000))" OrderBy="e=>e.X"/>
+                            <ApexPointSeries @ref="claimedYieldRewardSeries" TItem="YieldRewardByAddress" Items="ClaimedRewards" Name="Claimed Rewards with TBC Bonus"
+                                SeriesType="SeriesType.Line" XValue="@(e => e.Timestamp)"
+                                YAggregate="@(e => e.Sum(e => (decimal)(e.Amount + e.Bonus) / 1_000_000))" OrderBy="e=>e.X"/>
                         </ApexChart>
                     </div>
                     <MudDivider />
                     <!-- Chart 2 -->
                     <div class="my-4">
-                        <ApexChart TItem="YieldFarmingDistribution" Title="Distribution ($TEDY) per Block" Options="DistributionOptions">
+                        <ApexChart TItem="YieldFarmingDistribution" Title="Distribution ($TEDY) per day" Options="DistributionOptions">
                             <ApexPointSeries @ref="distributionSeries" TItem="YieldFarmingDistribution" Items="Distribution" Name="OnChain Distribution"
                                 SeriesType="SeriesType.Line" XValue="@(e => e.BlockNumber.ToString())"
                                 YValue="@(e => (decimal)e.Amount / 1_000_000)" OrderBy="e=>e.X"/>
                             <ApexPointSeries @ref="projectedDistributionSeries" TItem="YieldFarmingDistribution" Items="ProjectedDistribution" Name="Projected Distribution"
                                 SeriesType="SeriesType.Line" XValue="@(e => e.BlockNumber.ToString())"
                                 YValue="@(e => (decimal)e.Amount / 1_000_000)" OrderBy="e=>e.X"/>
+                            <ApexPointSeries @ref="distributionWithBonusSeries" TItem="YieldFarmingDistribution" Items="Distribution" Name="OnChain Distribution with TBC Bonus"
+                                SeriesType="SeriesType.Line" XValue="@(e => e.BlockNumber.ToString())"
+                                YValue="@(e => (decimal)(e.Amount + e.Bonus) / 1_000_000)" OrderBy="e=>e.X"/>
+                            <ApexPointSeries @ref="claimedDistributionSeries" TItem="YieldFarmingDistribution" Items="ClaimedDistribution" Name="Claimed Distribution with TBC Bonus"
+                                SeriesType="SeriesType.Line" XValue="@(e => e.BlockNumber.ToString())"
+                                YValue="@(e => (decimal)(e.Amount + e.Bonus) / 1_000_000)" OrderBy="e=>e.X"/>
                         </ApexChart>
                     </div>
                     <MudDivider />
