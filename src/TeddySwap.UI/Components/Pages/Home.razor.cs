@@ -24,6 +24,9 @@ public partial class Home
     [Inject]
     protected CacheService CacheService { get; set; } = default!;
 
+    [Inject]
+    protected ILogger<Home> Logger { get; set; } = default!;
+
     [Parameter]
     public string? Address { get; set; }
 
@@ -158,33 +161,41 @@ public partial class Home
 
     protected async Task RefreshAsync()
     {
-        if (Address is null) return;
+        try
+        {
+            if (Address is null) return;
 
-        Rewards = await CacheService.GetOrCreateAsync($"YieldRewardByAddressSinceDaysAgoAsync_{Address}_30",
-            async entry => await YieldFarmingDataService.YieldRewardByAddressSinceDaysAgoAsync(Address, 30)
-        ) ?? [];
+            Rewards = await CacheService.GetOrCreateAsync($"YieldRewardByAddressSinceDaysAgoAsync_{Address}_30",
+                async entry => await YieldFarmingDataService.YieldRewardByAddressSinceDaysAgoAsync(Address, 30)
+            ) ?? [];
 
-        Distribution = await CacheService.GetOrCreateAsync($"YieldRewardDistributionSinceDaysAgoAsync_30",
-            async entry => await YieldFarmingDataService.YieldRewardDistributionSinceDaysAgoAsync(30)
-        ) ?? [];
+            Distribution = await CacheService.GetOrCreateAsync($"YieldRewardDistributionSinceDaysAgoAsync_30",
+                async entry => await YieldFarmingDataService.YieldRewardDistributionSinceDaysAgoAsync(30)
+            ) ?? [];
 
-        UnclaimedRewards = await CacheService.GetOrCreateAsync($"TotalUnclaimedRewardsAsync_{Address}",
-            async entry => await YieldFarmingDataService.TotalUnclaimedRewardsAsync(Address)
-        ) / (decimal)1000000;
+            UnclaimedRewards = await CacheService.GetOrCreateAsync($"TotalUnclaimedRewardsAsync_{Address}",
+                async entry => await YieldFarmingDataService.TotalUnclaimedRewardsAsync(Address)
+            ) / (decimal)1000000;
 
-        if (PaginatedRewards.Count > 0)
-            PaginatedRewards = [.. await YieldFarmingDataService.YieldRewardByAddressAsync(Address, PaginatedRewards.First().Slot), .. PaginatedRewards];
+            if (PaginatedRewards.Count > 0)
+                PaginatedRewards = [.. await YieldFarmingDataService.YieldRewardByAddressAsync(Address, PaginatedRewards.First().Slot), .. PaginatedRewards];
 
-        if (yieldRewardSeries is not null)
-            await yieldRewardSeries.Chart.UpdateSeriesAsync(true);
+            if (yieldRewardSeries is not null)
+                await yieldRewardSeries.Chart.UpdateSeriesAsync(true);
 
-        if (distributionSeries is not null)
-            await distributionSeries.Chart.UpdateSeriesAsync(true);
+            if (distributionSeries is not null)
+                await distributionSeries.Chart.UpdateSeriesAsync(true);
 
-        if (projectedDistributionSeries is not null)
-            await projectedDistributionSeries.Chart.UpdateSeriesAsync(true);
+            if (projectedDistributionSeries is not null)
+                await projectedDistributionSeries.Chart.UpdateSeriesAsync(true);
 
-        await InvokeAsync(StateHasChanged);
+            await InvokeAsync(StateHasChanged);
+        }
+        catch(Exception ex)
+        {
+            Logger.LogError(ex, "Error while refreshing data");
+        }
+
     }
 
     protected async override Task OnAfterRenderAsync(bool firstRender)

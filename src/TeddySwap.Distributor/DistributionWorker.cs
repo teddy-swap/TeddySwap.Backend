@@ -294,7 +294,7 @@ public class DistributionWorker(
                 return true;
             }
 
-            await Task.Delay(1000 * 20);
+            await Task.Delay(1000 * 5);
         }
 
         return false;
