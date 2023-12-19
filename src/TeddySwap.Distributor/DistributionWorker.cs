@@ -203,7 +203,7 @@ public class DistributionWorker(
 
                 var fee = claimRequests.Where(cr => cr.TBCs.Length != 0).Any() ? 800_000ul : 300_000ul;
                 totalLovelace -= fee;
-                
+
                 // Assuming consumedAssets is a List<string>
                 var preprocessedConsumedAssets = new HashSet<(string, string)>(consumedAssets.Select(ca =>
                 {
@@ -213,7 +213,14 @@ public class DistributionWorker(
 
                 var changeAssets = assets
                     .Where(a => !preprocessedConsumedAssets.Any(ca => ca.Item1 == a.Key && a.Value.ContainsKey(ca.Item2)))
-                    .ToDictionary(a => a.Key, a => a.Value);
+                    .GroupBy(a => a.Key)
+                    .ToDictionary(
+                        group => group.Key,
+                        group => group.SelectMany(a => a.Value)
+                                      .GroupBy(pair => pair.Key)
+                                      .ToDictionary(pair => pair.Key, pair => (ulong)pair.Sum(p => (decimal)p.Value))
+                    );
+
 
                 var changeMultiAsset = new Dictionary<byte[], NativeAsset>();
 
@@ -236,11 +243,12 @@ public class DistributionWorker(
                     {
                         var nativeAsset = new NativeAsset();
                         var nativeAssetTokens = new Dictionary<byte[], long>();
-                        
+
                         asset.Value
                             .ToList()
                             .ForEach(
-                                a => {
+                                a =>
+                                {
                                     nativeAssetTokens.Add(Convert.FromHexString(a.Key), (long)a.Value);
                                 }
                             );
@@ -273,13 +281,13 @@ public class DistributionWorker(
                     Console.WriteLine("Input: {0} {1}", Convert.ToHexString(inputs.TransactionId), inputs.TransactionIndex);
                 }
 
-                foreach(var outputs in txBody.TransactionOutputs)
+                foreach (var outputs in txBody.TransactionOutputs)
                 {
                     Console.WriteLine("Output: {0} {1}", new Address(outputs.Address).ToString(), outputs.Value.Coin);
-                    foreach(var asset in outputs.Value.MultiAsset)
+                    foreach (var asset in outputs.Value.MultiAsset)
                     {
                         Console.WriteLine("\tAsset: {0}", Convert.ToHexString(asset.Key));
-                        foreach(var token in asset.Value.Token)
+                        foreach (var token in asset.Value.Token)
                         {
                             Console.WriteLine("\t\tToken: {0} {1}", Convert.ToHexString(token.Key), token.Value);
                         }
