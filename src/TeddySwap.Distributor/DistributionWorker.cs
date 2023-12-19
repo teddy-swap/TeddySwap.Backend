@@ -273,7 +273,7 @@ public class DistributionWorker(
                     logger.LogInformation("Successfully submitted transaction {TxHash}", txHash);
                     await yieldFarmingDataService.SetYieldRewardByAddressClaimedAsync(processedYieldRewards, txHash);
                     await yieldFarmingDataService.SetYieldClaimRequestsProcessedAsync(processedClaimRequests, txHash, currentBlock.Number, currentBlock.Slot);
-                    if (await WaitTxConfirmationsWithTimeoutAsync(txHash, 2, 60))
+                    if (await WaitTxConfirmationsWithTimeoutAsync(txHash, 2, 300))
                     {
                         logger.LogInformation("Successfully confirmed transaction {TxHash}", txHash);
                     }
