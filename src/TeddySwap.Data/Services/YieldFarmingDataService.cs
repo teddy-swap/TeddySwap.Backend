@@ -147,7 +147,7 @@ public class YieldFarmingDataService(IDbContextFactory<TeddySwapDbContext> dbCon
 
         // Return Unique requests by Address
         return requests
-            .OrderBy(r => r.Slot)
+            .OrderByDescending(r => r.TBCs.Length)
             .GroupBy(r => r.Address)
             .Select(g => g.First());
     }

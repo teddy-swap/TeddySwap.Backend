@@ -76,7 +76,7 @@ public class DistributionWorker(
         var claimRequests = pendingClaimRequests.Where(cr => currentBlock.Number - cr.BlockNumber >= 10);
 
         logger.LogInformation(
-            "[{blockNumber}]: Total ClaimRequests [{pendingClaims}], Confirmed [{confirmedClaims}]", 
+            "[{blockNumber}]: Total ClaimRequests [{pendingClaims}], Confirmed [{confirmedClaims}]",
             currentBlock.Number, pendingClaimRequests.Count(), claimRequests.Count()
         );
 
@@ -121,7 +121,8 @@ public class DistributionWorker(
 
                     var totalBonus = (ulong)(totalReward * totalBonusPercent);
                     var totalRewardPlusBonus = totalReward + totalBonus;
-                    yieldRewardsByAddress.ToList().ForEach(r => {
+                    yieldRewardsByAddress.ToList().ForEach(r =>
+                    {
                         r.Bonus = (ulong)(r.Amount * totalBonusPercent);
                         r.TBCs = claimRequest.TBCs;
                     });
@@ -214,7 +215,8 @@ public class DistributionWorker(
                             }
                         );
                     })
-                    .ToDictionary(a => Convert.FromHexString(a.Key), a => a.Value);
+                    .GroupBy(a => a.Key)
+                    .ToDictionary(a => a.Key, a => a.ToDictionary(a => a.Value.First().Key, a => a.Value.First().Value));
 
                 var changeMultiAsset = new Dictionary<byte[], NativeAsset>();
 
@@ -235,11 +237,19 @@ public class DistributionWorker(
                 {
                     foreach (var asset in changeAssets)
                     {
+                        var nativeAsset = new NativeAsset();
+                        var nativeAssetTokens = new Dictionary<byte[], long>();
+                        
                         asset.Value
                             .ToList()
                             .ForEach(
-                                a => changeMultiAsset.Add(asset.Key, new() { Token = new() { { Convert.FromHexString(a.Key), (long)a.Value } } })
+                                a => {
+                                    nativeAssetTokens.Add(Convert.FromHexString(a.Key), (long)a.Value);
+                                }
                             );
+
+                        nativeAsset.Token = nativeAssetTokens;
+                        changeMultiAsset.Add(Convert.FromHexString(asset.Key), nativeAsset);
                     }
                 }
 
@@ -259,6 +269,26 @@ public class DistributionWorker(
                 var txBody = transactionBody.Build();
                 var witnesses = TransactionWitnessSetBuilder.Create
                     .AddVKeyWitness(PaymentPublicKey, PaymentPrivateKey).Build();
+
+                #if DEBUG
+                foreach (var inputs in txBody.TransactionInputs)
+                {
+                    Console.WriteLine("Input: {0} {1}", Convert.ToHexString(inputs.TransactionId), inputs.TransactionIndex);
+                }
+
+                foreach(var outputs in txBody.TransactionOutputs)
+                {
+                    Console.WriteLine("Output: {0} {1}", new Address(outputs.Address).ToString(), outputs.Value.Coin);
+                    foreach(var asset in outputs.Value.MultiAsset)
+                    {
+                        Console.WriteLine("\tAsset: {0}", Convert.ToHexString(asset.Key));
+                        foreach(var token in asset.Value.Token)
+                        {
+                            Console.WriteLine("\t\tToken: {0} {1}", Convert.ToHexString(token.Key), token.Value);
+                        }
+                    }
+                }
+                #endif
 
                 var tx = new Transaction()
                 {
