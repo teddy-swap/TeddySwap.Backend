@@ -203,20 +203,17 @@ public class DistributionWorker(
 
                 var fee = claimRequests.Where(cr => cr.TBCs.Length != 0).Any() ? 800_000ul : 300_000ul;
                 totalLovelace -= fee;
+                
+                // Assuming consumedAssets is a List<string>
+                var preprocessedConsumedAssets = new HashSet<(string, string)>(consumedAssets.Select(ca =>
+                {
+                    var parts = ca.Split('.');
+                    return (parts[0], parts[1]);
+                }));
 
                 var changeAssets = assets
-                    .Where(a =>
-                    {
-                        return !consumedAssets.Any(
-                            ca =>
-                            {
-                                var caSplit = ca.Split(".");
-                                return a.Key == caSplit[0] && a.Value.ContainsKey(caSplit[1]);
-                            }
-                        );
-                    })
-                    .GroupBy(a => a.Key)
-                    .ToDictionary(a => a.Key, a => a.ToDictionary(a => a.Value.First().Key, a => a.Value.First().Value));
+                    .Where(a => !preprocessedConsumedAssets.Any(ca => ca.Item1 == a.Key && a.Value.ContainsKey(ca.Item2)))
+                    .ToDictionary(a => a.Key, a => a.Value);
 
                 var changeMultiAsset = new Dictionary<byte[], NativeAsset>();
 
@@ -270,7 +267,7 @@ public class DistributionWorker(
                 var witnesses = TransactionWitnessSetBuilder.Create
                     .AddVKeyWitness(PaymentPublicKey, PaymentPrivateKey).Build();
 
-                #if DEBUG
+                // Trace Outputs
                 foreach (var inputs in txBody.TransactionInputs)
                 {
                     Console.WriteLine("Input: {0} {1}", Convert.ToHexString(inputs.TransactionId), inputs.TransactionIndex);
@@ -288,7 +285,6 @@ public class DistributionWorker(
                         }
                     }
                 }
-                #endif
 
                 var tx = new Transaction()
                 {
