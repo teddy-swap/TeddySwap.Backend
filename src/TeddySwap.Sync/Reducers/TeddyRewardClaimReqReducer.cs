@@ -48,6 +48,12 @@ public class TeddyRewardClaimReqReducer(
                     continue;
                 }
 
+                if(!inputGroup.Any())
+                {
+                    _logger.LogError("Invalid Claim: could not resolve input output {TxHash}", tx.Id.ToHex());
+                    continue;
+                }
+                
                 var claimAddress = inputGroup.First();
 
                 var tbcs = claimOutput!.Amount.MultiAsset
