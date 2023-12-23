@@ -10,7 +10,7 @@ using TeddySwap.UI.Services;
 
 namespace TeddySwap.UI.Components.Pages;
 
-public partial class Home
+public partial class Home : IDisposable
 {
     [Inject]
     protected CardanoDataService CardanoDataService { get; set; } = default!;
@@ -239,5 +239,10 @@ public partial class Home
     protected async void OnHarvestClicked()
     {
         await JSRuntime.InvokeVoidAsync("window.harvest");
+    }
+
+    public void Dispose()
+    {
+        CardanoDataService.Heartbeat -= OnHeartbeat;
     }
 }

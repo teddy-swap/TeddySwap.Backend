@@ -5,6 +5,7 @@ using TeddySwap.Data;
 using TeddySwap.Data.Models.Reducers;
 using TeddySwap.Data.Services;
 using TeddySwap.Data.Utils;
+using TransactionOutputEntity = TeddySwap.Data.Models.TransactionOutput;
 
 namespace TeddySwap.Sync.Reducers;
 
@@ -51,11 +52,11 @@ public class TeddyYieldFarmingReducer(
                 {"03a666d6ad004932bdd9d7e0d5a374262454cd84602bd494c9cd48d6.DJED_ADA_POOL_IDENTITY", 0.0225m},
                 {"1f164eea5c242f53cb2df2150fa5ab7ba126350e904ddbcc65226e18.cNETA_ADA_POOL_IDENTITY", 0.0225m},
                 {"0cd54b77ac0d70942895c7f1ebc8bdb06ec2fffbe1da6e26209675d2.FACT_ADA_POOL_IDENTITY", 0.0225m},
-                {"c30d7086eeb68050a5b01efc219c5d4b5d5fd38e2e62fd6d7f01ac4d.AADA_ADA_POOL_IDENTITY",0.0225m},
+                {"c30d7086eeb68050a5b01efc219c5d4b5d5fd38e2e62fd6d7f01ac4d.AADA_ADA_POOL_IDENTITY" ,0.0225m},
                 {"5d137c35eb5cba295aae2c44e0d9a82ca9f3d362caf3d681ffc9328b.ENCS_ADA_POOL_IDENTITY", 0.0225m},
-                {"8d17d7a368cf5d1a3fe4468735050fdb8d2ae2bb2666aca05edd6969.SNEK_ADA_POOL_IDENTITY",0.0225m},
+                {"8d17d7a368cf5d1a3fe4468735050fdb8d2ae2bb2666aca05edd6969.SNEK_ADA_POOL_IDENTITY", 0.0225m},
                 {"98de80cd7add6f1b9dacd076de508fc2cfad37d05b4dc6fbb8a510fa.iETH_ADA_POOL_IDENTITY", 0.0225m},
-                {"ed3ea3cc3efda14d48d969e57ec22e2b3e5803ed4887c1152c48637c.INDY_ADA_POOL_IDENTITY",0.0225m}
+                {"ed3ea3cc3efda14d48d969e57ec22e2b3e5803ed4887c1152c48637c.INDY_ADA_POOL_IDENTITY", 0.0225m}
             }
         },
         {
@@ -200,13 +201,38 @@ public class TeddyYieldFarmingReducer(
         }
     };
 
-
     public async Task RollForwardAsync(NextResponse response)
     {
         _dbContext = dbContextFactory.CreateDbContext();
+
+        var allInputPairs = new List<string>();
+
+        foreach (var txBody in response.Block.TransactionBodies)
+        {
+            var inputPairs = txBody.Inputs.Select(i => i.Id.ToHex() + "_" + i.Index.ToString());
+            allInputPairs.AddRange(inputPairs);
+        }
+
+        var resolvedInputsList = await _dbContext.TransactionOutputs
+        .Where(o => allInputPairs.Contains(o.Id + "_" + o.Index.ToString()))
+        .ToListAsync();
+
+        var txBodyResolvedInputsDict = new Dictionary<TransactionBody, List<TransactionOutputEntity>>();
+
+        foreach (var txBody in response.Block.TransactionBodies)
+        {
+            var inputPairs = txBody.Inputs.Select(i => i.Id.ToHex() + "_" + i.Index.ToString()).ToList();
+
+            var resolvedInputs = resolvedInputsList
+                .Where(o => inputPairs.Contains(o.Id + "_" + o.Index.ToString()))
+                .ToList();
+
+            txBodyResolvedInputsDict.Add(txBody, resolvedInputs);
+        }
+
         foreach (var tx in response.Block.TransactionBodies)
         {
-            await ProcessInputsAsync(response.Block.Slot, response.Block.Number, tx.Inputs);
+            await ProcessInputsAsync(response.Block.Slot, response.Block.Number, txBodyResolvedInputsDict[tx]);
             await ProcessOutputsAsync(response.Block.Slot, response.Block.Number, tx.Outputs);
         }
 
@@ -220,6 +246,7 @@ public class TeddyYieldFarmingReducer(
         _dbContext = dbContextFactory.CreateDbContext();
         var rollbackSlot = response.Block.Slot;
         _dbContext.LiquidityByAddress.RemoveRange(_dbContext.LiquidityByAddress.Where(lba => lba.Slot > rollbackSlot));
+        _dbContext.YieldRewardByAddress.RemoveRange(_dbContext.YieldRewardByAddress.Where(yr => yr.Slot > rollbackSlot));
         await _dbContext.SaveChangesAsync();
 
         await RollBackwardYieldFarmingRewardAsync(response);
@@ -312,7 +339,7 @@ public class TeddyYieldFarmingReducer(
             }).ToList();
 
             var totalRewards = rewards.Where(r => r is not null).Sum(r => (decimal)r!.Amount);
-            
+
             if (totalRewards / 1000000 <= dailyRewardAmount)
             {
                 _dbContext.AddRange(rewards.Where(r => r is not null).Select(r => r!));
@@ -330,84 +357,89 @@ public class TeddyYieldFarmingReducer(
         await _dbContext.SaveChangesAsync();
     }
 
-    private async Task ProcessInputsAsync(ulong slot, ulong blockNumber, IEnumerable<TransactionInput> inputs)
+    private async Task ProcessInputsAsync(ulong slot, ulong blockNumber, IEnumerable<TransactionOutputEntity> resolvedInputs)
     {
-        foreach (var input in inputs)
+        var addresses = resolvedInputs.Select(utxo => utxo.Address).ToList();
+
+        var liquidityData = _dbContext.LiquidityByAddress
+            .Where(lba => addresses.Contains(lba.Address) && lba.Slot < slot);
+
+        var liquidityByAddressDict = await liquidityData
+            .GroupBy(lba => lba.Address)
+            .ToDictionaryAsync(
+                group => group.Key,
+                group => group.OrderByDescending(lba => lba.Slot).FirstOrDefault()
+            );
+
+        foreach (var resolvedInputOutput in resolvedInputs)
         {
-            var resolvedInputOutput =
-                _dbContext.TransactionOutputs.Local.Where(output => output.Id == input.Id.ToHex() && output.Index == input.Index).FirstOrDefault() ??
-                await _dbContext.TransactionOutputs.Where(output => output.Id == input.Id.ToHex() && output.Index == input.Index).FirstOrDefaultAsync();
+            bool hasUpdate = false;
+            var address = resolvedInputOutput.Address;
 
-            if (resolvedInputOutput is not null)
+            var lastLiquidityState =
+                liquidityByAddressDict.TryGetValue(address, out var lba) ?
+                lba : _dbContext.LiquidityByAddress.Local.Where(lba => lba.Slot < slot && lba.Address == address).OrderByDescending(lba => lba.Slot).Take(1).FirstOrDefault();
+
+            var assets = new Dictionary<string, Dictionary<string, ulong>>();
+            var coins = 0UL;
+
+            if (lastLiquidityState is not null)
             {
-                bool hasUpdate = false;
-                var address = resolvedInputOutput.Address;
+                assets = lastLiquidityState.Assets;
+                coins = lastLiquidityState.Lovelace;
+            }
 
-                var lastLiquidityState =
-                     _dbContext.LiquidityByAddress.Local.Where(lba => lba.Slot < slot && lba.Address == address).OrderByDescending(lba => lba.Slot).Take(1).FirstOrDefault() ??
-                    await _dbContext.LiquidityByAddress.Where(lba => lba.Slot < slot && lba.Address == address).OrderByDescending(lba => lba.Slot).Take(1).FirstOrDefaultAsync();
+            resolvedInputOutput.Amount.MultiAsset.ToList().ForEach(tokenBundle =>
+            {
+                var policyId = tokenBundle.Key;
 
-                var assets = new Dictionary<string, Dictionary<string, ulong>>();
-                var coins = 0UL;
-
-                if (lastLiquidityState is not null)
+                tokenBundle.Value.ToList().ForEach(token =>
                 {
-                    assets = lastLiquidityState.Assets;
-                    coins = lastLiquidityState.Lovelace;
-                }
+                    // Check if policyId + token converted to ascii is in _lpTokens
+                    var lpTokenHex = token.Key;
+                    var lpToken = Encoding.ASCII.GetString(Convert.FromHexString(token.Key)).TrimEnd('\0');
+                    var unit = $"{policyId}.{lpToken}";
 
-                resolvedInputOutput.Amount.MultiAsset.ToList().ForEach(tokenBundle =>
-                {
-                    var policyId = tokenBundle.Key;
-
-                    tokenBundle.Value.ToList().ForEach(token =>
+                    if (_lpTokens.Contains(unit) && token.Value > 0)
                     {
-                        // Check if policyId + token converted to ascii is in _lpTokens
-                        var lpTokenHex = token.Key;
-                        var lpToken = Encoding.ASCII.GetString(Convert.FromHexString(token.Key)).TrimEnd('\0');
-                        var unit = $"{policyId}.{lpToken}";
+                        hasUpdate = true;
 
-                        if (_lpTokens.Contains(unit) && token.Value > 0)
+                        if (assets[policyId].ContainsKey(lpTokenHex))
                         {
-                            hasUpdate = true;
-
-                            if (assets[policyId].ContainsKey(lpTokenHex))
-                            {
-                                assets[policyId][lpTokenHex] -= token.Value;
-                            }
+                            assets[policyId][lpTokenHex] -= token.Value;
                         }
-                    });
+                    }
                 });
+            });
 
-                var thisBlockLiquidityState =
-                    _dbContext.LiquidityByAddress.Local.Where(lba => lba.Slot == slot && lba.Address == address).FirstOrDefault() ??
-                    await _dbContext.LiquidityByAddress.Where(lba => lba.Slot == slot && lba.Address == address).FirstOrDefaultAsync();
+            var thisBlockLiquidityState =
+                _dbContext.LiquidityByAddress.Local.Where(lba => lba.Slot == slot && lba.Address == address).FirstOrDefault() ??
+                await _dbContext.LiquidityByAddress.Where(lba => lba.Slot == slot && lba.Address == address).FirstOrDefaultAsync();
 
-                if (assets.Count > 0 && hasUpdate)
+            if (assets.Count > 0 && hasUpdate)
+            {
+                if (thisBlockLiquidityState is null)
                 {
-                    if (thisBlockLiquidityState is null)
-                    {
-                        thisBlockLiquidityState = new() { Address = address, Slot = slot, BlockNumber = blockNumber, Assets = assets, Lovelace = coins };
-                        thisBlockLiquidityState = _dbContext.LiquidityByAddress.Add(thisBlockLiquidityState).Entity;
-                    }
-                    else
-                    {
-                        thisBlockLiquidityState.Assets = assets;
-                    }
+                    thisBlockLiquidityState = new() { Address = address, Slot = slot, BlockNumber = blockNumber, Assets = assets, Lovelace = coins };
+                    thisBlockLiquidityState = _dbContext.LiquidityByAddress.Add(thisBlockLiquidityState).Entity;
                 }
-
-                // Update Lovelace for Liquidity Pools Only
-                if (_addressByPoolId.ContainsValue(address))
+                else
                 {
-                    if (thisBlockLiquidityState is not null)
-                    {
-                        thisBlockLiquidityState.Lovelace -= resolvedInputOutput.Amount.Coin;
-                    }
-                    else
-                    {
-                        thisBlockLiquidityState = new() { Address = address, Slot = slot, BlockNumber = blockNumber, Assets = assets, Lovelace = coins - resolvedInputOutput.Amount.Coin };
-                        _dbContext.LiquidityByAddress.Add(thisBlockLiquidityState);
-                    }
+                    thisBlockLiquidityState.Assets = assets;
+                }
+            }
+
+            // Update Lovelace for Liquidity Pools Only
+            if (_addressByPoolId.ContainsValue(address))
+            {
+                if (thisBlockLiquidityState is not null)
+                {
+                    thisBlockLiquidityState.Lovelace -= resolvedInputOutput.Amount.Coin;
+                }
+                else
+                {
+                    thisBlockLiquidityState = new() { Address = address, Slot = slot, BlockNumber = blockNumber, Assets = assets, Lovelace = coins - resolvedInputOutput.Amount.Coin };
+                    _dbContext.LiquidityByAddress.Add(thisBlockLiquidityState);
                 }
             }
         }
@@ -417,13 +449,26 @@ public class TeddyYieldFarmingReducer(
 
     private async Task ProcessOutputsAsync(ulong slot, ulong blockNumber, IEnumerable<TransactionOutput> outputs)
     {
+        var addresses = outputs.Select(utxo => utxo.Address.ToBech32()).ToList();
+
+        var liquidityData = _dbContext.LiquidityByAddress
+            .Where(lba => addresses.Contains(lba.Address) && lba.Slot < slot);
+
+        var liquidityByAddressDict = await liquidityData
+            .GroupBy(lba => lba.Address)
+            .ToDictionaryAsync(
+                group => group.Key,
+                group => group.OrderByDescending(lba => lba.Slot).FirstOrDefault()
+            );
+
         foreach (var utxo in outputs)
         {
             bool hasAssetUpdate = false;
             var address = utxo.Address.ToBech32();
 
-            var lastLiquidityState = _dbContext.LiquidityByAddress.Local.Where(lba => lba.Slot < slot && lba.Address == address).OrderByDescending(lba => lba.Slot).Take(1).FirstOrDefault() ??
-                await _dbContext.LiquidityByAddress.Where(lba => lba.Slot < slot && lba.Address == address).OrderByDescending(lba => lba.Slot).Take(1).FirstOrDefaultAsync();
+            var lastLiquidityState =
+                liquidityByAddressDict.TryGetValue(address, out var lba) ?
+                lba : _dbContext.LiquidityByAddress.Local.Where(lba => lba.Slot < slot && lba.Address == address).OrderByDescending(lba => lba.Slot).Take(1).FirstOrDefault();
 
             var assets = new Dictionary<string, Dictionary<string, ulong>>();
             var coins = 0UL;

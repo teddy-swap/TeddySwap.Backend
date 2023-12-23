@@ -35,15 +35,39 @@ public class LedgerStateByAddressReducer(
 
     private async Task ProcessInputAsync(NextResponse response)
     {
+        var allInputPairs = new List<string>();
 
         foreach (var txBody in response.Block.TransactionBodies)
         {
-            foreach (var input in txBody.Inputs)
-            {
-                var resolvedInputOutput =
-                    _dbContext.TransactionOutputs.Local.Where(output => output.Id == input.Id.ToHex() && output.Index == input.Index).FirstOrDefault() ??
-                    await _dbContext.TransactionOutputs.Where(output => output.Id == input.Id.ToHex() && output.Index == input.Index).FirstOrDefaultAsync();
+            var inputPairs = txBody.Inputs.Select(i => i.Id.ToHex() + "_" + i.Index.ToString());
+            allInputPairs.AddRange(inputPairs);
+        }
 
+        var resolvedInputsList = await _dbContext.TransactionOutputs
+        .Where(o => allInputPairs.Contains(o.Id + "_" + o.Index.ToString()))
+        .ToListAsync();
+
+        var txBodyResolvedInputsDict = new Dictionary<TransactionBody, List<TransactionOutputEntity>>();
+
+        foreach (var txBody in response.Block.TransactionBodies)
+        {
+            var inputPairs = txBody.Inputs.Select(i => i.Id.ToHex() + "_" + i.Index.ToString()).ToList();
+
+            var resolvedInputs = resolvedInputsList
+                .Where(o => inputPairs.Contains(o.Id + "_" + o.Index.ToString()))
+                .ToList();
+
+            txBodyResolvedInputsDict.Add(txBody, resolvedInputs);
+        }
+
+        foreach (var txBody in response.Block.TransactionBodies)
+        {
+            var inputPairs = txBody.Inputs.Select(i => i.Id.ToHex() + "_" + i.Index.ToString()).ToList();
+
+            var resolvedInputs = txBodyResolvedInputsDict[txBody];
+
+            foreach (var resolvedInputOutput in resolvedInputs)
+            {
                 if (resolvedInputOutput is not null)
                 {
                     var address = resolvedInputOutput.Address;
@@ -53,11 +77,11 @@ public class LedgerStateByAddressReducer(
 
                     if (lastLedgerStateByAddress is not null)
                     {
-                        List<TransactionOutputEntity> outputs = [..lastLedgerStateByAddress.Outputs];
-                        outputs.RemoveAll(o => o.Id == input.Id.ToHex() && o.Index == input.Index);
-                        
-                        var thisBlockLedgerStateByAddress = 
-                            _dbContext.LedgerStateByAddress.Local.Where(l => l.Address == address && l.Slot == response.Block.Slot).FirstOrDefault() ?? 
+                        List<TransactionOutputEntity> outputs = [.. lastLedgerStateByAddress.Outputs];
+                        outputs.RemoveAll(o => o.Id == resolvedInputOutput.Id && o.Index == resolvedInputOutput.Index);
+
+                        var thisBlockLedgerStateByAddress =
+                            _dbContext.LedgerStateByAddress.Local.Where(l => l.Address == address && l.Slot == response.Block.Slot).FirstOrDefault() ??
                             await _dbContext.LedgerStateByAddress.Where(l => l.Address == address && l.Slot == response.Block.Slot).FirstOrDefaultAsync();
 
                         if (thisBlockLedgerStateByAddress is null)
@@ -72,7 +96,7 @@ public class LedgerStateByAddressReducer(
                         }
                         else
                         {
-                            thisBlockLedgerStateByAddress.Outputs.RemoveAll(o => o.Id == input.Id.ToHex() && o.Index == input.Index);
+                            thisBlockLedgerStateByAddress.Outputs.RemoveAll(o => o.Id == resolvedInputOutput.Id && o.Index == resolvedInputOutput.Index);
                         }
                     }
                 }
@@ -90,8 +114,8 @@ public class LedgerStateByAddressReducer(
             {
                 if (_trackedAddresses.Contains(output.Address.ToBech32()))
                 {
-                    var lastLedgerStateByAddress = 
-                        _dbContext.LedgerStateByAddress.Local.Where(l => l.Address == output.Address.ToBech32()).OrderByDescending(l => l.Slot).FirstOrDefault() ?? 
+                    var lastLedgerStateByAddress =
+                        _dbContext.LedgerStateByAddress.Local.Where(l => l.Address == output.Address.ToBech32()).OrderByDescending(l => l.Slot).FirstOrDefault() ??
                         await _dbContext.LedgerStateByAddress.Where(l => l.Address == output.Address.ToBech32()).OrderByDescending(l => l.Slot).FirstOrDefaultAsync();
 
                     var outputs = new List<TransactionOutputEntity>();
@@ -105,10 +129,10 @@ public class LedgerStateByAddressReducer(
                         outputs = [.. lastLedgerStateByAddress.Outputs, TransactionOutputReducer.MapTransactionOutput(txBody.Id.ToHex(), response.Block.Slot, output)];
                     }
 
-                    var thisBlockLedgerStateByAddress = 
-                        _dbContext.LedgerStateByAddress.Local.Where(l => l.Address == output.Address.ToBech32() && l.Slot == response.Block.Slot).FirstOrDefault() ?? 
+                    var thisBlockLedgerStateByAddress =
+                        _dbContext.LedgerStateByAddress.Local.Where(l => l.Address == output.Address.ToBech32() && l.Slot == response.Block.Slot).FirstOrDefault() ??
                         await _dbContext.LedgerStateByAddress.Where(l => l.Address == output.Address.ToBech32() && l.Slot == response.Block.Slot).FirstOrDefaultAsync();
-                    
+
                     if (thisBlockLedgerStateByAddress is null)
                     {
                         _dbContext.LedgerStateByAddress.Add(new LedgerStateByAddress
