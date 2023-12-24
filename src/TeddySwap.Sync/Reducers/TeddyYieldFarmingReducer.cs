@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using PallasDotnet.Models;
 using TeddySwap.Data;
@@ -205,6 +206,7 @@ public class TeddyYieldFarmingReducer(
     {
         _dbContext = dbContextFactory.CreateDbContext();
 
+        // Resolve all inputs to be used for processing
         var allInputPairs = new List<string>();
 
         foreach (var txBody in response.Block.TransactionBodies)
@@ -217,25 +219,29 @@ public class TeddyYieldFarmingReducer(
         .Where(o => allInputPairs.Contains(o.Id + "_" + o.Index.ToString()))
         .ToListAsync();
 
-        var txBodyResolvedInputsDict = new Dictionary<TransactionBody, List<TransactionOutputEntity>>();
+        var txBodyResolvedInputsDict = new Dictionary<string, List<TransactionOutputEntity>>();
 
-        foreach (var txBody in response.Block.TransactionBodies)
+        foreach (var tx in response.Block.TransactionBodies)
         {
-            var inputPairs = txBody.Inputs.Select(i => i.Id.ToHex() + "_" + i.Index.ToString()).ToList();
+            var inputPairs = tx.Inputs.Select(i => i.Id.ToHex() + "_" + i.Index.ToString()).ToList();
 
             var resolvedInputs = resolvedInputsList
                 .Where(o => inputPairs.Contains(o.Id + "_" + o.Index.ToString()))
                 .ToList();
 
-            txBodyResolvedInputsDict.Add(txBody, resolvedInputs);
+            txBodyResolvedInputsDict.Add(tx.Id.ToHex(), resolvedInputs);
         }
 
+        // Process all inputs and outputs
         foreach (var tx in response.Block.TransactionBodies)
         {
-            await ProcessInputsAsync(response.Block.Slot, response.Block.Number, txBodyResolvedInputsDict[tx]);
+            // Track all liquidity tokens being consumed (-remove from address balance)
+            await ProcessInputsAsync(response.Block.Slot, response.Block.Number, txBodyResolvedInputsDict[tx.Id.ToHex()]);
+            // Track all liquidity tokens in outputs (+add to address balance)
             await ProcessOutputsAsync(response.Block.Slot, response.Block.Number, tx.Outputs);
         }
 
+        // Try to calculate yield farming rewards per day per address
         await RollForwardYieldFarmingRewardAsync(response);
 
         _dbContext.Dispose();
@@ -377,8 +383,12 @@ public class TeddyYieldFarmingReducer(
             var address = resolvedInputOutput.Address;
 
             var lastLiquidityState =
-                liquidityByAddressDict.TryGetValue(address, out var lba) ?
-                lba : _dbContext.LiquidityByAddress.Local.Where(lba => lba.Slot < slot && lba.Address == address).OrderByDescending(lba => lba.Slot).Take(1).FirstOrDefault();
+                _dbContext.LiquidityByAddress.Local.Where(lba => lba.Slot <= slot && lba.Address == address).OrderByDescending(lba => lba.Slot).Take(1).FirstOrDefault();
+
+            if (lastLiquidityState is null && liquidityByAddressDict.TryGetValue(address, out var lba))
+            {
+                lastLiquidityState = lba;
+            }
 
             var assets = new Dictionary<string, Dictionary<string, ulong>>();
             var coins = 0UL;
@@ -403,7 +413,6 @@ public class TeddyYieldFarmingReducer(
                     if (_lpTokens.Contains(unit) && token.Value > 0)
                     {
                         hasUpdate = true;
-
                         if (assets[policyId].ContainsKey(lpTokenHex))
                         {
                             assets[policyId][lpTokenHex] -= token.Value;
@@ -412,34 +421,32 @@ public class TeddyYieldFarmingReducer(
                 });
             });
 
-            var thisBlockLiquidityState =
-                _dbContext.LiquidityByAddress.Local.Where(lba => lba.Slot == slot && lba.Address == address).FirstOrDefault() ??
-                await _dbContext.LiquidityByAddress.Where(lba => lba.Slot == slot && lba.Address == address).FirstOrDefaultAsync();
-
             if (assets.Count > 0 && hasUpdate)
             {
-                if (thisBlockLiquidityState is null)
+                if (lastLiquidityState is null || (lastLiquidityState is not null && lastLiquidityState.Slot < slot))
                 {
-                    thisBlockLiquidityState = new() { Address = address, Slot = slot, BlockNumber = blockNumber, Assets = assets, Lovelace = coins };
-                    thisBlockLiquidityState = _dbContext.LiquidityByAddress.Add(thisBlockLiquidityState).Entity;
+                    lastLiquidityState = _dbContext.LiquidityByAddress.Add(
+                        new() { Address = address, Slot = slot, BlockNumber = blockNumber, Assets = assets, Lovelace = coins }
+                    ).Entity;
                 }
                 else
                 {
-                    thisBlockLiquidityState.Assets = assets;
+                    lastLiquidityState!.Assets = assets;
                 }
             }
 
             // Update Lovelace for Liquidity Pools Only
             if (_addressByPoolId.ContainsValue(address))
             {
-                if (thisBlockLiquidityState is not null)
+                if (lastLiquidityState is not null)
                 {
-                    thisBlockLiquidityState.Lovelace -= resolvedInputOutput.Amount.Coin;
+                    lastLiquidityState.Lovelace -= resolvedInputOutput.Amount.Coin;
                 }
                 else
                 {
-                    thisBlockLiquidityState = new() { Address = address, Slot = slot, BlockNumber = blockNumber, Assets = assets, Lovelace = coins - resolvedInputOutput.Amount.Coin };
-                    _dbContext.LiquidityByAddress.Add(thisBlockLiquidityState);
+                    _dbContext.LiquidityByAddress.Add(
+                        new() { Address = address, Slot = slot, BlockNumber = blockNumber, Assets = assets, Lovelace = coins - resolvedInputOutput.Amount.Coin }
+                    );
                 }
             }
         }
@@ -452,7 +459,7 @@ public class TeddyYieldFarmingReducer(
         var addresses = outputs.Select(utxo => utxo.Address.ToBech32()).ToList();
 
         var liquidityData = _dbContext.LiquidityByAddress
-            .Where(lba => addresses.Contains(lba.Address) && lba.Slot < slot);
+            .Where(lba => addresses.Contains(lba.Address) && lba.Slot <= slot);
 
         var liquidityByAddressDict = await liquidityData
             .GroupBy(lba => lba.Address)
@@ -467,8 +474,12 @@ public class TeddyYieldFarmingReducer(
             var address = utxo.Address.ToBech32();
 
             var lastLiquidityState =
-                liquidityByAddressDict.TryGetValue(address, out var lba) ?
-                lba : _dbContext.LiquidityByAddress.Local.Where(lba => lba.Slot < slot && lba.Address == address).OrderByDescending(lba => lba.Slot).Take(1).FirstOrDefault();
+                _dbContext.LiquidityByAddress.Local.Where(lba => lba.Slot <= slot && lba.Address == address).OrderByDescending(lba => lba.Slot).Take(1).FirstOrDefault();
+
+            if (lastLiquidityState is null && liquidityByAddressDict.TryGetValue(address, out var lba))
+            {
+                lastLiquidityState = lba;
+            }
 
             var assets = new Dictionary<string, Dictionary<string, ulong>>();
             var coins = 0UL;
@@ -511,34 +522,32 @@ public class TeddyYieldFarmingReducer(
                 });
             });
 
-            var thisBlockLiquidityState =
-                _dbContext.LiquidityByAddress.Local.Where(lba => lba.Slot == slot && lba.Address == address).FirstOrDefault() ??
-                await _dbContext.LiquidityByAddress.Where(lba => lba.Slot == slot && lba.Address == address).FirstOrDefaultAsync();
-
             if (assets.Count > 0 && hasAssetUpdate)
             {
-                if (thisBlockLiquidityState is null)
+                if (lastLiquidityState is null || (lastLiquidityState is not null && lastLiquidityState.Slot < slot))
                 {
-                    thisBlockLiquidityState = new() { Address = address, Slot = slot, BlockNumber = blockNumber, Assets = assets, Lovelace = coins };
-                    _dbContext.LiquidityByAddress.Add(thisBlockLiquidityState);
+                    lastLiquidityState = _dbContext.LiquidityByAddress.Add(
+                        new() { Address = address, Slot = slot, BlockNumber = blockNumber, Assets = assets, Lovelace = coins }
+                    ).Entity;
                 }
                 else
                 {
-                    thisBlockLiquidityState.Assets = assets;
+                    lastLiquidityState!.Assets = assets;
                 }
             }
 
             // Update Lovelace for Liquidity Pools Only
             if (_addressByPoolId.ContainsValue(address))
             {
-                if (thisBlockLiquidityState is not null)
+                if (lastLiquidityState is not null && lastLiquidityState.Slot == slot)
                 {
-                    thisBlockLiquidityState.Lovelace += utxo.Amount.Coin;
+                    lastLiquidityState.Lovelace += utxo.Amount.Coin;
                 }
                 else
                 {
-                    thisBlockLiquidityState = new() { Address = address, Slot = slot, BlockNumber = blockNumber, Assets = assets, Lovelace = coins + utxo.Amount.Coin };
-                    _dbContext.LiquidityByAddress.Add(thisBlockLiquidityState);
+                    _dbContext.LiquidityByAddress.Add(
+                        new() { Address = address, Slot = slot, BlockNumber = blockNumber, Assets = assets, Lovelace = coins + utxo.Amount.Coin }
+                    );
                 }
             }
         }

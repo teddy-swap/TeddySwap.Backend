@@ -47,24 +47,24 @@ public class LedgerStateByAddressReducer(
         .Where(o => allInputPairs.Contains(o.Id + "_" + o.Index.ToString()))
         .ToListAsync();
 
-        var txBodyResolvedInputsDict = new Dictionary<TransactionBody, List<TransactionOutputEntity>>();
+        var txBodyResolvedInputsDict = new Dictionary<string, List<TransactionOutputEntity>>();
 
-        foreach (var txBody in response.Block.TransactionBodies)
+        foreach (var tx in response.Block.TransactionBodies)
         {
-            var inputPairs = txBody.Inputs.Select(i => i.Id.ToHex() + "_" + i.Index.ToString()).ToList();
+            var inputPairs = tx.Inputs.Select(i => i.Id.ToHex() + "_" + i.Index.ToString()).ToList();
 
             var resolvedInputs = resolvedInputsList
                 .Where(o => inputPairs.Contains(o.Id + "_" + o.Index.ToString()))
                 .ToList();
 
-            txBodyResolvedInputsDict.Add(txBody, resolvedInputs);
+            txBodyResolvedInputsDict.Add(tx.Id.ToHex(), resolvedInputs);
         }
 
         foreach (var txBody in response.Block.TransactionBodies)
         {
             var inputPairs = txBody.Inputs.Select(i => i.Id.ToHex() + "_" + i.Index.ToString()).ToList();
 
-            var resolvedInputs = txBodyResolvedInputsDict[txBody];
+            var resolvedInputs = txBodyResolvedInputsDict[txBody.Id.ToHex()];
 
             foreach (var resolvedInputOutput in resolvedInputs)
             {

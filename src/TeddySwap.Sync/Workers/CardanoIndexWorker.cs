@@ -76,7 +76,11 @@ public class CardanoIndexWorker(
                     {
                         try
                         {
+                            var reducerStopwatch = new Stopwatch();
+                            reducerStopwatch.Start();
                             await reducer.RollForwardAsync(response);
+                            reducerStopwatch.Stop();
+                            _logger.Log(LogLevel.Information, "Processed RollForwardAsync[{}] in {ElapsedMilliseconds} ms", reducer.GetType(), reducerStopwatch.ElapsedMilliseconds);
                         }
                         catch(Exception ex)
                         {
@@ -90,7 +94,11 @@ public class CardanoIndexWorker(
                     {
                         try
                         {
+                            var reducerStopwatch = new Stopwatch();
+                            reducerStopwatch.Start();
                             await reducer.RollBackwardAsync(response);
+                            reducerStopwatch.Stop();
+                            _logger.Log(LogLevel.Information, "Processed RollBackwardAsync[{}] in {ElapsedMilliseconds} ms", reducer.GetType(), reducerStopwatch.ElapsedMilliseconds);
                         }
                         catch(Exception ex)
                         {
