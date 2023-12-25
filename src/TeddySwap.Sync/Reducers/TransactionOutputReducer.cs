@@ -35,7 +35,7 @@ public class TransactionOutputReducer(
         _dbContext = dbContextFactory.CreateDbContext();
         var rollbackSlot = response.Block.Slot;
         var schema = configuration.GetConnectionString("TeddySwapContextSchema");
-        await _dbContext.Database.ExecuteSqlAsync($"DELETE FROM \"{schema}\".\"TransactionOutputs\" WHERE \"Slot\" > {rollbackSlot}");
+        await _dbContext.Database.ExecuteSqlRawAsync($"DELETE FROM \"{schema}\".\"TransactionOutputs\" WHERE \"Slot\" > {rollbackSlot}");
     }
 
     public static TransactionOutputEntity MapTransactionOutput(string TransactionId, ulong slot, TransactionOutput output)
