@@ -2,11 +2,13 @@ using Microsoft.EntityFrameworkCore;
 using PallasDotnet.Models;
 using TeddySwap.Data;
 using TeddySwap.Data.Models.Reducers;
+using TeddySwap.Data.Services;
 
 namespace TeddySwap.Sync.Reducers;
 
 public class TeddyRewardClaimReqReducer(
     IDbContextFactory<TeddySwapDbContext> dbContextFactory,
+    YieldFarmingDataService yieldFarmingDataService,
     ILogger<TeddyYieldFarmingReducer> logger
 ) : IReducer
 {
@@ -38,6 +40,7 @@ public class TeddyRewardClaimReqReducer(
 
     private async Task RollForwardClaimRequestSentAsync(NextResponse response)
     {
+        var recentTbcs = await yieldFarmingDataService.GetClaimedTbcLastDayAsync(response.Block.Slot);
         foreach (var tx in response.Block.TransactionBodies)
         {
             var outputAddresses = tx.Outputs.Select(o => o.Address.ToBech32()).ToList();
@@ -83,8 +86,8 @@ public class TeddyRewardClaimReqReducer(
                             .Select(ma => $"{ma.policyId.ToHex()}.{ma.token.Key.ToHex()}")
                             .ToArray();
 
-                        var roundOneTbcs = claimTbcs.Where(tbc => tbc.StartsWith(_tbcPolicies[0])).ToArray();
-                        var roundTwoTbcs = claimTbcs.Where(tbc => tbc.StartsWith(_tbcPolicies[1])).ToArray();
+                        var roundOneTbcs = claimTbcs.Where(tbc => tbc.StartsWith(_tbcPolicies[0]) && !recentTbcs.Contains(tbc)).ToArray();
+                        var roundTwoTbcs = claimTbcs.Where(tbc => tbc.StartsWith(_tbcPolicies[1]) && !recentTbcs.Contains(tbc)).ToArray();
 
                         var roundOneBonusPercent = 0.01;
                         var roundTwoBonusPercent = 0.004;

@@ -368,7 +368,7 @@ public class TeddyYieldFarmingReducer(
         var addresses = resolvedInputs.Select(utxo => utxo.Address).ToList();
 
         var liquidityData = _dbContext.LiquidityByAddress
-            .Where(lba => addresses.Contains(lba.Address) && lba.Slot < slot);
+            .Where(lba => addresses.Contains(lba.Address) && lba.Slot <= slot);
 
         var liquidityByAddressDict = await liquidityData
             .GroupBy(lba => lba.Address)
