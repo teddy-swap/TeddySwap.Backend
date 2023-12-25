@@ -6,7 +6,11 @@ using ValueEntity = TeddySwap.Data.Models.Value;
 
 namespace TeddySwap.Sync.Reducers;
 
-public class TransactionOutputReducer(IDbContextFactory<TeddySwapDbContext> dbContextFactory, ILogger<TransactionOutputReducer> logger) : ICoreReducer
+public class TransactionOutputReducer(
+    IDbContextFactory<TeddySwapDbContext> dbContextFactory,
+    IConfiguration configuration,
+    ILogger<TransactionOutputReducer> logger
+) : ICoreReducer
 {
     private TeddySwapDbContext _dbContext = default!;
     private readonly ILogger<TransactionOutputReducer> _logger = logger;
@@ -30,7 +34,8 @@ public class TransactionOutputReducer(IDbContextFactory<TeddySwapDbContext> dbCo
     {
         _dbContext = dbContextFactory.CreateDbContext();
         var rollbackSlot = response.Block.Slot;
-        await _dbContext.Database.ExecuteSqlAsync($"DELETE FROM TransactionOutputs WHERE Slot > {rollbackSlot}");
+        var schema = configuration.GetConnectionString("TeddySwapContextSchema");
+        await _dbContext.Database.ExecuteSqlAsync($"DELETE FROM \"{schema}\".\"TransactionOutputs\" WHERE \"Slot\" > {rollbackSlot}");
     }
 
     public static TransactionOutputEntity MapTransactionOutput(string TransactionId, ulong slot, TransactionOutput output)
