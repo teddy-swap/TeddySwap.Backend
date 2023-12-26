@@ -324,6 +324,7 @@ public class TeddyYieldFarmingReducer(
                         var poolReward = dailyRewardAmount * share;
                         var userReward = poolReward * userShare[key].Share;
                         var lpAmount = userShare[key].LPAmount;
+                        _logger.LogInformation($"Address: {ul.Address}, Pool Reward: {poolReward}, User Reward: {userReward}, LP Amount: {lpAmount}");
                         var yieldReward = new YieldRewardByAddress(
                             ul.Address,
                             key,
