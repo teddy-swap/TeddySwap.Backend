@@ -395,7 +395,10 @@ public class TeddyYieldFarmingReducer(
 
             if (lastLiquidityState is not null)
             {
-                assets = lastLiquidityState.Assets;
+                assets = JsonSerializer
+                    .Deserialize<Dictionary<string, Dictionary<string, ulong>>>(
+                        JsonSerializer.Serialize(lastLiquidityState.Assets)
+                    )!;
                 coins = lastLiquidityState.Lovelace;
             }
 
@@ -425,9 +428,6 @@ public class TeddyYieldFarmingReducer(
             {
                 if (lastLiquidityState is null || (lastLiquidityState is not null && lastLiquidityState.Slot < slot))
                 {
-                    if (lastLiquidityState is not null)
-                        _dbContext.Entry(lastLiquidityState).State = EntityState.Detached;
-                        
                     lastLiquidityState = _dbContext.LiquidityByAddress.Add(
                         new() { Address = address, Slot = slot, BlockNumber = blockNumber, Assets = assets, Lovelace = coins }
                     ).Entity;
@@ -447,9 +447,6 @@ public class TeddyYieldFarmingReducer(
                 }
                 else
                 {
-                    if (lastLiquidityState is not null)
-                        _dbContext.Entry(lastLiquidityState).State = EntityState.Detached;
-
                     _dbContext.LiquidityByAddress.Add(
                         new() { Address = address, Slot = slot, BlockNumber = blockNumber, Assets = assets, Lovelace = coins - resolvedInputOutput.Amount.Coin }
                     );
@@ -492,7 +489,10 @@ public class TeddyYieldFarmingReducer(
 
             if (lastLiquidityState is not null)
             {
-                assets = lastLiquidityState.Assets;
+                assets = JsonSerializer
+                    .Deserialize<Dictionary<string, Dictionary<string, ulong>>>(
+                        JsonSerializer.Serialize(lastLiquidityState.Assets)
+                    )!;
                 coins = lastLiquidityState.Lovelace;
             }
 
@@ -532,9 +532,6 @@ public class TeddyYieldFarmingReducer(
             {
                 if (lastLiquidityState is null || (lastLiquidityState is not null && lastLiquidityState.Slot < slot))
                 {
-                    if (lastLiquidityState is not null)
-                        _dbContext.Entry(lastLiquidityState).State = EntityState.Detached;
-
                     lastLiquidityState = _dbContext.LiquidityByAddress.Add(
                         new() { Address = address, Slot = slot, BlockNumber = blockNumber, Assets = assets, Lovelace = coins }
                     ).Entity;
@@ -554,9 +551,6 @@ public class TeddyYieldFarmingReducer(
                 }
                 else
                 {
-                    if (lastLiquidityState is not null)
-                        _dbContext.Entry(lastLiquidityState).State = EntityState.Detached;
-
                     _dbContext.LiquidityByAddress.Add(
                         new() { Address = address, Slot = slot, BlockNumber = blockNumber, Assets = assets, Lovelace = coins + utxo.Amount.Coin }
                     );
