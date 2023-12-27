@@ -103,7 +103,8 @@ public class TeddyRewardClaimReqReducer(
 
                                 claimReward.TBCs = claimTbcs;
                                 claimReward.ClaimTxId = tx.Id.ToHex();
-
+                                claimReward.IsClaimed = true;
+                                claimReward.Bonus = (ulong)(claimReward.Amount * totalBonusPercent);
                                 processedClaimRewards.Add(claimReward);
                             }
                         }
