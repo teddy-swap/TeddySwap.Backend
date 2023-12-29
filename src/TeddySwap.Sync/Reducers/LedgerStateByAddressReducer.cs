@@ -45,6 +45,7 @@ public class LedgerStateByAddressReducer(
 
         var resolvedInputsList = await _dbContext.TransactionOutputs
         .Where(o => allInputPairs.Contains(o.Id + "_" + o.Index.ToString()))
+        .AsNoTracking()
         .ToListAsync();
 
         var txBodyResolvedInputsDict = new Dictionary<string, List<TransactionOutputEntity>>();
@@ -60,6 +61,27 @@ public class LedgerStateByAddressReducer(
             txBodyResolvedInputsDict.Add(tx.Id.ToHex(), resolvedInputs);
         }
 
+        var uniqueAddresses = new HashSet<string>(response.Block.TransactionBodies
+        .SelectMany(txBody => txBodyResolvedInputsDict[txBody.Id.ToHex()])
+        .Select(resolvedInput => resolvedInput.Address));
+
+        // Preload LedgerStateByAddress data for all unique addresses
+        var ledgerStates = await _dbContext.LedgerStateByAddress
+            .Where(l => uniqueAddresses.Contains(l.Address))
+            .OrderByDescending(l => l.Slot)
+            .ToListAsync();
+
+        // Organize the preloaded data into a dictionary for quick access
+        var ledgerStateDict = ledgerStates
+            .GroupBy(l => l.Address)
+            .ToDictionary(group => group.Key, group => group.FirstOrDefault());
+
+
+        var thisBlockSlot = response.Block.Slot;
+        var thisBlockLedgerStateDict = ledgerStateDict
+        .Where(kv => kv.Value != null && kv.Value.Slot == thisBlockSlot)
+        .ToDictionary(kv => kv.Key, kv => kv.Value);
+
         foreach (var txBody in response.Block.TransactionBodies)
         {
             var inputPairs = txBody.Inputs.Select(i => i.Id.ToHex() + "_" + i.Index.ToString()).ToList();
@@ -71,9 +93,13 @@ public class LedgerStateByAddressReducer(
                 if (resolvedInputOutput is not null)
                 {
                     var address = resolvedInputOutput.Address;
-                    var lastLedgerStateByAddress =
-                         _dbContext.LedgerStateByAddress.Local.Where(l => l.Address == address).OrderByDescending(l => l.Slot).FirstOrDefault() ??
-                        await _dbContext.LedgerStateByAddress.Where(l => l.Address == address).OrderByDescending(l => l.Slot).FirstOrDefaultAsync();
+
+                    var lastLedgerStateByAddress = _dbContext.LedgerStateByAddress.Local.Where(l => l.Address == address).OrderByDescending(l => l.Slot).FirstOrDefault();
+
+                    if (lastLedgerStateByAddress is null)
+                    {
+                        ledgerStateDict.TryGetValue(address, out lastLedgerStateByAddress);
+                    }
 
                     if (lastLedgerStateByAddress is not null)
                     {
@@ -81,8 +107,12 @@ public class LedgerStateByAddressReducer(
                         outputs.RemoveAll(o => o.Id == resolvedInputOutput.Id && o.Index == resolvedInputOutput.Index);
 
                         var thisBlockLedgerStateByAddress =
-                            _dbContext.LedgerStateByAddress.Local.Where(l => l.Address == address && l.Slot == response.Block.Slot).FirstOrDefault() ??
-                            await _dbContext.LedgerStateByAddress.Where(l => l.Address == address && l.Slot == response.Block.Slot).FirstOrDefaultAsync();
+                            _dbContext.LedgerStateByAddress.Local.Where(l => l.Address == address && l.Slot == response.Block.Slot).FirstOrDefault();
+
+                        if (thisBlockLedgerStateByAddress is null)
+                        {
+                            thisBlockLedgerStateDict.TryGetValue(address, out thisBlockLedgerStateByAddress);
+                        }
 
                         if (thisBlockLedgerStateByAddress is null)
                         {
