@@ -113,7 +113,7 @@ public class DistributionWorker(
                     var claimRequestAddress = claimRequest.Address;
                     var yieldRewardsByAddress = await yieldFarmingDataService.UnclaimedYieldRewardByAddressAsync(claimRequestAddress);
                     var totalReward = (ulong)yieldRewardsByAddress.Sum(r => (decimal)r.Amount);
-                    var returnAda = claimRequest.TBCs.Length != 0 ? 4_200_000ul : 1_700_000ul;
+                    var returnAda = claimRequest.TBCs.Length != 0 ? 4_700_000ul : 1_700_000ul;
 
                     var totalBonusPercent =
                         claimRequest.TBCs.Where(tbc => tbc.StartsWith(_tbcPolicies[0]) && !recentTbcs.Contains(tbc)).Count() * tbcOneBonus +
@@ -200,8 +200,7 @@ public class DistributionWorker(
                 }
 
                 // Add change output
-
-                var fee = claimRequests.Where(cr => cr.TBCs.Length != 0).Any() ? 800_000ul : 300_000ul;
+                var fee = 300_000ul;
                 totalLovelace -= fee;
 
                 // Assuming consumedAssets is a List<string>
