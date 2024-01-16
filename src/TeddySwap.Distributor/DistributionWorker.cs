@@ -158,13 +158,19 @@ public class DistributionWorker(
                             .Where(a => claimRequest.TBCs.Contains(_tbcPolicies[1] + "." + a.Key))
                             .ToDictionary(a => Convert.FromHexString(a.Key), a => 1L);
 
-                        rewardAssets.Add(Convert.FromHexString(_tbcPolicies[0]),
-                            new() { Token = consumedTbcOneAssets }
-                        );
+                        if (consumedTbcOneAssets.Count > 0)
+                        {
+                            rewardAssets.Add(Convert.FromHexString(_tbcPolicies[0]),
+                                new() { Token = consumedTbcOneAssets }
+                            );
+                        }
 
-                        rewardAssets.Add(Convert.FromHexString(_tbcPolicies[1]),
-                            new() { Token = consumedTbcTwoAssets }
-                        );
+                        if (consumedTbcTwoAssets.Count > 0)
+                        {
+                            rewardAssets.Add(Convert.FromHexString(_tbcPolicies[1]),
+                                new() { Token = consumedTbcTwoAssets }
+                            );
+                        }
 
                         consumedAssets.AddRange(claimRequest.TBCs);
                     }
@@ -203,7 +209,7 @@ public class DistributionWorker(
                 var fee = 300_000ul;
                 totalLovelace -= fee;
 
-                // Assuming consumedAssets is a List<string>
+
                 var preprocessedConsumedAssets = new HashSet<(string, string)>(consumedAssets.Select(ca =>
                 {
                     var parts = ca.Split('.');
@@ -211,15 +217,22 @@ public class DistributionWorker(
                 }));
 
                 var changeAssets = assets
-                    .Where(a => !preprocessedConsumedAssets.Any(ca => ca.Item1 == a.Key && a.Value.ContainsKey(ca.Item2)))
-                    .GroupBy(a => a.Key)
-                    .ToDictionary(
-                        group => group.Key,
-                        group => group.SelectMany(a => a.Value)
-                                      .GroupBy(pair => pair.Key)
-                                      .ToDictionary(pair => pair.Key, pair => (ulong)pair.Sum(p => (decimal)p.Value))
-                    );
-
+                // Expand each group into individual assets
+                .SelectMany(a => a.Value.Select(v => new { a.Key, AssetId = v.Key, Amount = v.Value }))
+                // Filter out consumed assets
+                .Where(a => !preprocessedConsumedAssets.Any(ca => ca.Item1 == a.Key && ca.Item2 == a.AssetId))
+                // Group by PolicyId (Key)
+                .GroupBy(a => a.Key)
+                .ToDictionary(
+                    group => group.Key,
+                    group => group
+                        // Group by AssetId within each PolicyId
+                        .GroupBy(a => a.AssetId)
+                        .ToDictionary(
+                            g => g.Key,
+                            g => (ulong)g.Sum(a => (decimal)a.Amount)
+                        )
+                );
 
                 var changeMultiAsset = new Dictionary<byte[], NativeAsset>();
 
@@ -285,10 +298,10 @@ public class DistributionWorker(
                     Console.WriteLine("Output: {0} {1}", new Address(outputs.Address).ToString(), outputs.Value.Coin);
                     foreach (var asset in outputs.Value.MultiAsset)
                     {
-                        Console.WriteLine("\tAsset: {0}", Convert.ToHexString(asset.Key));
+                        Console.WriteLine("\tAsset: {0}", Convert.ToHexString(asset.Key).ToLowerInvariant());
                         foreach (var token in asset.Value.Token)
                         {
-                            Console.WriteLine("\t\tToken: {0} {1}", Convert.ToHexString(token.Key), token.Value);
+                            Console.WriteLine("\t\tToken: {0} {1}", Convert.ToHexString(token.Key).ToLowerInvariant(), token.Value);
                         }
                     }
                 }
